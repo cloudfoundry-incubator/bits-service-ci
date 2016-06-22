@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/cc-ci
+
+inputs:
+- name: git-cloud-controller
+- name: git-flintstone
+
+run:
+  path: git-flintstone/ci/cloud_controller_ng/scripts/run-cc-tests.sh
+
+params:
+  DB: mysql
+  DB_CONNECTION_STRING: "mysql2://root:password@localhost:3306/cc_test"
