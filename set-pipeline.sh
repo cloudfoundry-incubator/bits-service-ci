@@ -15,3 +15,5 @@ fly \
   -l config.yml \
   -v github-private-key="${github_ssh_key}" \
   -v acceptance-private-key="${acceptance_ssh_key}"
+
+rm -f config.yml

@@ -187,9 +187,9 @@ resources:
   type: semver
   source:
     driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
-    file: cf-release/version
+    file: version/cf-release/version
     private_key: {{github-private-key}}
     initial_version: 230.0.0-dev.1
 
@@ -197,9 +197,9 @@ resources:
   type: semver
   source:
     driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
-    file: bits-service-release/version
+    file: version/bits-service-release/version
     private_key: {{github-private-key}}
     initial_version: 0.0.0-dev.2
 
@@ -209,49 +209,28 @@ resources:
 - name: cf-bosh1-lock
   type: pool
   source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     pool: locks/cf-bosh1-lock
-    private_key: {{github-private-key}}
-- name: cf-release-bosh-lite-lock
-  type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
-    branch: metadata
-    pool: locks/cf-release
     private_key: {{github-private-key}}
 - name: cf2-aws-deployment-lock
   type: pool
   source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     pool: locks/cf2-aws-deployment
     private_key: {{github-private-key}}
 - name: cf1-aws-deployment-lock
   type: pool
   source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     pool: locks/cf1-aws-deployment
-    private_key: {{github-private-key}}
-- name: cf-deployment-lock
-  type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
-    branch: metadata
-    pool: locks/cf-release
-    private_key: {{github-private-key}}
-- name: cf-diego-deployment-lock
-  type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
-    branch: metadata
-    pool: locks/cf-release-diego
     private_key: {{github-private-key}}
 - name: bits-release-deployment-lock
   type: pool
   source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     pool: locks/bits-service-release
     private_key: {{github-private-key}}
