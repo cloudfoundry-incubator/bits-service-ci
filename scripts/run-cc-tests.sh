@@ -4,7 +4,7 @@ service mysql start
 
 set -e
 
-cd $(dirname $0)/../../../../git-cloud-controller
+cd $(dirname $0)/../../git-cloud-controller
 
 bundle install
 bundle exec rake db:create > /dev/null

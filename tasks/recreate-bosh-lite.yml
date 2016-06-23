@@ -4,7 +4,7 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-- name: git-bits-service
+  - name: git-bits-service-ci
 
 params:
   SSH_CONNECTION_STRING:
@@ -19,4 +19,4 @@ params:
   CFLINUXFS2_ROOTFS_RELEASE_VERSION:
 
 run:
-  path: git-bits-service/ci/scripts/recreate-bosh-lite.sh
+  path: git-bits-service-ci/scripts/recreate-bosh-lite.sh

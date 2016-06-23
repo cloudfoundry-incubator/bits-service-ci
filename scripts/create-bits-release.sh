@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-cd $(dirname $0)/../../
+cd $(dirname $0)/../../git-bits-service-release
 
 version=$(cat $VERSION_FILE)
 bosh create release --force --name bits-service --with-tarball --version $version

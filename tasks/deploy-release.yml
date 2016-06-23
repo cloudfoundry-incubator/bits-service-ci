@@ -4,7 +4,7 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-- name: git-bits-service-release
+- name: git-bits-service-ci
 
 params:
   BOSH_TARGET:
@@ -18,4 +18,4 @@ params:
   CF_PUBLIC_IP:
 
 run:
-  path: git-bits-service-release/ci/scripts/deploy-release.sh
+  path: git-bits-service-ci/scripts/deploy-release.sh

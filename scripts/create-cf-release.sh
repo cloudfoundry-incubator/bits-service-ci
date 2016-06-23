@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-cd $(dirname $0)/../../../git-cf-release
+cd $(dirname $0)/../../git-cf-release
 
 version=$(cat $VERSION_FILE)
 

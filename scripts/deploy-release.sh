@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-cd $(dirname $0)/../../
-
 if [ -n "$RELEASE_VERSION_FILE" ]; then
   if [ -e "$RELEASE_VERSION_FILE" ]; then
     export RELEASE_VERSION=`cat $RELEASE_VERSION_FILE`

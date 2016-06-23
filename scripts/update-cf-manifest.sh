@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-cd $(dirname $0)/../../
+cd $(dirname $0)/../../git-bits-service-ci
 
 if [ -e "$VERSION_FILE" ]; then
   export VERSION=$(cat $VERSION_FILE)
@@ -10,4 +10,4 @@ else
   exit 1
 fi
 
-spruce merge ./ci/manifests/cf-${IAAS}.yml ./ci/manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest-${VERSION}.yml
+spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest-${VERSION}.yml

@@ -4,7 +4,7 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-  - name: git-bits-service-release
+  - name: git-bits-service-ci
 
 params:
   ACCEPTANCE_IP:
@@ -14,4 +14,4 @@ params:
   RELEASE_NAME:
 
 run:
-  path: git-bits-service-release/ci/scripts/scp-to-acceptance.sh
+  path: git-bits-service-ci/scripts/scp-to-acceptance.sh

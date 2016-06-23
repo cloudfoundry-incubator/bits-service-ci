@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-cd $(dirname $0)/../../
+cd $(dirname $0)/../../git-bits-service-release
 
 export BITS_SERVICE_MANIFEST=./manifest.yml
 

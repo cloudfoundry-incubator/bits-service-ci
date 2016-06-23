@@ -5,9 +5,10 @@ image: docker:///flintstonecf/ci
 
 inputs:
 - name: git-bits-service
+- name: git-bits-service-ci
 
 params:
   BITS_CONFIG_FILE: spec/fixtures/sample_config.yml
 
 run:
-  path: git-bits-service/ci/scripts/run-tests.sh
+  path: git-bits-service-ci/scripts/run-service-tests.sh

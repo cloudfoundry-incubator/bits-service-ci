@@ -5,10 +5,10 @@ image: docker:///flintstonecf/cc-ci
 
 inputs:
 - name: git-cloud-controller
-- name: git-flintstone
+- name: git-bits-service-ci
 
 run:
-  path: git-flintstone/ci/cloud_controller_ng/scripts/run-cc-tests.sh
+  path: git-bits-service-ci/scripts/run-cc-tests.sh
 
 params:
   DB: mysql

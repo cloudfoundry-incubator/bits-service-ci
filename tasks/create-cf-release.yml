@@ -5,7 +5,7 @@ image: docker:///flintstonecf/ci
 
 inputs:
   - name: cf-release-version
-  - name: git-bits-service-release
+  - name: git-bits-service-ci
   - name: git-cf-release
 
 params:
@@ -15,4 +15,4 @@ outputs:
 - name: releases
 
 run:
-  path: git-bits-service-release/ci/scripts/create-cf-release.sh
+  path: git-bits-service-ci/scripts/create-cf-release.sh
