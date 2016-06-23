@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+  - name: git-bits-service-ci
+
+params:
+  BOSH_TARGET:
+  BOSH_USERNAME:
+  BOSH_PASSWORD:
+  ERRAND_NAME:
+  DEPLOYMENT_NAME:
+
+run:
+  path: git-bits-service-ci/scripts/run-errand.sh

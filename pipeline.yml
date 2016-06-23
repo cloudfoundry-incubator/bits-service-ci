@@ -779,13 +779,8 @@ jobs:
       passed: [deploy-cf-dea-aws]
   - task: run-cats
     attempts: 6
+    file: git-bits-service-ci/tasks/run-errand.yml
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{aws-bosh-target}}
         BOSH_USERNAME: {{aws-bosh-username}}
@@ -869,14 +864,9 @@ jobs:
     - get: git-bits-service-ci
       passed: [enable-BITS-SERVICE]
   - task: run-cats
+    file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 6
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{aws-bosh-target}}
         BOSH_USERNAME: {{aws-bosh-username}}
@@ -1025,14 +1015,9 @@ jobs:
     - get: git-bits-service-ci
       passed: [deploy-cf-diego-aws]
   - task: run-cats
+    file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 6
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{aws-bosh-target}}
         BOSH_USERNAME: {{aws-bosh-username}}
@@ -1123,14 +1108,9 @@ jobs:
     - get: git-bits-service-ci
       passed: [enable-BITS-SERVICE-diego]
   - task: run-cats
+    file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 6
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{aws-bosh-target}}
         BOSH_USERNAME: {{aws-bosh-username}}
@@ -1244,13 +1224,8 @@ jobs:
     - get: git-bits-service-ci
       passed: [deploy-cf-bosh1]
   - task: run-bits-service-migration-tests
+    file: git-bits-service-ci/tasks/run-errand.yml
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{bosh-target}}
         BOSH_USERNAME: {{bosh-username}}
@@ -1324,13 +1299,8 @@ jobs:
     - get: git-bits-service-ci
       passed: [enable-BITS-SERVICE-bosh1]
   - task: run-bits-service-migration-tests
+    file: git-bits-service-ci/tasks/run-errand.yml
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{bosh-target}}
         BOSH_USERNAME: {{bosh-username}}
@@ -1354,13 +1324,8 @@ jobs:
     - get: git-bits-service-ci
       passed: [verification-migration-bosh1]
   - task: run-bits-service-migration-tests
+    file: git-bits-service-ci/tasks/run-errand.yml
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{bosh-target}}
         BOSH_USERNAME: {{bosh-username}}
@@ -1434,13 +1399,8 @@ jobs:
     - get: git-bits-service-ci
       passed: [disable-BITS-SERVICE-bosh1]
   - task: run-bits-service-migration-tests
+    file: git-bits-service-ci/tasks/run-errand.yml
     config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-bits-service-ci
-      run:
-        path: git-bits-service-ci/scripts/run-errand.sh
       params:
         BOSH_TARGET: {{bosh-target}}
         BOSH_USERNAME: {{bosh-username}}
