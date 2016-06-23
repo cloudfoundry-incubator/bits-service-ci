@@ -1,5 +1,5 @@
 resources:
-- name: git-bits-service-ci
+- name: git-bits-service-ci-base
   type: git
   source:
     uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
@@ -7,6 +7,15 @@ resources:
     paths:
     - docker/base/Dockerfile
     - docker/base/cache_cf_release_blobs.sh
+
+- name: git-bits-service-ci-cc
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
+    branch: master
+    paths:
+    - docker/cc/Dockerfile
+
 - name: flintstone-ci-image
   type: docker-image
   source:
@@ -15,10 +24,28 @@ resources:
     username: {{dockerhub-username}}
     password: {{dockerhub-password}}
 
+- name: flintstone-ci-cc-image
+  type: docker-image
+  source:
+    repository: flintstonecf/ci-cc
+    email: {{dockerhub-email}}
+    username: {{dockerhub-username}}
+    password: {{dockerhub-password}}
+
 jobs:
-- name: create-image
+- name: create-base-image
   plan:
-  - get: git-bits-service-ci
+  - get: git-bits-service-ci-base
     trigger: true
   - put: flintstone-ci-image
-    params: { build: git-bits-service-ci/docker }
+    params: { build: git-bits-service-ci-base/docker/base }
+
+- name: create-cc-image
+  plan:
+  - get: flintstone-ci-image
+    trigger: true
+    passed: [create-base-image]
+  - get: git-bits-service-ci-cc
+    trigger: true
+  - put: flintstone-ci-cc-image
+    params: { build: git-bits-service-ci-cc/docke/cc }
