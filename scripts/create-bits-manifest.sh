@@ -17,7 +17,9 @@ if [ -z "$BLOBSTORE_TYPE" ]
 then
   ./scripts/generate-default-bosh-lite-manifest
 else
-  ./scripts/generate-test-bosh-lite-manifest ./templates/$BLOBSTORE_TYPE.yml
+  ./scripts/generate-test-bosh-lite-manifest \
+    ./templates/$BLOBSTORE_TYPE.yml \
+    ../git-bits-service-ci/manifest/bits-release-network-$BLOBSTORE_TYPE.yml
 fi
 
 cp deployments/bits-service-release.yml ../manifests/manifest-$VERSION.yml

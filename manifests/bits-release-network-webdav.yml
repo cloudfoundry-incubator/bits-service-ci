@@ -1,0 +1,12 @@
+metadata:
+  blobstore:
+    public_endpoint: (( concat "http://" jobs.blobstore.networks.default.static_ips[0] ))
+    private_endpoint: (( concat "https://" jobs.blobstore.networks.default.static_ips[0] ))
+networks:
+- name: default
+  subnets:
+  - cloud_properties:
+      name: random
+    reserved: [10.250.3.1]
+    range: 10.250.3.0./24
+    static: ["10.250.3.2 - 10.250.3.20"]
