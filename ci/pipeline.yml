@@ -1,0 +1,1638 @@
+groups:
+- name: all
+  jobs:
+  - run-tests
+  - create-and-upload-release
+  - release-bits-release-lock
+  - deploy-with-S3
+  - deploy-with-LOCAL
+  - deploy-with-WEBDAV
+  - run-system-tests-S3
+  - run-system-tests-LOCAL
+  - run-system-tests-WEBDAV
+  - done
+  - cc-tests
+  - create-cf-release
+  - deploy-cf-dea-aws
+  - CATs-aws-with-bits
+  - cf-release-done
+  - CATs-aws
+  - deploy-cf-diego-aws
+  - CATs-diego-aws
+  - enable-BITS-SERVICE-diego
+  - CATs-diego-aws-with-bits
+  - enable-BITS-SERVICE
+  - release-cf2-aws-release-lock
+  - release-cf1-aws-release-lock
+  - preparation-migration-backwards-bosh1
+  - disable-BITS-SERVICE-bosh1
+  - verification-migration-backwards-bosh1
+  - verification-migration-bosh1
+  - enable-BITS-SERVICE-bosh1
+  - prepare-migration-bosh1
+  - release-cf-bosh1-lock
+  - deploy-cf-bosh1
+#  - bump-cc-in-capi-release
+- name: bits-service
+  jobs:
+  - run-tests
+- name: bits-service-release
+  jobs:
+  - create-and-upload-release
+  - release-bits-release-lock
+  - deploy-with-S3
+  - deploy-with-LOCAL
+  - deploy-with-WEBDAV
+  - run-system-tests-S3
+  - run-system-tests-LOCAL
+  - run-system-tests-WEBDAV
+  - done
+- name: cloud-controller
+  jobs:
+  - cc-tests
+#  - bump-cc-in-capi-release
+- name: cf-release
+  jobs:
+  - create-cf-release
+  - deploy-cf-dea-aws
+  - CATs-aws-with-bits
+  - cf-release-done
+  - enable-BITS-SERVICE
+  - CATs-aws
+  - release-cf1-aws-release-lock
+  - deploy-cf-diego-aws
+  - CATs-diego-aws
+  - enable-BITS-SERVICE-diego
+  - CATs-diego-aws-with-bits
+  - release-cf2-aws-release-lock
+- name: migration
+  jobs:
+  - preparation-migration-backwards-bosh1
+  - disable-BITS-SERVICE-bosh1
+  - verification-migration-backwards-bosh1
+  - verification-migration-bosh1
+  - enable-BITS-SERVICE-bosh1
+  - prepare-migration-bosh1
+  - release-cf-bosh1-lock
+  - deploy-cf-bosh1
+- name: infrastructure
+  jobs:
+  - recreate-bosh-lite-1
+  - recreate-bosh-lite-2
+  - recreate-bosh-lite-acceptance
+  - cleanup-bosh-1
+  - cleanup-bosh-2
+  - cleanup-bosh-acceptance
+
+resources:
+
+- name: s3-bits-service-release
+  type: s3
+  source:
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    region_name: eu-west-1
+    regexp: bits-service-release/bits-service-(.*).tgz
+    private: false
+
+- name: s3-bits-service-manifest
+  type: s3
+  source:
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    regexp: bits-service-manifest/manifest-(.*).yml
+    region_name: eu-west-1
+    private: false
+
+- name: s3-cf-release
+  type: s3
+  source:
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    regexp: cf-release/cf-(.*).tgz
+    region_name: eu-west-1
+    private: false
+
+- name: s3-cf-manifest
+  type: s3
+  source:
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    regexp: cf-manifest/manifest-(.*).yml
+    region_name: eu-west-1
+    private: false
+
+- name: s3-cf-aws-manifest
+  type: s3
+  source:
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    regexp: cf-aws-manifest/manifest-(.*).yml
+    region_name: eu-west-1
+    private: false
+
+- name: git-flintstone
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/flintstone.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: git-cloud-controller
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cloud_controller_ng.git
+    branch: bits-service
+
+- name: git-capi-release
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/capi-release.git
+    branch: bits-service
+    private_key: {{github-private-key}}
+
+- name: git-bits-service
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service.git
+    branch: master
+
+- name: git-bits-service-release
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-release.git
+    branch: master
+- name: git-cf-release
+  type: git
+  source:
+    uri: git@github.com:suhlig/cf-release.git
+    branch: wip-bits-service
+    private_key: {{github-private-key}}
+
+- name: nightly-timer
+  type: time
+  source:
+    interval: 24h
+
+- name: cf-deployment
+  type: bosh-deployment
+  source:
+    target: {{bosh-target}}
+    username: {{bosh-username}}
+    password: {{bosh-password}}
+    deployment: cf-warden
+
+- name: cf-release-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    file: cf-release/version
+    private_key: {{github-private-key}}
+    initial_version: 230.0.0-dev.1
+
+- name: bits-service-release-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    file: bits-service-release/version
+    private_key: {{github-private-key}}
+    initial_version: 0.0.0-dev.2
+
+#
+# locks
+#
+- name: cf-bosh1-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/cf-bosh1-lock
+    private_key: {{github-private-key}}
+- name: cf-release-bosh-lite-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/cf-release
+    private_key: {{github-private-key}}
+- name: cf2-aws-deployment-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/cf2-aws-deployment
+    private_key: {{github-private-key}}
+- name: cf1-aws-deployment-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/cf1-aws-deployment
+    private_key: {{github-private-key}}
+- name: cf-deployment-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/cf-release
+    private_key: {{github-private-key}}
+- name: cf-diego-deployment-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/cf-release-diego
+    private_key: {{github-private-key}}
+- name: bits-release-deployment-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service.git
+    branch: metadata
+    pool: locks/bits-service-release
+    private_key: {{github-private-key}}
+
+jobs:
+# BITS-SERVICE
+- name: run-tests
+  plan:
+  - get: git-bits-service
+    trigger: true
+  - task: run-tests
+    file: git-bits-service/ci/tasks/run-tests.yml
+
+# BITS-RELEASE
+
+- name: create-and-upload-release
+  plan:
+  - aggregate:
+    - put: bits-release-deployment-lock
+      params: { acquire: true }
+    - get: bits-service-release-version
+      params:
+        pre: dev
+    - get: git-bits-service-release
+      trigger: true
+  - put: bits-service-release-version
+    params:
+      file: bits-service-release-version/number
+  - task: create-release
+    file: git-bits-service-release/ci/tasks/create-bits-release.yml
+    config:
+      params:
+        VERSION_FILE: ../bits-service-release-version/number
+    on_failure:
+      put: bits-release-deployment-lock
+      params: { release: bits-release-deployment-lock }
+  - aggregate:
+    - task: upload-release-bosh-1
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        params:
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_FILE: ../releases/bits-service-*.tgz
+      on_failure:
+        put: bits-release-deployment-lock
+        params: { release: bits-release-deployment-lock }
+    - task: upload-release-bosh-2
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        params:
+          BOSH_TARGET: {{bosh2-target}}
+          BOSH_USERNAME: {{bosh2-username}}
+          BOSH_PASSWORD: {{bosh2-password}}
+          RELEASE_FILE: ../releases/bits-service-*.tgz
+      on_failure:
+        put: bits-release-deployment-lock
+        params: { release: bits-release-deployment-lock }
+    - put: s3-bits-service-release
+      params:
+        file: releases/*.tgz
+      on_failure:
+        put: bits-release-deployment-lock
+        params: { release: bits-release-deployment-lock }
+
+- name: release-bits-release-lock
+  plan:
+  - get: bits-release-deployment-lock
+    passed: [create-and-upload-release]
+  - put: bits-release-deployment-lock
+    params: { release: bits-release-deployment-lock }
+
+- name: deploy-with-S3
+  plan:
+  - aggregate:
+    - get: s3-bits-service-release
+      passed: [create-and-upload-release]
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed: [create-and-upload-release]
+    - get: bits-service-release-version
+      passed: [create-and-upload-release]
+    - get: git-bits-service-release
+      passed: [create-and-upload-release]
+  - task: create-manifest
+    file: git-bits-service-release/ci/tasks/create-bits-manifest.yml
+    config:
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BITS_DIRECTORY_KEY: {{s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+  - task: deploy
+    file: git-bits-service-release/ci/tasks/deploy-release.yml
+    config:
+      inputs:
+        - name: git-bits-service-release
+        - name: manifests
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        MANIFEST_PATH: ../manifests/*.yml
+
+- name: run-system-tests-S3
+  plan:
+  - aggregate:
+    - get: s3-bits-service-release
+      passed: [deploy-with-S3]
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed: [deploy-with-S3]
+    - get: bits-service-release-version
+      passed: [deploy-with-S3]
+    - get: git-bits-service-release
+      passed: [deploy-with-S3]
+  - task: run-tests
+    file: git-bits-service-release/ci/tasks/run-tests.yml
+    config:
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BITS_SERVICE_ENDPOINT: 10.250.1.2
+        RELEASE_NAME: bits-service-s3
+
+- name: deploy-with-LOCAL
+  plan:
+  - aggregate:
+    - get: s3-bits-service-release
+      passed: [create-and-upload-release]
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed: [create-and-upload-release]
+    - get: bits-service-release-version
+      passed: [create-and-upload-release]
+    - get: git-bits-service-release
+      passed: [create-and-upload-release]
+  - task: create-manifest
+    file: git-bits-service-release/ci/tasks/create-bits-manifest.yml
+    config:
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BITS_DIRECTORY_KEY: another-directory
+        BLOBSTORE_TYPE: local
+  - task: deploy
+    file: git-bits-service-release/ci/tasks/deploy-release.yml
+    config:
+      inputs:
+        - name: git-bits-service-release
+        - name: manifests
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        MANIFEST_PATH: ../manifests/*.yml
+  - put: s3-bits-service-manifest
+    params:
+      file: manifests/*.yml
+
+- name: run-system-tests-LOCAL
+  plan:
+  - aggregate:
+    - get: s3-bits-service-manifest
+      passed: [deploy-with-LOCAL]
+    - get: s3-bits-service-release
+      passed: [deploy-with-LOCAL]
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed: [deploy-with-LOCAL]
+    - get: bits-service-release-version
+      passed: [deploy-with-LOCAL]
+      trigger: true
+    - get: git-bits-service-release
+      passed: [deploy-with-LOCAL]
+  - task: run-tests
+    file: git-bits-service-release/ci/tasks/run-tests.yml
+    config:
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BITS_SERVICE_ENDPOINT: 10.250.0.2
+        RELEASE_NAME: bits-service-local
+
+- name: deploy-with-WEBDAV
+  plan:
+  - aggregate:
+    - get: s3-bits-service-release
+      passed: [create-and-upload-release]
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed: [create-and-upload-release]
+    - get: bits-service-release-version
+      passed: [create-and-upload-release]
+    - get: git-bits-service-release
+      passed: [create-and-upload-release]
+  - task: create-manifest
+    file: git-bits-service-release/ci/tasks/create-bits-manifest.yml
+    config:
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BLOBSTORE_TYPE: webdav
+  - task: deploy
+    file: git-bits-service-release/ci/tasks/deploy-release.yml
+    config:
+      inputs:
+        - name: git-bits-service-release
+        - name: manifests
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        MANIFEST_PATH: ../manifests/*.yml
+
+- name: run-system-tests-WEBDAV
+  plan:
+  - aggregate:
+    - get: s3-bits-service-release
+      passed: [deploy-with-WEBDAV]
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed: [deploy-with-WEBDAV]
+    - get: bits-service-release-version
+      passed: [deploy-with-WEBDAV]
+    - get: git-bits-service-release
+      passed: [deploy-with-WEBDAV]
+  - task: run-tests
+    file: git-bits-service-release/ci/tasks/run-tests.yml
+    config:
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BITS_SERVICE_ENDPOINT: 10.250.3.2
+        RELEASE_NAME: bits-service-webdav
+
+- name: done
+  plan:
+  - aggregate:
+    - get: s3-bits-service-manifest
+      passed:
+        - run-system-tests-LOCAL
+    - get: s3-bits-service-release
+      passed:
+        - run-system-tests-LOCAL
+        - run-system-tests-S3
+        - run-system-tests-WEBDAV
+    - get: bits-service-release-version
+      passed:
+        - run-system-tests-LOCAL
+        - run-system-tests-S3
+        - run-system-tests-WEBDAV
+    - get: bits-release-deployment-lock
+      trigger: true
+      passed:
+        - run-system-tests-LOCAL
+        - run-system-tests-S3
+        - run-system-tests-WEBDAV
+    - get: git-bits-service-release
+      passed:
+        - run-system-tests-LOCAL
+        - run-system-tests-S3
+        - run-system-tests-WEBDAV
+  - aggregate:
+    - task: upload-bits-service-release-to-acceptance
+      file: git-bits-service-release/ci/tasks/scp-to-acceptance.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+          - name: bits-service-release-version
+        params:
+          ACCEPTANCE_IP: {{acceptance-ip}}
+          SSH_KEY: {{acceptance-private-key}}
+          FILE: s3-bits-service-release/*.tgz
+          VERSION_FILE: bits-service-release-version/number
+          RELEASE_NAME: bits-service-release
+    - task: upload-bits-service-manifest-to-acceptance
+      file: git-bits-service-release/ci/tasks/scp-to-acceptance.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-manifest
+          - name: bits-service-release-version
+        params:
+          ACCEPTANCE_IP: {{acceptance-ip}}
+          SSH_KEY: {{acceptance-private-key}}
+          FILE: s3-bits-service-manifest/*.yml
+          VERSION_FILE: bits-service-release-version/number
+          RELEASE_NAME: bits-service-release
+  - put: bits-release-deployment-lock
+    params: { release: bits-release-deployment-lock }
+
+# CLOUD CONTROLLER
+- name: cc-tests
+  plan:
+  - aggregate:
+    - get: git-flintstone
+    - get: git-cloud-controller
+      trigger: true
+  - task: run-tests
+    file: git-flintstone/ci/cloud_controller_ng/tasks/run-tests.yml
+
+#- name: bump-cc-in-capi-release
+#  serial: true
+#  plan:
+#  - aggregate:
+#    - get: git-flintstone
+#      passed: [cc-tests]
+#    - get: git-capi-release
+#    - get: git-cloud-controller
+#      passed: [cc-tests]
+#      trigger: true
+#  - task: bump-cc
+#    file: git-flintstone/ci/cloud_controller_ng/tasks/bump-submodule.yml
+#    config:
+#      inputs:
+#        - name: git-flintstone
+#        - name: git-capi-release
+#        - name: git-cloud-controller
+#      params:
+#        SOURCE_SUBMODULE_REPO: git-cloud-controller
+#        TARGET_REPO: git-capi-release
+#        TARGET_SUBMODULE_PATH: src/cloud_controller_ng
+#        COMMIT_MESSAGE: Bump CloudController
+#  - put: git-capi-release
+#    params:
+#      repository: bumped/git-capi-release
+
+# CF-RELEASE
+- name: create-cf-release
+  serial: true
+  plan:
+  - aggregate:
+    - get: cf-release-version
+      params:
+        pre: dev
+    - get: git-cf-release
+      trigger: true
+    - get: git-bits-service-release
+  - task: create-cf-release
+    file: git-bits-service-release/ci/tasks/create-cf-release.yml
+    config:
+      params:
+        VERSION_FILE: ../cf-release-version/number
+  - put: s3-cf-release
+    params:
+      file: releases/*.tgz
+    on_failure:
+      put: cf-release-version
+      params: { file: cf-release-version/number }
+  - put: cf-release-version
+    params:
+      file: cf-release-version/number
+
+- name: cf-release-done
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed:
+        - CATs-aws-with-bits
+        - CATs-diego-aws-with-bits
+        - verification-migration-backwards-bosh1
+    - get: s3-cf-release
+      passed:
+        - CATs-aws-with-bits
+        - CATs-diego-aws-with-bits
+        - verification-migration-backwards-bosh1
+    - get: cf-release-version
+      trigger: true
+      passed:
+        - CATs-aws-with-bits
+        - CATs-diego-aws-with-bits
+        - verification-migration-backwards-bosh1
+    - get: git-bits-service-release
+      passed:
+        - CATs-aws-with-bits
+        - CATs-diego-aws-with-bits
+        - verification-migration-backwards-bosh1
+  - task: create-bosh-lite-manifest
+    file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+    config:
+      params:
+        MANIFEST_STUBS: ci/manifests/enable-bits.yml ci/manifests/bits-network-bosh-lite.yml templates/local.yml
+  - put: s3-cf-manifest
+    params:
+      file: manifests/*.yml
+  - aggregate:
+    - task: upload-cf-release-to-acceptance
+      file: git-bits-service-release/ci/tasks/scp-to-acceptance.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+          - name: cf-release-version
+        params:
+          ACCEPTANCE_IP: {{acceptance-ip}}
+          SSH_KEY: {{acceptance-private-key}}
+          FILE: s3-cf-release/*.tgz
+          VERSION_FILE: cf-release-version/number
+          RELEASE_NAME: cf-release
+    - task: upload-manifest-to-acceptance
+      file: git-bits-service-release/ci/tasks/scp-to-acceptance.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: manifests
+          - name: cf-release-version
+        params:
+          ACCEPTANCE_IP: {{acceptance-ip}}
+          SSH_KEY: {{acceptance-private-key}}
+          FILE: manifests/*.yml
+          VERSION_FILE: cf-release-version/number
+          RELEASE_NAME: cf-release
+
+- name: deploy-cf-dea-aws
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [create-cf-release]
+    - put: cf1-aws-deployment-lock
+      params: { acquire: true }
+    - get: cf-release-version
+      passed: [create-cf-release]
+      trigger: true
+    - get: s3-cf-release
+      passed: [create-cf-release]
+    - get: s3-bits-service-release
+      passed: [done]
+    - get: cf-release-version
+      passed: [create-cf-release]
+    - get: bits-service-release-version
+      passed: [done]
+      trigger: true
+    - get: git-bits-service-release
+  - aggregate:
+    - task: update-cf-manifest
+      file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+      config:
+        params:
+          IAAS: aws
+          MANIFEST_STUBS: ci/manifests/cf-aws-network-1.yml templates/s3.yml
+    - task: upload-cf-release-bosh-aws
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+        params:
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_FILE: ../s3-cf-release/cf-*.tgz
+    - task: upload-bits-release-bosh-aws
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+        params:
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_FILE: ../s3-bits-service-release/*.tgz
+  - aggregate:
+    - task: deploy-cf
+      file: git-bits-service-release/ci/tasks/deploy-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: bits-service-release-version
+          - name: manifests
+        params:
+          MANIFEST_PATH: ../manifests/manifest-*.yml
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_VERSION_FILE: ../bits-service-release-version/number
+          CF_USER: {{aws-cf1-user}}
+          CF_PASSWORD: {{aws-cf1-password}}
+          CF_DOMAIN: {{aws-cf1-domain}}
+          CF_PUBLIC_IP: {{aws-cf1-public-ip}}
+          CF_DEPLOYMENT_NAME: cf1
+
+          BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+      on_failure:
+        put: cf1-aws-deployment-lock
+        params: { release: cf1-aws-deployment-lock }
+
+- name: release-cf1-aws-release-lock
+  plan:
+  - get: cf1-aws-deployment-lock
+    passed: [deploy-cf-dea-aws]
+  - put: cf1-aws-deployment-lock
+    params: { release: cf1-aws-deployment-lock }
+
+- name: CATs-aws
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [deploy-cf-dea-aws]
+    - get: s3-cf-release
+      passed: [deploy-cf-dea-aws]
+    - get: s3-bits-service-release
+      passed: [deploy-cf-dea-aws]
+    - get: cf-release-version
+      passed: [deploy-cf-dea-aws]
+    - get: cf1-aws-deployment-lock
+      trigger: true
+      passed: [deploy-cf-dea-aws]
+    - get: git-bits-service-release
+      passed: [deploy-cf-dea-aws]
+  - task: run-cats
+    attempts: 6
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        ERRAND_NAME: acceptance_tests
+        DEPLOYMENT_NAME: cf1
+
+- name: enable-BITS-SERVICE
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [CATs-aws]
+    - get: cf-release-version
+      passed: [CATs-aws]
+    - get: s3-cf-release
+      passed: [CATs-aws]
+    - get: s3-bits-service-release
+      passed: [CATs-aws]
+    - get: cf-release-version
+      passed: [CATs-aws]
+    - get: cf1-aws-deployment-lock
+      trigger: true
+      passed: [CATs-aws]
+    - get: bits-service-release-version
+      passed: [deploy-cf-dea-aws]
+    - get: git-bits-service-release
+      passed: [CATs-aws]
+  - task: update-cf-manifest
+    file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+    config:
+      params:
+        MANIFEST_STUBS: ci/manifests/cf-aws-network-1.yml ci/manifests/enable-bits.yml ci/manifests/bits-network-aws.yml templates/s3.yml
+        IAAS: aws
+  - aggregate:
+    - task: deploy-CF-with-BITS
+      file: git-bits-service-release/ci/tasks/deploy-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: bits-service-release-version
+          - name: manifests
+        params:
+          MANIFEST_PATH: ../manifests/manifest-*.yml
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_VERSION_FILE: ../bits-service-release-version/number
+          CF_USER: {{aws-cf1-user}}
+          CF_PASSWORD: {{aws-cf1-password}}
+          CF_DOMAIN: {{aws-cf1-domain}}
+          CF_PUBLIC_IP: {{aws-cf1-public-ip}}
+          CF_DEPLOYMENT_NAME: cf1
+
+          BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+    - put: s3-cf-aws-manifest
+      params:
+        file: manifests/*.yml
+
+- name: CATs-aws-with-bits
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [enable-BITS-SERVICE]
+    - get: s3-cf-aws-manifest
+      passed: [enable-BITS-SERVICE]
+    - get: s3-cf-release
+      passed: [enable-BITS-SERVICE]
+    - get: cf-release-version
+      passed: [enable-BITS-SERVICE]
+    - get: cf1-aws-deployment-lock
+      trigger: true
+      passed: [enable-BITS-SERVICE]
+    - get: git-bits-service-release
+      passed: [enable-BITS-SERVICE]
+  - task: run-cats
+    attempts: 6
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        DEPLOYMENT_NAME: cf1
+        ERRAND_NAME: acceptance_tests
+  - put: cf1-aws-deployment-lock
+    params: { release: cf1-aws-deployment-lock }
+
+- name: deploy-cf-diego-aws
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [create-cf-release]
+    - put: cf2-aws-deployment-lock
+      params: { acquire: true }
+    - get: cf-release-version
+      passed: [create-cf-release]
+      trigger: true
+    - get: s3-cf-release
+      passed: [create-cf-release]
+    - get: s3-bits-service-release
+      passed: [done]
+    - get: cf-release-version
+      passed: [create-cf-release]
+    - get: bits-service-release-version
+      passed: [done]
+      trigger: true
+    - get: git-bits-service-release
+  - aggregate:
+    - task: update-cf-manifest
+      file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+      config:
+        params:
+          IAAS: aws
+          MANIFEST_STUBS: ci/manifests/cf-aws-network-2.yml ci/manifests/enable-diego-cats.yml templates/s3.yml
+    - task: upload-cf-release-bosh-aws
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+        params:
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_FILE: ../s3-cf-release/cf-*.tgz
+    - task: upload-bits-release-bosh-aws
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+        params:
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_FILE: ../s3-bits-service-release/*.tgz
+  - task: deploy-cf
+    file: git-bits-service-release/ci/tasks/deploy-release.yml
+    config:
+      inputs:
+        - name: git-bits-service-release
+        - name: bits-service-release-version
+        - name: manifests
+      params:
+        MANIFEST_PATH: ../manifests/manifest-*.yml
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        RELEASE_VERSION_FILE: ../bits-service-release-version/number
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+        CF_DEPLOYMENT_NAME: cf2
+
+        BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+    on_failure:
+      put: cf2-aws-deployment-lock
+      params: { release: cf2-aws-deployment-lock }
+  - task: deploy-DIEGO
+    file: git-bits-service-release/ci/tasks/deploy-release.yml
+    config:
+      inputs:
+        - name: git-bits-service-release
+        - name: bits-service-release-version
+      params:
+        MANIFEST_PATH: ../git-bits-service-release/ci/manifests/diego-aws.yml
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+        CF_DEPLOYMENT_NAME: cf2
+    on_failure:
+      put: cf2-aws-deployment-lock
+      params: { release: cf2-aws-deployment-lock }
+  - task: restart-diego-cells
+    file: git-bits-service-release/ci/tasks/restart-bosh-job.yml
+    attempts: 5
+    config:
+      params:
+        JOB_NAME: cell_z1
+        MANIFEST_PATH: git-bits-service-release/ci/manifests/diego-aws.yml
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+    on_failure:
+      put: cf2-aws-deployment-lock
+      params: { release: cf2-aws-deployment-lock }
+
+- name: release-cf2-aws-release-lock
+  plan:
+  - get: cf2-aws-deployment-lock
+    passed: [deploy-cf-diego-aws]
+  - put: cf2-aws-deployment-lock
+    params: { release: cf2-aws-deployment-lock }
+
+- name: CATs-diego-aws
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [deploy-cf-diego-aws]
+    - get: s3-cf-release
+      passed: [deploy-cf-diego-aws]
+    - get: s3-bits-service-release
+      passed: [deploy-cf-diego-aws]
+    - get: cf-release-version
+      passed: [deploy-cf-diego-aws]
+    - get: cf2-aws-deployment-lock
+      trigger: true
+      passed: [deploy-cf-diego-aws]
+    - get: git-bits-service-release
+      passed: [deploy-cf-diego-aws]
+  - task: run-cats
+    attempts: 6
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        ERRAND_NAME: acceptance_tests
+        DEPLOYMENT_NAME: cf2
+
+- name: enable-BITS-SERVICE-diego
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [CATs-diego-aws]
+    - get: cf-release-version
+      passed: [CATs-diego-aws]
+    - get: s3-cf-release
+      passed: [CATs-diego-aws]
+    - get: s3-bits-service-release
+      passed: [CATs-diego-aws]
+    - get: cf-release-version
+      passed: [CATs-diego-aws]
+    - get: cf2-aws-deployment-lock
+      trigger: true
+      passed: [CATs-diego-aws]
+    - get: bits-service-release-version
+      passed: [deploy-cf-diego-aws]
+    - get: git-bits-service-release
+      #passed: [CATs-diego-aws]
+  - task: update-cf-manifest
+    file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+    config:
+      params:
+        MANIFEST_STUBS: ci/manifests/cf-aws-network-2.yml ci/manifests/enable-diego-cats.yml ci/manifests/enable-bits.yml ci/manifests/bits-network-aws.yml templates/s3.yml
+        IAAS: aws
+  - task: deploy-CF-with-BITS
+    file: git-bits-service-release/ci/tasks/deploy-release.yml
+    config:
+      inputs:
+        - name: git-bits-service-release
+        - name: bits-service-release-version
+        - name: manifests
+      params:
+        MANIFEST_PATH: ../manifests/manifest-*.yml
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        RELEASE_VERSION_FILE: ../bits-service-release-version/number
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+        CF_DEPLOYMENT_NAME: cf2
+
+        BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+  - task: restart-diego-cells
+    file: git-bits-service-release/ci/tasks/restart-bosh-job.yml
+    attempts: 5
+    config:
+      params:
+        JOB_NAME: cell_z1
+        MANIFEST_PATH: git-bits-service-release/ci/manifests/diego-aws.yml
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+
+- name: CATs-diego-aws-with-bits
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [enable-BITS-SERVICE-diego]
+    - get: s3-cf-release
+      passed: [enable-BITS-SERVICE-diego]
+    - get: cf-release-version
+      passed: [enable-BITS-SERVICE-diego]
+    - get: cf2-aws-deployment-lock
+      trigger: true
+      passed: [enable-BITS-SERVICE-diego]
+    - get: git-bits-service-release
+      passed: [enable-BITS-SERVICE-diego]
+  - task: run-cats
+    attempts: 6
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        DEPLOYMENT_NAME: cf2
+        ERRAND_NAME: acceptance_tests
+  - put: cf2-aws-deployment-lock
+    params: { release: cf2-aws-deployment-lock }
+
+# Migration
+
+- name: deploy-cf-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [create-cf-release]
+    - put: cf-bosh1-lock
+      params: { acquire: true }
+    - get: cf-release-version
+      passed: [create-cf-release]
+      trigger: true
+    - get: s3-cf-release
+      passed: [create-cf-release]
+    - get: s3-bits-service-release
+      passed: [done]
+    - get: cf-release-version
+      passed: [create-cf-release]
+    - get: bits-service-release-version
+      passed: [done]
+      trigger: true
+    - get: git-bits-service-release
+  - aggregate:
+    - task: update-cf-manifest
+      file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+      config:
+        params:
+          IAAS: lite
+          MANIFEST_STUBS: ci/manifests/bits-network-bosh-lite.yml templates/s3.yml ci/manifests/bsmt-errands.yml
+    - task: upload-cf-release-bosh
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+        params:
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_FILE: ../s3-cf-release/cf-*.tgz
+    - task: upload-bits-release-bosh
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+        params:
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_FILE: ../s3-bits-service-release/*.tgz
+  - aggregate:
+    - task: deploy-cf
+      file: git-bits-service-release/ci/tasks/deploy-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: bits-service-release-version
+          - name: manifests
+        params:
+          MANIFEST_PATH: ../manifests/manifest-*.yml
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_VERSION_FILE: ../bits-service-release-version/number
+          CF_USER: admin
+          CF_PASSWORD: admin
+          CF_DOMAIN: bosh-lite.com
+          BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+      on_failure:
+        put: cf-bosh1-lock
+        params: { release: cf-bosh1-lock }
+
+- name: release-cf-bosh1-lock
+  plan:
+  - get: cf-bosh1-lock
+    passed: [deploy-cf-bosh1]
+  - put: cf-bosh1-lock
+    params: { release: cf-bosh1-lock }
+
+- name: prepare-migration-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [deploy-cf-bosh1]
+    - get: s3-cf-release
+      passed: [deploy-cf-bosh1]
+    - get: s3-bits-service-release
+      passed: [deploy-cf-bosh1]
+    - get: cf-release-version
+      passed: [deploy-cf-bosh1]
+    - get: cf-bosh1-lock
+      trigger: true
+      passed: [deploy-cf-bosh1]
+    - get: git-bits-service-release
+      passed: [deploy-cf-bosh1]
+  - task: run-bits-service-migration-tests
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        ERRAND_NAME: bsmt_preparation
+        DEPLOYMENT_NAME: cf-warden
+
+- name: enable-BITS-SERVICE-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [prepare-migration-bosh1]
+    - get: cf-release-version
+      passed: [prepare-migration-bosh1]
+    - get: s3-cf-release
+      passed: [prepare-migration-bosh1]
+    - get: cf-release-version
+      passed: [prepare-migration-bosh1]
+    - get: cf-bosh1-lock
+      trigger: true
+      passed: [prepare-migration-bosh1]
+    - get: bits-service-release-version
+      passed: [deploy-cf-bosh1]
+    - get: git-bits-service-release
+      passed: [prepare-migration-bosh1]
+  - task: update-cf-manifest
+    file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+    config:
+      params:
+        MANIFEST_STUBS: ci/manifests/bits-network-bosh-lite.yml ci/manifests/enable-bits.yml templates/s3.yml ci/manifests/bsmt-errands.yml
+        IAAS: lite
+  - aggregate:
+    - task: deploy-CF-with-BITS
+      file: git-bits-service-release/ci/tasks/deploy-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: bits-service-release-version
+          - name: manifests
+        params:
+          MANIFEST_PATH: ../manifests/manifest-*.yml
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_VERSION_FILE: ../bits-service-release-version/number
+          CF_USER: admin
+          CF_PASSWORD: admin
+          CF_DOMAIN: bosh-lite.com
+          BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+
+- name: verification-migration-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [enable-BITS-SERVICE-bosh1]
+    - get: s3-cf-release
+      passed: [enable-BITS-SERVICE-bosh1]
+    - get: cf-release-version
+      passed: [enable-BITS-SERVICE-bosh1]
+    - get: cf-bosh1-lock
+      trigger: true
+      passed: [enable-BITS-SERVICE-bosh1]
+    - get: git-bits-service-release
+      passed: [enable-BITS-SERVICE-bosh1]
+  - task: run-bits-service-migration-tests
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        DEPLOYMENT_NAME: cf-warden
+        ERRAND_NAME: bsmt_verification
+
+- name: preparation-migration-backwards-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [verification-migration-bosh1]
+    - get: s3-cf-release
+      passed: [verification-migration-bosh1]
+    - get: cf-release-version
+      passed: [verification-migration-bosh1]
+    - get: cf-bosh1-lock
+      trigger: true
+      passed: [verification-migration-bosh1]
+    - get: git-bits-service-release
+      passed: [verification-migration-bosh1]
+  - task: run-bits-service-migration-tests
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        DEPLOYMENT_NAME: cf-warden
+        ERRAND_NAME: bsmt_preparation
+
+- name: disable-BITS-SERVICE-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [preparation-migration-backwards-bosh1]
+    - get: cf-release-version
+      passed: [preparation-migration-backwards-bosh1]
+    - get: s3-cf-release
+      passed: [preparation-migration-backwards-bosh1]
+    - get: cf-release-version
+      passed: [preparation-migration-backwards-bosh1]
+    - get: cf-bosh1-lock
+      trigger: true
+      passed: [preparation-migration-backwards-bosh1]
+    - get: bits-service-release-version
+      passed: [enable-BITS-SERVICE-bosh1]
+    - get: git-bits-service-release
+      passed: [preparation-migration-backwards-bosh1]
+  - task: update-cf-manifest
+    file: git-bits-service-release/ci/tasks/update-cf-manifest.yml
+    config:
+      params:
+        MANIFEST_STUBS: ci/manifests/bits-network-bosh-lite.yml templates/s3.yml ci/manifests/bsmt-errands.yml
+        IAAS: lite
+  - aggregate:
+    - task: deploy-CF-with-BITS
+      file: git-bits-service-release/ci/tasks/deploy-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: bits-service-release-version
+          - name: manifests
+        params:
+          MANIFEST_PATH: ../manifests/manifest-*.yml
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_VERSION_FILE: ../bits-service-release-version/number
+          CF_USER: admin
+          CF_PASSWORD: admin
+          CF_DOMAIN: bosh-lite.com
+          BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+
+- name: verification-migration-backwards-bosh1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-cf-release
+      passed: [disable-BITS-SERVICE-bosh1]
+    - get: s3-cf-release
+      passed: [disable-BITS-SERVICE-bosh1]
+    - get: cf-release-version
+      passed: [disable-BITS-SERVICE-bosh1]
+    - get: cf-bosh1-lock
+      trigger: true
+      passed: [disable-BITS-SERVICE-bosh1]
+    - get: git-bits-service-release
+      passed: [disable-BITS-SERVICE-bosh1]
+  - task: run-bits-service-migration-tests
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-bits-service-release
+      run:
+        path: git-bits-service-release/ci/scripts/run-errand.sh
+      params:
+        BOSH_TARGET: {{bosh-target}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        DEPLOYMENT_NAME: cf-warden
+        ERRAND_NAME: bsmt_verification
+  - put: cf-bosh1-lock
+    params: { release: cf-bosh1-lock }
+
+
+# Infrastructure
+- name: recreate-bosh-lite-1
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-bits-service-release
+    - get: git-bits-service
+    - get: s3-bits-service-release
+      passed: [done]
+    - get: s3-cf-release
+      passed: [create-cf-release]
+  - task: recreate-bosh-lite
+    file: git-bits-service/ci/tasks/recreate-bosh-lite.yml
+    config:
+      params:
+        SSH_CONNECTION_STRING: root@10.155.248.181
+        SSH_KEY: {{github-private-key}}
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BOSH_DIRECTOR_IP: 192.168.50.4
+        VAGRANT_GATEWAY: 192.168.50.1
+        DIEGO_RELEASE_VERSION: {{diego-release-version}}
+        GARDEN_LINUX_RELEASE_VERSION: {{garden-linux-release-version}}
+        ETCD_RELEASE_VERSION: {{etcd-release-version}}
+        CFLINUXFS2_ROOTFS_RELEASE_VERSION: {{cflinuxfs2-rootfs-release-version}}
+  - aggregate:
+    - task: upload-last-bits-service-release
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+        params:
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_FILE: ../s3-bits-service-release/*.tgz
+    - task: upload-last-cf-release
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+        params:
+          BOSH_TARGET: {{bosh-target}}
+          BOSH_USERNAME: {{bosh-username}}
+          BOSH_PASSWORD: {{bosh-password}}
+          RELEASE_FILE: ../s3-cf-release/*.tgz
+
+- name: recreate-bosh-lite-2
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-bits-service-release
+    - get: git-bits-service
+    - get: s3-bits-service-release
+      passed: [done]
+    - get: s3-cf-release
+      passed: [create-cf-release]
+  - task: recreate-bosh-lite
+    file: git-bits-service/ci/tasks/recreate-bosh-lite.yml
+    config:
+      params:
+        SSH_CONNECTION_STRING: root@10.155.248.185
+        SSH_KEY: {{github-private-key}}
+        BOSH_USERNAME: {{bosh2-username}}
+        BOSH_PASSWORD: {{bosh2-password}}
+        BOSH_DIRECTOR_IP: 192.168.100.4
+        VAGRANT_GATEWAY: 192.168.100.1
+        DIEGO_RELEASE_VERSION: {{diego-release-version}}
+        GARDEN_LINUX_RELEASE_VERSION: {{garden-linux-release-version}}
+        ETCD_RELEASE_VERSION: {{etcd-release-version}}
+        CFLINUXFS2_ROOTFS_RELEASE_VERSION: {{cflinuxfs2-rootfs-release-version}}
+  - aggregate:
+    - task: upload-last-bits-service-release
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+        params:
+          BOSH_TARGET: {{bosh2-target}}
+          BOSH_USERNAME: {{bosh2-username}}
+          BOSH_PASSWORD: {{bosh2-password}}
+          RELEASE_FILE: ../s3-bits-service-release/*.tgz
+    - task: upload-last-cf-release
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+        params:
+          BOSH_TARGET: {{bosh2-target}}
+          BOSH_USERNAME: {{bosh2-username}}
+          BOSH_PASSWORD: {{bosh2-password}}
+          RELEASE_FILE: ../s3-cf-release/*.tgz
+
+- name: recreate-bosh-lite-acceptance
+  serial: true
+  plan:
+  - aggregate:
+    - get: git-bits-service-release
+    - get: git-bits-service
+    - get: s3-bits-service-release
+      passed: [done]
+    - get: s3-cf-release
+      passed: [create-cf-release]
+  - task: recreate-bosh-lite
+    file: git-bits-service/ci/tasks/recreate-bosh-lite.yml
+    config:
+      params:
+        SSH_CONNECTION_STRING: root@10.155.248.164
+        SSH_KEY: {{github-private-key}}
+        BOSH_USERNAME: {{bosh-acceptance-username}}
+        BOSH_PASSWORD: {{bosh-acceptance-password}}
+        BOSH_DIRECTOR_IP: 192.168.150.4
+        VAGRANT_GATEWAY: 192.168.150.1
+        DIEGO_RELEASE_VERSION: {{diego-release-version}}
+        GARDEN_LINUX_RELEASE_VERSION: {{garden-linux-release-version}}
+        ETCD_RELEASE_VERSION: {{etcd-release-version}}
+        CFLINUXFS2_ROOTFS_RELEASE_VERSION: {{cflinuxfs2-rootfs-release-version}}
+  - aggregate:
+    - task: upload-last-bits-service-release
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-bits-service-release
+        params:
+          BOSH_TARGET: {{bosh-acceptance-target}}
+          BOSH_USERNAME: {{bosh-acceptance-username}}
+          BOSH_PASSWORD: {{bosh-acceptance-password}}
+          RELEASE_FILE: ../s3-bits-service-release/*.tgz
+    - task: upload-last-cf-release
+      file: git-bits-service-release/ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-release
+          - name: s3-cf-release
+        params:
+          BOSH_TARGET: {{bosh-acceptance-target}}
+          BOSH_USERNAME: {{bosh-acceptance-username}}
+          BOSH_PASSWORD: {{bosh-acceptance-password}}
+          RELEASE_FILE: ../s3-cf-release/*.tgz
+
+- name: cleanup-bosh-1
+  serial: true
+  plan:
+  - get: git-bits-service
+  - get: nightly-timer
+    trigger: true
+  - task: cleanup-bosh
+    file: git-bits-service/ci/tasks/bosh-cleanup.yml
+    config:
+      params:
+        BOSH_USERNAME: {{bosh-username}}
+        BOSH_PASSWORD: {{bosh-password}}
+        BOSH_TARGET: {{bosh-target}}
+
+- name: cleanup-bosh-2
+  serial: true
+  plan:
+  - get: git-bits-service
+  - get: nightly-timer
+    trigger: true
+  - task: cleanup-bosh
+    file: git-bits-service/ci/tasks/bosh-cleanup.yml
+    config:
+      params:
+        BOSH_USERNAME: {{bosh2-username}}
+        BOSH_PASSWORD: {{bosh2-password}}
+        BOSH_TARGET: {{bosh2-target}}
+
+- name: cleanup-bosh-acceptance
+  serial: true
+  plan:
+  - get: git-bits-service
+  - get: nightly-timer
+    trigger: true
+  - task: cleanup-bosh
+    file: git-bits-service/ci/tasks/bosh-cleanup.yml
+    config:
+      params:
+        BOSH_USERNAME: {{bosh-acceptance-username}}
+        BOSH_PASSWORD: {{bosh-acceptance-password}}
+        BOSH_TARGET: {{bosh-acceptance-target}}

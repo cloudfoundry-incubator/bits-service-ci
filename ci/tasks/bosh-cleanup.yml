@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: git-bits-service
+
+params:
+  BOSH_USERNAME:
+  BOSH_PASSWORD:
+  BOSH_TARGET:
+
+run:
+  path: git-bits-service/ci/scripts/bosh-cleanup.sh
