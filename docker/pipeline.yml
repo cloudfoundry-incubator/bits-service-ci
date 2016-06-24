@@ -48,4 +48,4 @@ jobs:
   - get: git-bits-service-ci-cc
     trigger: true
   - put: flintstone-ci-cc-image
-    params: { build: git-bits-service-ci-cc/docke/cc }
+    params: { build: git-bits-service-ci-cc/docker/cc }
