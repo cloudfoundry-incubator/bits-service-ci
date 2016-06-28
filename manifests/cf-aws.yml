@@ -431,6 +431,11 @@ properties:
     use_http: true
   networks: {apps: cf_private}
   app_domains: ["<%= ENV.fetch('CF_DOMAIN', 'system.domain') %>"]
+  bits-service:
+    secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
+    signer_users:
+      - username: admin
+        password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
   cc:
     bits_service:
       enabled: false
