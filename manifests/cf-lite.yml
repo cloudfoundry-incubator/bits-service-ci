@@ -2689,10 +2689,10 @@ properties:
         7sTV9KfdlETLUwh8qkEsoMJCpNzvRvRVQn5Xp25W9ssnVnXgY7qpQg==
         -----END RSA PRIVATE KEY-----
   bits-service:
-    secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
+    secret: super-secret-string
     signer_users:
       - username: admin
-        password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
+        password: my-secret-password
   cc:
     bits_service:
       enabled: false
