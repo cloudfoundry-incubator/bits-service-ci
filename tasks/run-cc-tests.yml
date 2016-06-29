@@ -1,7 +1,7 @@
 ---
 platform: linux
 
-image: docker:///flintstonecf/cc-ci
+image: "docker:///cloudfoundry/capi#ruby-units"
 
 inputs:
 - name: git-cloud-controller
