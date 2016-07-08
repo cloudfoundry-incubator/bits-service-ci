@@ -432,6 +432,7 @@ properties:
   networks: {apps: cf_private}
   app_domains: ["<%= ENV.fetch('CF_DOMAIN', 'system.domain') %>"]
   bits-service:
+    public_endpoint: (( concat "bits-service." properties.system_domain ))
     secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
     signing_users:
       - username: admin
