@@ -2690,7 +2690,7 @@ properties:
         -----END RSA PRIVATE KEY-----
   bits-service:
     secret: super-secret-string
-    signer_users:
+    signing_users:
       - username: admin
         password: my-secret-password
   cc:
