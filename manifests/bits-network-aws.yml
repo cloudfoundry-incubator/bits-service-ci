@@ -5,3 +5,7 @@ jobs:
 - name: blobstore_z1
   networks:
   - name: cf_private
+
+properties:
+  bits-service:
+    public_endpoint: (( concat "bits-service." properties.system_domain ))

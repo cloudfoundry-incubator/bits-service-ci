@@ -433,7 +433,7 @@ properties:
   app_domains: ["<%= ENV.fetch('CF_DOMAIN', 'system.domain') %>"]
   bits-service:
     secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
-    signer_users:
+    signing_users:
       - username: admin
         password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
   cc:
