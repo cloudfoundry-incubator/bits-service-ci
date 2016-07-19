@@ -1157,7 +1157,7 @@ jobs:
       config:
         params:
           IAAS: lite
-          MANIFEST_STUBS: manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/s3.yml manifests/bsmt-errands.yml
+          MANIFEST_STUBS: manifests/bits-service.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/s3.yml manifests/bsmt-errands.yml
     - task: upload-cf-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
@@ -1444,7 +1444,7 @@ jobs:
       config:
         params:
           IAAS: lite
-          MANIFEST_STUBS: manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/webdav.yml manifests/bsmt-errands.yml
+          MANIFEST_STUBS: manifests/bits-service.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/webdav.yml manifests/bsmt-errands.yml
     - task: upload-cf-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
