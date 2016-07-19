@@ -12,6 +12,7 @@ inputs:
 - name: git-bits-service-ci
 - name: git-bits-service-release
 - name: cf-release-version
+- name: git-cf-release
 
 outputs:
 - name: manifests
