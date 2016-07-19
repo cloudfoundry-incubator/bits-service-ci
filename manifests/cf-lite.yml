@@ -2661,11 +2661,6 @@ properties:
         fPuTr6OlWPa4VA4wb1DuDIk3gpdBIJWo3Jv7miUeo6CgRUalZ6kN6PpBtiY3lKK0
         7sTV9KfdlETLUwh8qkEsoMJCpNzvRvRVQn5Xp25W9ssnVnXgY7qpQg==
         -----END RSA PRIVATE KEY-----
-  bits-service:
-    secret: super-secret-string
-    signing_users:
-      - username: admin
-        password: my-secret-password
   cc:
     bits_service:
       enabled: false
