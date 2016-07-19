@@ -15,7 +15,8 @@ bosh login $BOSH_USERNAME $BOSH_PASSWORD
 
 if [ -z "$BLOBSTORE_TYPE" ]
 then
-  ./scripts/generate-default-bosh-lite-manifest
+  >&2 echo "Please provide $BLOBSTORE_TYPE"
+  exit 1
 else
   ./scripts/generate-test-bosh-lite-manifest \
     ./templates/$BLOBSTORE_TYPE.yml \
