@@ -649,7 +649,13 @@ jobs:
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       params:
-        MANIFEST_STUBS: manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/enable-bits.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/local.yml
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/local.yml
   - put: s3-cf-manifest
     params:
       file: manifests/*.yml
@@ -1157,7 +1163,13 @@ jobs:
       config:
         params:
           IAAS: lite
-          MANIFEST_STUBS: manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/s3.yml manifests/bsmt-errands.yml
+          MANIFEST_STUBS: >
+            manifests/bits-service.yml
+            ../git-bits-service-release/templates/cc-blobstore-properties.yml
+            ../git-bits-service-release/templates/bits-service-signing-properties.yml
+            manifests/bits-network-bosh-lite.yml
+            ../git-bits-service-release/templates/s3.yml
+            manifests/bsmt-errands.yml
     - task: upload-cf-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
@@ -1265,7 +1277,14 @@ jobs:
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       params:
-        MANIFEST_STUBS: manifests/bits-network-bosh-lite.yml manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/enable-bits.yml ../git-bits-service-release/templates/s3.yml manifests/bsmt-errands.yml
+        MANIFEST_STUBS: >
+          manifests/bits-network-bosh-lite.yml
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/bsmt-errands.yml
         IAAS: lite
   - aggregate:
     - task: deploy-CF-with-BITS
@@ -1364,7 +1383,13 @@ jobs:
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       params:
-        MANIFEST_STUBS: manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/s3.yml manifests/bsmt-errands.yml
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/bsmt-errands.yml
         IAAS: lite
   - aggregate:
     - task: deploy-CF-with-BITS
@@ -1444,7 +1469,13 @@ jobs:
       config:
         params:
           IAAS: lite
-          MANIFEST_STUBS: manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/webdav.yml manifests/bsmt-errands.yml
+          MANIFEST_STUBS: >
+            manifests/bits-service.yml
+            ../git-bits-service-release/templates/cc-blobstore-properties.yml
+            ../git-bits-service-release/templates/bits-service-signing-properties.yml
+            manifests/bits-network-bosh-lite.yml
+            ../git-bits-service-release/templates/webdav.yml
+            manifests/bsmt-errands.yml
     - task: upload-cf-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
@@ -1552,7 +1583,14 @@ jobs:
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       params:
-        MANIFEST_STUBS: manifests/bits-network-bosh-lite.yml manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/enable-bits.yml ../git-bits-service-release/templates/webdav.yml manifests/bsmt-errands.yml
+        MANIFEST_STUBS: >
+          manifests/bits-network-bosh-lite.yml
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          ../git-bits-service-release/templates/webdav.yml
+          manifests/bsmt-errands.yml
         IAAS: lite
   - aggregate:
     - task: deploy-CF-with-BITS
@@ -1647,7 +1685,13 @@ jobs:
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       params:
-        MANIFEST_STUBS:  manifests/bits-service.yml ../git-bits-service-release/templates/bits-service-signing-properties.yml manifests/bits-network-bosh-lite.yml ../git-bits-service-release/templates/webdav.yml manifests/bsmt-errands.yml
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/webdav.yml
+          manifests/bsmt-errands.yml
         IAAS: lite
   - aggregate:
     - task: deploy-CF-with-BITS
