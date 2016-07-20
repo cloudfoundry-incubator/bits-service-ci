@@ -11,8 +11,10 @@ else
 fi
 
 if [[ ${IAAS} == "lite" ]]; then
-  ../git-cf-release/scripts/generate-bosh-lite-dev-manifest
-  cp ../git-cf-release/bosh-lite/deployments/cf.yml ./manifests/cf-lite.yml
+  ../git-cf-release/scripts/generate_deployment_manifest \
+      bosh-lite \
+      <(echo "director_uuid: <%= %x[bosh status --uuid] %>") \
+    > ./manifests/cf-lite.yml
 fi
 
 spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest-${VERSION}.yml
