@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
 lock_name=${1:?"Missing lock name"}
+
 echo Unlocking director locked by ${lock_name}
-exit 0
 
 git co metadata
 git pull -r
