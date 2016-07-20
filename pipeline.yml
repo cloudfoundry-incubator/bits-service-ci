@@ -280,6 +280,7 @@ jobs:
     - get: git-bits-service-release
       trigger: true
     - get: git-bits-service-ci
+      trigger: true
   - put: bits-service-release-version
     params:
       file: bits-service-release-version/number
