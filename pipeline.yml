@@ -3,7 +3,9 @@ groups:
   jobs:
   - run-service-tests
   - create-and-upload-release
-  - release-bits-release-lock
+  - release-bits-deployment-local-lock
+  - release-bits-deployment-s3-lock
+  - release-bits-deployment-webdav-lock
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
@@ -46,7 +48,9 @@ groups:
 - name: bits-service-release
   jobs:
   - create-and-upload-release
-  - release-bits-release-lock
+  - release-bits-deployment-local-lock
+  - release-bits-deployment-s3-lock
+  - release-bits-deployment-webdav-lock
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
@@ -250,12 +254,26 @@ resources:
     branch: metadata
     pool: locks/cf1-aws-deployment
     private_key: {{github-private-key}}
-- name: bits-release-deployment-lock
+- name: bits-deployment-local-lock
   type: pool
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
-    pool: locks/bits-service-release
+    pool: locks/bits-deployment-local
+    private_key: {{github-private-key}}
+- name: bits-deployment-s3-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    pool: locks/bits-deployment-s3
+    private_key: {{github-private-key}}
+- name: bits-deployment-webdav-lock
+  type: pool
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    pool: locks/bits-deployment-webdav
     private_key: {{github-private-key}}
 
 jobs:
@@ -272,8 +290,6 @@ jobs:
 - name: create-and-upload-release
   plan:
   - aggregate:
-    - put: bits-release-deployment-lock
-      params: { acquire: true }
     - get: bits-service-release-version
       params:
         pre: dev
@@ -289,9 +305,6 @@ jobs:
     config:
       params:
         VERSION_FILE: ../bits-service-release-version/number
-    on_failure:
-      put: bits-release-deployment-lock
-      params: { release: bits-release-deployment-lock }
   - aggregate:
     - task: upload-release-bosh-1
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -301,9 +314,6 @@ jobs:
           BOSH_USERNAME: {{bosh-username}}
           BOSH_PASSWORD: {{bosh-password}}
           RELEASE_FILE: releases/bits-service-*.tgz
-      on_failure:
-        put: bits-release-deployment-lock
-        params: { release: bits-release-deployment-lock }
     - task: upload-release-bosh-2
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
@@ -312,30 +322,37 @@ jobs:
           BOSH_USERNAME: {{bosh2-username}}
           BOSH_PASSWORD: {{bosh2-password}}
           RELEASE_FILE: releases/bits-service-*.tgz
-      on_failure:
-        put: bits-release-deployment-lock
-        params: { release: bits-release-deployment-lock }
     - put: s3-bits-service-release
       params:
         file: releases/*.tgz
-      on_failure:
-        put: bits-release-deployment-lock
-        params: { release: bits-release-deployment-lock }
 
-- name: release-bits-release-lock
+- name: release-bits-deployment-local-lock
   plan:
-  - get: bits-release-deployment-lock
-    passed: [create-and-upload-release]
-  - put: bits-release-deployment-lock
-    params: { release: bits-release-deployment-lock }
+  - get: bits-deployment-local-lock
+    passed: [deploy-with-LOCAL]
+  - put: bits-deployment-local-lock
+    params: { release: bits-deployment-local-lock }
+
+- name: release-bits-deployment-s3-lock
+  plan:
+  - get: bits-deployment-s3-lock
+    passed: [deploy-with-S3]
+  - put: bits-deployment-s3-lock
+    params: { release: bits-deployment-s3-lock }
+
+- name: release-bits-deployment-webdav-lock
+  plan:
+  - get: bits-deployment-webdav-lock
+    passed: [deploy-with-WEBDAV]
+  - put: bits-deployment-webdav-lock
+    params: { release: bits-deployment-webdav-lock }
 
 - name: deploy-with-S3
   plan:
+  - put: bits-deployment-s3-lock
+    params: { acquire: true }
   - aggregate:
     - get: s3-bits-service-release
-      passed: [create-and-upload-release]
-    - get: bits-release-deployment-lock
-      trigger: true
       passed: [create-and-upload-release]
     - get: bits-service-release-version
       passed: [create-and-upload-release]
@@ -355,6 +372,9 @@ jobs:
         AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
         AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
         BLOBSTORE_TYPE: s3
+    on_failure:
+      put: bits-deployment-s3-lock
+      params: { release: bits-deployment-s3-lock }
   - task: deploy
     file: git-bits-service-ci/tasks/deploy-release.yml
     config:
@@ -366,13 +386,16 @@ jobs:
         BOSH_USERNAME: {{bosh-username}}
         BOSH_PASSWORD: {{bosh-password}}
         MANIFEST_PATH: manifests/*.yml
+    on_failure:
+      put: bits-deployment-s3-lock
+      params: { release: bits-deployment-s3-lock }
 
 - name: run-system-tests-S3
   plan:
   - aggregate:
     - get: s3-bits-service-release
       passed: [deploy-with-S3]
-    - get: bits-release-deployment-lock
+    - get: bits-deployment-s3-lock
       trigger: true
       passed: [deploy-with-S3]
     - get: bits-service-release-version
@@ -390,14 +413,16 @@ jobs:
         BOSH_PASSWORD: {{bosh-password}}
         BITS_SERVICE_ENDPOINT: 10.250.1.2
         RELEASE_NAME: bits-service-s3
+    ensure:
+      put: bits-deployment-s3-lock
+      params: { release: bits-deployment-s3-lock }
 
 - name: deploy-with-LOCAL
   plan:
+  - put: bits-deployment-local-lock
+    params: { acquire: true }
   - aggregate:
     - get: s3-bits-service-release
-      passed: [create-and-upload-release]
-    - get: bits-release-deployment-lock
-      trigger: true
       passed: [create-and-upload-release]
     - get: bits-service-release-version
       passed: [create-and-upload-release]
@@ -414,6 +439,9 @@ jobs:
         BOSH_PASSWORD: {{bosh-password}}
         BITS_DIRECTORY_KEY: another-directory
         BLOBSTORE_TYPE: local
+    on_failure:
+      put: bits-deployment-local-lock
+      params: { release: bits-deployment-local-lock }
   - task: deploy
     file: git-bits-service-ci/tasks/deploy-release.yml
     config:
@@ -425,9 +453,15 @@ jobs:
         BOSH_USERNAME: {{bosh-username}}
         BOSH_PASSWORD: {{bosh-password}}
         MANIFEST_PATH: manifests/*.yml
+    on_failure:
+      put: bits-deployment-local-lock
+      params: { release: bits-deployment-local-lock }
   - put: s3-bits-service-manifest
     params:
       file: manifests/*.yml
+    on_failure:
+      put: bits-deployment-local-lock
+      params: { release: bits-deployment-local-lock }
 
 - name: run-system-tests-LOCAL
   plan:
@@ -436,7 +470,7 @@ jobs:
       passed: [deploy-with-LOCAL]
     - get: s3-bits-service-release
       passed: [deploy-with-LOCAL]
-    - get: bits-release-deployment-lock
+    - get: bits-deployment-local-lock
       trigger: true
       passed: [deploy-with-LOCAL]
     - get: bits-service-release-version
@@ -455,14 +489,16 @@ jobs:
         BOSH_PASSWORD: {{bosh-password}}
         BITS_SERVICE_ENDPOINT: 10.250.0.2
         RELEASE_NAME: bits-service-local
+    ensure:
+      put: bits-deployment-local-lock
+      params: { release: bits-deployment-local-lock }
 
 - name: deploy-with-WEBDAV
   plan:
+  - put: bits-deployment-webdav-lock
+    params: { acquire: true }
   - aggregate:
     - get: s3-bits-service-release
-      passed: [create-and-upload-release]
-    - get: bits-release-deployment-lock
-      trigger: true
       passed: [create-and-upload-release]
     - get: bits-service-release-version
       passed: [create-and-upload-release]
@@ -478,6 +514,9 @@ jobs:
         BOSH_USERNAME: {{bosh-username}}
         BOSH_PASSWORD: {{bosh-password}}
         BLOBSTORE_TYPE: webdav
+    on_failure:
+      put: bits-deployment-webdav-lock
+      params: { release: bits-deployment-webdav-lock }
   - task: deploy
     file: git-bits-service-ci/tasks/deploy-release.yml
     config:
@@ -489,13 +528,16 @@ jobs:
         BOSH_USERNAME: {{bosh-username}}
         BOSH_PASSWORD: {{bosh-password}}
         MANIFEST_PATH: manifests/*.yml
+    on_failure:
+      put: bits-deployment-webdav-lock
+      params: { release: bits-deployment-webdav-lock }
 
 - name: run-system-tests-WEBDAV
   plan:
   - aggregate:
     - get: s3-bits-service-release
       passed: [deploy-with-WEBDAV]
-    - get: bits-release-deployment-lock
+    - get: bits-deployment-webdav-lock
       trigger: true
       passed: [deploy-with-WEBDAV]
     - get: bits-service-release-version
@@ -513,6 +555,9 @@ jobs:
         BOSH_PASSWORD: {{bosh-password}}
         BITS_SERVICE_ENDPOINT: 10.250.3.2
         RELEASE_NAME: bits-service-webdav
+    ensure:
+      put: bits-deployment-webdav-lock
+      params: { release: bits-deployment-webdav-lock }
 
 - name: done
   plan:
@@ -526,12 +571,6 @@ jobs:
         - run-system-tests-S3
         - run-system-tests-WEBDAV
     - get: bits-service-release-version
-      passed:
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
-    - get: bits-release-deployment-lock
-      trigger: true
       passed:
         - run-system-tests-LOCAL
         - run-system-tests-S3
@@ -573,8 +612,6 @@ jobs:
           FILE: s3-bits-service-manifest/*.yml
           VERSION_FILE: bits-service-release-version/number
           RELEASE_NAME: bits-service-release
-  - put: bits-release-deployment-lock
-    params: { release: bits-release-deployment-lock }
 
 # CLOUD CONTROLLER
 - name: cc-tests
