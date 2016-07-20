@@ -3,3 +3,4 @@ properties:
   acceptance_tests:
     default_timeout: 75
     nodes: 5
+    cf_push_timeout: 1
