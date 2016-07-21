@@ -356,6 +356,7 @@ jobs:
       passed: [create-and-upload-release]
     - get: bits-service-release-version
       passed: [create-and-upload-release]
+      trigger: true
     - get: git-bits-service-release
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
@@ -426,6 +427,7 @@ jobs:
       passed: [create-and-upload-release]
     - get: bits-service-release-version
       passed: [create-and-upload-release]
+      trigger: true
     - get: git-bits-service-release
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
@@ -502,6 +504,7 @@ jobs:
       passed: [create-and-upload-release]
     - get: bits-service-release-version
       passed: [create-and-upload-release]
+      trigger: true
     - get: git-bits-service-release
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
