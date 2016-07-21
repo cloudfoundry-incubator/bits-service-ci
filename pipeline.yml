@@ -568,26 +568,31 @@ jobs:
     - get: s3-bits-service-manifest
       passed:
         - run-system-tests-LOCAL
+      trigger: true
     - get: s3-bits-service-release
       passed:
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
+      trigger: true
     - get: bits-service-release-version
       passed:
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
+      trigger: true
     - get: git-bits-service-release
       passed:
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
+      trigger: true
     - get: git-bits-service-ci
       passed:
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
+      trigger: true
   - aggregate:
     - task: upload-bits-service-release-to-acceptance
       file: git-bits-service-ci/tasks/scp-to-acceptance.yml
