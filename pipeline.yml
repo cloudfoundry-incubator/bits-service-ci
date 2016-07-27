@@ -12,7 +12,7 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - done
+  - upload-bits-service-release-and-manifest-to-acceptance
   - cc-tests
   - create-cf-release
   - deploy-cf-dea-aws
@@ -57,7 +57,7 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - done
+  - upload-bits-service-release-and-manifest-to-acceptance
 - name: cloud-controller
   jobs:
   - cc-tests
@@ -565,7 +565,7 @@ jobs:
       put: bits-deployment-webdav-lock
       params: { release: bits-deployment-webdav-lock }
 
-- name: done
+- name: upload-bits-service-release-and-manifest-to-acceptance
   plan:
   - aggregate:
     - get: s3-bits-service-manifest
@@ -752,11 +752,11 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-version
       passed: [create-cf-release]
     - get: bits-service-release-version
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -954,11 +954,11 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-version
       passed: [create-cf-release]
     - get: bits-service-release-version
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -1200,11 +1200,11 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-version
       passed: [create-cf-release]
     - get: bits-service-release-version
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -1506,11 +1506,11 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-version
       passed: [create-cf-release]
     - get: bits-service-release-version
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -1797,7 +1797,7 @@ jobs:
     - get: git-bits-service-ci
     - get: git-bits-service
     - get: s3-bits-service-release
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: s3-cf-release
       passed: [create-cf-release]
   - task: recreate-bosh-lite
@@ -1845,7 +1845,7 @@ jobs:
     - get: git-bits-service-ci
     - get: git-bits-service
     - get: s3-bits-service-release
-      passed: [done]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: s3-cf-release
       passed: [create-cf-release]
   - task: recreate-bosh-lite
