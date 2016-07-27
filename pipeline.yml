@@ -406,6 +406,7 @@ jobs:
     - get: git-bits-service-ci
       passed: [deploy-with-S3]
   - task: run-tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-release-tests.yml
     config:
       params:
@@ -483,6 +484,7 @@ jobs:
     - get: git-bits-service-ci
       passed: [deploy-with-LOCAL]
   - task: run-tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-release-tests.yml
     config:
       params:
@@ -550,6 +552,7 @@ jobs:
     - get: git-bits-service-ci
       passed: [deploy-with-WEBDAV]
   - task: run-tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-release-tests.yml
     config:
       params:
