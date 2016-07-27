@@ -646,7 +646,7 @@ jobs:
       trigger: true
     - get: git-bits-service-ci
       trigger: true
-      passed: [run-system-tests-LOCAL, run-system-tests-WEBDAV, run-system-tests-S3]
+      passed: [upload-bits-service-release-and-manifest-to-acceptance]
   - task: create-cf-release
     file: git-bits-service-ci/tasks/create-cf-release.yml
     config:
