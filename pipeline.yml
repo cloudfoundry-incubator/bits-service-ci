@@ -2,7 +2,7 @@ groups:
 - name: all
   jobs:
   - run-service-tests
-  - run-service-client-tests
+  - run-bits-service-client-tests
   - create-and-upload-release
   - release-bits-deployment-local-lock
   - release-bits-deployment-s3-lock
@@ -46,7 +46,7 @@ groups:
 - name: bits-service
   jobs:
   - run-service-tests
-  - run-service-client-tests
+  - run-bits-service-client-tests
 - name: bits-service-release
   jobs:
   - create-and-upload-release
@@ -295,7 +295,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-service-tests.yml
 
 # BITS-SERVICE-CLIENT
-- name: run-service-client-tests
+- name: run-bits-service-client-tests
   plan:
   - get: git-bits-service-client
     trigger: true
