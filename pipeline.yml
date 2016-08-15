@@ -2,6 +2,7 @@ groups:
 - name: all
   jobs:
   - run-service-tests
+  - run-service-client-tests
   - create-and-upload-release
   - release-bits-deployment-local-lock
   - release-bits-deployment-s3-lock
@@ -45,6 +46,7 @@ groups:
 - name: bits-service
   jobs:
   - run-service-tests
+  - run-service-client-tests
 - name: bits-service-release
   jobs:
   - create-and-upload-release
