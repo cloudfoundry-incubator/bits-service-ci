@@ -178,6 +178,12 @@ resources:
     uri: https://github.com/cloudfoundry-incubator/bits-service.git
     branch: master
 
+- name: git-bits-service-client
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-client.git
+    branch: master
+
 - name: git-bits-service-release
   type: git
   source:
@@ -285,6 +291,15 @@ jobs:
   - get: git-bits-service-ci
   - task: run-tests
     file: git-bits-service-ci/tasks/run-service-tests.yml
+
+# BITS-SERVICE-CLIENT
+- name: run-service-client-tests
+  plan:
+  - get: git-bits-service-client
+    trigger: true
+  - get: git-bits-service-ci
+  - task: run-tests
+    file: git-bits-service-ci/tasks/run-bits-service-client-tests.yml
 
 # BITS-RELEASE
 - name: create-and-upload-release
