@@ -1,7 +1,5 @@
 metadata:
   blobstore:
-    public_endpoint: (( concat "http://" jobs.blobstore.networks.default.static_ips[0] ":" properties.blobstore.port ))
-    private_endpoint: (( concat "https://" jobs.blobstore.networks.default.static_ips[0]  ":" properties.blobstore.tls.port ))
     tls:
       cert: |+
         -----BEGIN CERTIFICATE-----
