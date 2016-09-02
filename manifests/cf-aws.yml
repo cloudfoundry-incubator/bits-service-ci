@@ -746,6 +746,8 @@ properties:
   hm9000:
     url: https://hm9000.<%= ENV.fetch('CF_DOMAIN', 'system.domain') %>
     port: 5155
+    etcd:
+      machines: (( .properties.etcd.machines ))
     ca_cert: |
       -----BEGIN CERTIFICATE-----
       MIIFBzCCAu+gAwIBAgIBATANBgkqhkiG9w0BAQsFADATMREwDwYDVQQDEwhobTkw
