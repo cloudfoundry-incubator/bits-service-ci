@@ -17,4 +17,10 @@ if [[ ${IAAS} == "lite" ]]; then
     > ./manifests/cf-lite.yml
 fi
 
+echo "Content of ./manifests/cf-${IAAS}.yml:"
+cat ./manifests/cf-${IAAS}.yml
+
 spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest-${VERSION}.yml
+
+echo "Content of ../manifests/manifest-${VERSION}.yml:"
+cat ../manifests/manifest-${VERSION}.yml
