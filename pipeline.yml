@@ -1542,7 +1542,7 @@ jobs:
             ../git-bits-service-release/templates/cc-blobstore-properties.yml
             ../git-bits-service-release/templates/bits-service-signing-properties.yml
             manifests/bits-network-bosh-lite.yml
-            ../git-bits-service-release/templates/webdav.yml
+            ../git-bits-service-release/templates/webdav-cf.yml
             manifests/bsmt-errands.yml
     - task: upload-cf-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -1657,7 +1657,7 @@ jobs:
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
           ../git-bits-service-release/templates/bits-service-signing-properties.yml
           manifests/enable-bits.yml
-          ../git-bits-service-release/templates/webdav.yml
+          ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
         IAAS: lite
   - aggregate:
@@ -1758,7 +1758,7 @@ jobs:
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
           ../git-bits-service-release/templates/bits-service-signing-properties.yml
           manifests/bits-network-bosh-lite.yml
-          ../git-bits-service-release/templates/webdav.yml
+          ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
         IAAS: lite
   - aggregate:
