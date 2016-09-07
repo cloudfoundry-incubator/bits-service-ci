@@ -1,0 +1,119 @@
+resource_pools:
+  - name: large_z1
+    network: cf_private
+    stemcell:
+      name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+      version: latest
+    cloud_properties:
+      availability_zone: eu-west-1a
+      instance_type: c3.large
+
+  - name: small_z2
+    network: cf_public
+    stemcell:
+      name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+      version: latest
+    cloud_properties:
+      availability_zone: eu-west-1b
+      instance_type: m3.medium
+
+  - name: api_z1
+    network: cf_private
+    stemcell:
+      name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+      version: latest
+    cloud_properties:
+      availability_zone: eu-west-1a
+      instance_type: c3.large
+      ephemeral_disk:
+        size: 102400
+
+  - name: runner_z1
+    network: cf_private
+    stemcell:
+      name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+      version: latest
+    cloud_properties:
+      availability_zone: eu-west-1a
+      instance_type: c3.large
+      ephemeral_disk:
+        size: 64000
+
+jobs:
+  - name: api_z1
+    resource_pool: api_z1
+  - name: ha_proxy_z1
+    resource_pool: small_z2
+    properties:
+      router:
+        servers:
+          - (( grab jobs.router_z1.networks.cf_private.static_ips[0] ))
+  - name: runner_z1
+    instances: 3
+    resource_pool: runner_z1
+  - name: bits_service_z1
+    networks:
+    - (( replace ))
+    - name: cf_private
+    resource_pool: small_z1
+  - name: postgres_z1
+    networks:
+      - name: cf_private
+        static_ips: (( static_ips(5) ))
+  - name: uaa_z1
+    properties:
+      uaadb:
+        address: (( grab jobs.postgres_z1.networks.cf_private.static_ips[0] ))
+  - name: router_z1
+    networks:
+      - name: cf_private
+        static_ips: (( static_ips(1) ))
+  - name: etcd_z1
+    networks:
+      - name: cf_private
+        static_ips: (( static_ips(3) ))
+    properties:
+      etcd_metrics_server:
+        nats:
+          machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
+  - name: nats_z1
+    networks:
+      - name: cf_private
+        static_ips: (( static_ips(2) ))
+  - name: consul_z1
+    networks:
+      - name: cf_private
+        static_ips: (( static_ips(4) ))
+
+properties:
+  ccdb:
+    address: (( grab jobs.postgres_z1.networks.cf_private.static_ips[0] ))
+    databases:
+      - (( replace ))
+      - {name: "<%= ENV.fetch('CF_CCDB_NAME', 'ccdb') %>", tag: cc}
+  databases:
+    databases:
+      - (( replace ))
+      - {name: "<%= ENV.fetch('CF_CCDB_NAME', 'ccdb') %>", tag: cc, citext: true}
+      - {name: uaadb, tag: uaa, citext: true}
+  nats:
+    machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
+  etcd:
+    machines: (( grab jobs.etcd_z1.networks.cf_private.static_ips ))
+  hm9000:
+    etcd:
+      machines: (( grab jobs.etcd_z1.networks.cf_private.static_ips ))
+  loggregator:
+    etcd:
+      machines: (( grab jobs.etcd_z1.networks.cf_private.static_ips ))
+  consul:
+    agent:
+      servers:
+        lan:
+          - (( grab jobs.consul_z1.networks.cf_private.static_ips[0] ))
+
+
+networks:
+  - name: elastic
+    cloud_properties:
+      availability_zone: eu-west-1b

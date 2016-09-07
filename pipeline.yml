@@ -779,7 +779,7 @@ jobs:
     - get: git-bits-service-ci
   - aggregate:
     - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
+      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
       config:
         params:
           IAAS: aws
