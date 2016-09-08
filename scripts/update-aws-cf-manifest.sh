@@ -28,7 +28,7 @@ sed \
 # Place double quotes around ERB statements within square brackets
 # to make spruce happy
 # i.e. [<%= ... %>] --> ["<%= ... %>"]
-sed -i -e \
+sed -i \
 -e 's/\[<%=/\[\"<%=/g' -e 's/%>\]/%>"\]/g' \
 ./manifests/cf-aws-dynamic-sed.yml
 
@@ -49,7 +49,7 @@ ${MANIFEST_STUBS} \
 # replace '' with ' that somehow got introduced by spruce
 # Remove double quotes around password in uaa
 sed \
--i -e \
+-i \
 -e 's/'"'"''"'"'/'"'"'/g' \
 -e 's/"<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>"/<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>/g' \
 ../manifests/manifest-${VERSION}.yml
