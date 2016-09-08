@@ -22,7 +22,7 @@ sed \
   r ./manifests/ssl-certs
   d
 }' \
-../cf-release/example_manifests/minimal-aws.yml \
+../git-cf-release/example_manifests/minimal-aws.yml \
 > ./manifests/cf-aws-dynamic-sed.yml
 
 # Place double quotes around ERB statements within square brackets
@@ -40,7 +40,7 @@ spruce merge manifests/cf-aws-dynamic-sed.yml \
 ./manifests/bits-service-signing-users.yml \
 ./manifests/cf-release-minimal-aws-overlay.yml \
 ./manifests/acceptance-tests-job.yml \
-../bits-service-release/templates/cc-blobstore-properties.yml \
+../git-bits-service-release/templates/cc-blobstore-properties.yml \
 ./manifests/tweaks.yml \
 ./manifests/bits-network-aws.yml \
 ${MANIFEST_STUBS} \
