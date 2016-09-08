@@ -893,7 +893,7 @@ jobs:
     - get: git-bits-service-ci
       passed: [CATs-aws]
   - task: update-cf-manifest
-    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config:
       params:
         MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
@@ -981,7 +981,7 @@ jobs:
     - get: git-bits-service-ci
   - aggregate:
     - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
+      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
       config:
         params:
           IAAS: aws
@@ -1130,7 +1130,7 @@ jobs:
     - get: git-bits-service-ci
       passed: [CATs-diego-aws]
   - task: update-cf-manifest
-    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config:
       params:
         MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
