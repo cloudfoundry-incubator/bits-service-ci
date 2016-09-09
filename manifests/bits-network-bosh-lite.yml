@@ -11,4 +11,4 @@ jobs:
 
 properties:
   bits-service:
-    public_endpoint: 10.244.0.74.xip.io
+    public_endpoint: (( concat "http://bits-service." properties.system_domain))
