@@ -281,8 +281,7 @@ properties:
   diego:
     route_emitter:
       nats:
-        machines:
-          - (( grab jobs.nats_z1.networks.cf_private.static_ips ))
+        machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
   dea_next:
     memory_mb: 33996
     ca_cert:
