@@ -194,9 +194,8 @@ resources:
 - name: git-cf-release
   type: git
   source:
-    uri: git@github.com:suhlig/cf-release.git
-    branch: wip-bits-service
-    private_key: {{github-private-key}}
+    uri: https://github.com/cloudfoundry/cf-release.git
+    branch: master
 
 - name: nightly-timer
   type: time
@@ -1034,42 +1033,6 @@ jobs:
     on_failure:
       put: cf2-aws-deployment-lock
       params: { release: cf2-aws-deployment-lock }
-  - task: deploy-DIEGO
-    file: git-bits-service-ci/tasks/deploy-release.yml
-    config:
-      inputs:
-        - name: git-bits-service-ci
-        - name: bits-service-release-version
-      params:
-        MANIFEST_PATH: git-bits-service-ci/manifests/diego-aws.yml
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
-        CF_USER: {{aws-cf2-user}}
-        CF_PASSWORD: {{aws-cf2-password}}
-        CF_DOMAIN: {{aws-cf2-domain}}
-        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
-        CF_DEPLOYMENT_NAME: cf2
-    on_failure:
-      put: cf2-aws-deployment-lock
-      params: { release: cf2-aws-deployment-lock }
-  - task: restart-diego-cells
-    file: git-bits-service-ci/tasks/restart-bosh-job.yml
-    attempts: 5
-    config:
-      params:
-        JOB_NAME: cell_z1
-        MANIFEST_PATH: git-bits-service-ci/manifests/diego-aws.yml
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
-        CF_USER: {{aws-cf2-user}}
-        CF_PASSWORD: {{aws-cf2-password}}
-        CF_DOMAIN: {{aws-cf2-domain}}
-        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
-    on_failure:
-      put: cf2-aws-deployment-lock
-      params: { release: cf2-aws-deployment-lock }
 
 - name: release-cf2-aws-release-lock
   plan:
@@ -1158,20 +1121,6 @@ jobs:
         AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
         AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
         BLOBSTORE_TYPE: s3
-  - task: restart-diego-cells
-    file: git-bits-service-ci/tasks/restart-bosh-job.yml
-    attempts: 5
-    config:
-      params:
-        JOB_NAME: cell_z1
-        MANIFEST_PATH: git-bits-service-ci/manifests/diego-aws.yml
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
-        CF_USER: {{aws-cf2-user}}
-        CF_PASSWORD: {{aws-cf2-password}}
-        CF_DOMAIN: {{aws-cf2-domain}}
-        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
 
 - name: CATs-diego-aws-with-bits
   serial: true
@@ -1200,6 +1149,16 @@ jobs:
         ERRAND_NAME: acceptance_tests
   - put: cf2-aws-deployment-lock
     params: { release: cf2-aws-deployment-lock }
+    on_failure:
+      task: noop
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: ubuntu}
+        run:
+          path: echo
+          args: ["Lock was already released. Ignoring."]
 
 # Migration
 
