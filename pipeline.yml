@@ -106,7 +106,7 @@ resources:
 
 - name: s3-bits-service-release
   type: s3
-  source:
+  source: &s3-resource
     access_key_id: {{s3-blobstore-access-key-id}}
     secret_access_key: {{s3-blobstore-secret-access-key}}
     bucket: ci-bits-service-artifacts
@@ -117,42 +117,26 @@ resources:
 - name: s3-bits-service-manifest
   type: s3
   source:
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
-    bucket: ci-bits-service-artifacts
+    <<: *s3-resource
     regexp: bits-service-manifest/manifest-(.*).yml
-    region_name: eu-west-1
-    private: false
 
 - name: s3-cf-release
   type: s3
   source:
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
-    bucket: ci-bits-service-artifacts
+    <<: *s3-resource
     regexp: cf-release/cf-(.*).tgz
-    region_name: eu-west-1
-    private: false
 
 - name: s3-cf-manifest
   type: s3
   source:
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
-    bucket: ci-bits-service-artifacts
+    <<: *s3-resource
     regexp: cf-manifest/manifest-(.*).yml
-    region_name: eu-west-1
-    private: false
 
 - name: s3-cf-aws-manifest
   type: s3
   source:
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
-    bucket: ci-bits-service-artifacts
+    <<: *s3-resource
     regexp: cf-aws-manifest/manifest-(.*).yml
-    region_name: eu-west-1
-    private: false
 
 - name: git-bits-service-ci
   type: git
@@ -235,53 +219,44 @@ resources:
 #
 - name: cf-bosh1-lock
   type: pool
-  source:
+  source: &lock-meta-data
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     pool: locks/cf-bosh1-lock
     private_key: {{github-private-key}}
 - name: cf-bosh2-lock
   type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/cf-bosh2-lock
-    private_key: {{github-private-key}}
+  source: { <<: *lock-meta-data, pool: locks/cf-bosh2-lock }
 - name: cf2-aws-deployment-lock
   type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/cf2-aws-deployment
-    private_key: {{github-private-key}}
+  source: { <<: *lock-meta-data, pool: locks/cf2-aws-deployment }
 - name: cf1-aws-deployment-lock
   type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/cf1-aws-deployment
-    private_key: {{github-private-key}}
+  source: { <<: *lock-meta-data, pool: locks/cf1-aws-deployment }
 - name: bits-deployment-local-lock
   type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/bits-deployment-local
-    private_key: {{github-private-key}}
+  source: { <<: *lock-meta-data, pool: locks/bits-deployment-local }
 - name: bits-deployment-s3-lock
   type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/bits-deployment-s3
-    private_key: {{github-private-key}}
+  source: { <<: *lock-meta-data, pool: locks/bits-deployment-s3 }
 - name: bits-deployment-webdav-lock
   type: pool
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/bits-deployment-webdav
-    private_key: {{github-private-key}}
+  source: { <<: *lock-meta-data, pool: locks/bits-deployment-webdav }
+
+bosh1-params: &bosh1-params
+  BOSH_TARGET: {{bosh-target}}
+  BOSH_USERNAME: {{bosh-username}}
+  BOSH_PASSWORD: {{bosh-password}}
+
+bosh2-params: &bosh2-params
+  BOSH_TARGET: {{bosh2-target}}
+  BOSH_USERNAME: {{bosh2-username}}
+  BOSH_PASSWORD: {{bosh2-password}}
+
+aws-bosh-params: &aws-bosh-params
+  BOSH_TARGET: {{aws-bosh-target}}
+  BOSH_USERNAME: {{aws-bosh-username}}
+  BOSH_PASSWORD: {{aws-bosh-password}}
 
 jobs:
 # BITS-SERVICE
@@ -301,6 +276,7 @@ jobs:
   - get: git-bits-service-ci
   - task: run-tests
     file: git-bits-service-ci/tasks/run-bits-service-client-tests.yml
+
 
 # BITS-RELEASE
 - name: create-and-upload-release
@@ -326,17 +302,13 @@ jobs:
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
         params:
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
+          <<: *bosh1-params
           RELEASE_FILE: releases/bits-service-*.tgz
     - task: upload-release-bosh-2
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
         params:
-          BOSH_TARGET: {{bosh2-target}}
-          BOSH_USERNAME: {{bosh2-username}}
-          BOSH_PASSWORD: {{bosh2-password}}
+          <<: *bosh2-params
           RELEASE_FILE: releases/bits-service-*.tgz
     - put: s3-bits-service-release
       params:
@@ -381,9 +353,7 @@ jobs:
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         BITS_DIRECTORY_KEY: {{s3-blobstore-bucket-name}}
         BITS_AWS_REGION: {{s3-blobstore-region}}
         AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
@@ -399,9 +369,7 @@ jobs:
         - name: git-bits-service-ci
         - name: manifests
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         MANIFEST_PATH: manifests/*.yml
     on_failure:
       put: bits-deployment-s3-lock
@@ -426,9 +394,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-release-tests.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.1.2
         RELEASE_NAME: bits-service-s3
     ensure:
@@ -453,9 +419,7 @@ jobs:
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         BITS_DIRECTORY_KEY: another-directory
         BLOBSTORE_TYPE: local
     on_failure:
@@ -468,9 +432,7 @@ jobs:
         - name: git-bits-service-ci
         - name: manifests
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         MANIFEST_PATH: manifests/*.yml
     on_failure:
       put: bits-deployment-local-lock
@@ -504,9 +466,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-release-tests.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.0.2
         RELEASE_NAME: bits-service-local
     ensure:
@@ -531,9 +491,7 @@ jobs:
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         BLOBSTORE_TYPE: webdav
     on_failure:
       put: bits-deployment-webdav-lock
@@ -545,9 +503,7 @@ jobs:
         - name: git-bits-service-ci
         - name: manifests
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         MANIFEST_PATH: manifests/*.yml
     on_failure:
       put: bits-deployment-webdav-lock
@@ -572,9 +528,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-release-tests.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.3.2
         RELEASE_NAME: bits-service-webdav
     ensure:
@@ -589,28 +543,19 @@ jobs:
         - run-system-tests-LOCAL
       trigger: true
     - get: s3-bits-service-release
-      passed:
+      passed: &upload-bits-service-release-and-manifest-to-acceptance-passed
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
       trigger: true
     - get: bits-service-release-version
-      passed:
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
+      passed: *upload-bits-service-release-and-manifest-to-acceptance-passed
       trigger: true
     - get: git-bits-service-release
-      passed:
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
+      passed: *upload-bits-service-release-and-manifest-to-acceptance-passed
       trigger: true
     - get: git-bits-service-ci
-      passed:
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
+      passed: *upload-bits-service-release-and-manifest-to-acceptance-passed
       trigger: true
   - aggregate:
     - task: upload-bits-service-release-to-acceptance
@@ -681,30 +626,18 @@ jobs:
   plan:
   - aggregate:
     - get: git-cf-release
-      passed:
+      passed: &cf-release-done-passed
         - CATs-aws-with-bits
         - CATs-diego-aws-with-bits
         - verification-migration-backwards-bosh1
         - verification-migration-backwards-bosh2
     - get: s3-cf-release
-      passed:
-        - CATs-aws-with-bits
-        - CATs-diego-aws-with-bits
-        - verification-migration-backwards-bosh1
-        - verification-migration-backwards-bosh2
+      passed: *cf-release-done-passed
     - get: cf-release-version
       trigger: true
-      passed:
-        - CATs-aws-with-bits
-        - CATs-diego-aws-with-bits
-        - verification-migration-backwards-bosh1
-        - verification-migration-backwards-bosh2
+      passed: *cf-release-done-passed
     - get: git-bits-service-ci
-      passed:
-        - CATs-aws-with-bits
-        - CATs-diego-aws-with-bits
-        - verification-migration-backwards-bosh1
-        - verification-migration-backwards-bosh2
+      passed: *cf-release-done-passed
     - get: git-bits-service-release
       passed:
         - enable-BITS-SERVICE
@@ -789,9 +722,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-cf-release
         params:
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
+          <<: *aws-bosh-params
           RELEASE_FILE: s3-cf-release/cf-*.tgz
     - task: upload-remote-syslog-release-bosh-aws
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -799,9 +730,7 @@ jobs:
         inputs:
           - name: git-bits-service-ci
         params:
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
+          <<: *aws-bosh-params
           RELEASE_FILE: https://bosh.io/d/github.com/cloudfoundry-community/simple-remote-syslog-boshrelease
 
     - task: upload-bits-release-bosh-aws
@@ -811,9 +740,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-bits-service-release
         params:
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
+          <<: *aws-bosh-params
           RELEASE_FILE: s3-bits-service-release/*.tgz
   - aggregate:
     - task: deploy-cf
@@ -824,10 +751,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *aws-bosh-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: {{aws-cf1-user}}
           CF_PASSWORD: {{aws-cf1-password}}
@@ -872,9 +797,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
+        <<: *aws-bosh-params
         ERRAND_NAME: acceptance_tests
         DEPLOYMENT_NAME: cf1
 
@@ -916,10 +839,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *aws-bosh-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: {{aws-cf1-user}}
           CF_PASSWORD: {{aws-cf1-password}}
@@ -958,9 +879,7 @@ jobs:
     attempts: 6
     config:
       params:
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
+        <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf1
         ERRAND_NAME: acceptance_tests
   - put: cf1-aws-deployment-lock
@@ -1002,9 +921,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-cf-release
         params:
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
+          <<: *aws-bosh-params
           RELEASE_FILE: s3-cf-release/cf-*.tgz
     - task: upload-bits-release-bosh-aws
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -1013,9 +930,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-bits-service-release
         params:
-          BOSH_TARGET: {{aws-bosh-target}}
-          BOSH_USERNAME: {{aws-bosh-username}}
-          BOSH_PASSWORD: {{aws-bosh-password}}
+          <<: *aws-bosh-params
           RELEASE_FILE: s3-bits-service-release/*.tgz
   - task: deploy-cf
     file: git-bits-service-ci/tasks/deploy-release.yml
@@ -1025,10 +940,8 @@ jobs:
         - name: bits-service-release-version
         - name: manifests
       params:
+        <<: *aws-bosh-params
         MANIFEST_PATH: manifests/manifest-*.yml
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
         RELEASE_VERSION_FILE: bits-service-release-version/number
         CF_USER: {{aws-cf2-user}}
         CF_PASSWORD: {{aws-cf2-password}}
@@ -1073,9 +986,7 @@ jobs:
     attempts: 6
     config:
       params:
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
+        <<: *aws-bosh-params
         ERRAND_NAME: acceptance_tests
         DEPLOYMENT_NAME: cf2
 
@@ -1116,10 +1027,8 @@ jobs:
         - name: bits-service-release-version
         - name: manifests
       params:
+        <<: *aws-bosh-params
         MANIFEST_PATH: manifests/manifest-*.yml
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
         RELEASE_VERSION_FILE: bits-service-release-version/number
         CF_USER: {{aws-cf2-user}}
         CF_PASSWORD: {{aws-cf2-password}}
@@ -1152,9 +1061,7 @@ jobs:
     attempts: 6
     config:
       params:
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
+        <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf2
         ERRAND_NAME: acceptance_tests
   - put: cf2-aws-deployment-lock
@@ -1214,9 +1121,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-cf-release
         params:
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
+          <<: *bosh1-params
           RELEASE_FILE: s3-cf-release/cf-*.tgz
     - task: upload-bits-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -1225,9 +1130,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-bits-service-release
         params:
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
+          <<: *bosh1-params
           RELEASE_FILE: s3-bits-service-release/*.tgz
   - aggregate:
     - task: deploy-cf
@@ -1238,10 +1141,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *bosh1-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: admin
           CF_PASSWORD: admin
@@ -1283,9 +1184,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         ERRAND_NAME: bsmt_preparation
         DEPLOYMENT_NAME: cf-warden
 
@@ -1332,10 +1231,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *bosh1-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: admin
           CF_PASSWORD: admin
@@ -1364,9 +1261,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
 
@@ -1389,9 +1284,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
 
@@ -1437,10 +1330,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *bosh1-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: admin
           CF_PASSWORD: admin
@@ -1469,9 +1360,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh-target}}
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
+        <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
   - put: cf-bosh1-lock
@@ -1520,9 +1409,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-cf-release
         params:
-          BOSH_TARGET: {{bosh2-target}}
-          BOSH_USERNAME: {{bosh2-username}}
-          BOSH_PASSWORD: {{bosh2-password}}
+          <<: *bosh2-params
           RELEASE_FILE: s3-cf-release/cf-*.tgz
     - task: upload-bits-release-bosh
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -1531,9 +1418,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-bits-service-release
         params:
-          BOSH_TARGET: {{bosh2-target}}
-          BOSH_USERNAME: {{bosh2-username}}
-          BOSH_PASSWORD: {{bosh2-password}}
+          <<: *bosh2-params
           RELEASE_FILE: s3-bits-service-release/*.tgz
   - aggregate:
     - task: deploy-cf
@@ -1544,10 +1429,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *bosh2-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{bosh2-target}}
-          BOSH_USERNAME: {{bosh2-username}}
-          BOSH_PASSWORD: {{bosh2-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: admin
           CF_PASSWORD: admin
@@ -1589,9 +1472,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh2-target}}
-        BOSH_USERNAME: {{bosh2-username}}
-        BOSH_PASSWORD: {{bosh2-password}}
+        <<: *bosh2-params
         ERRAND_NAME: bsmt_preparation
         DEPLOYMENT_NAME: cf-warden
 
@@ -1638,10 +1519,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *bosh2-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{bosh2-target}}
-          BOSH_USERNAME: {{bosh2-username}}
-          BOSH_PASSWORD: {{bosh2-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: admin
           CF_PASSWORD: admin
@@ -1666,9 +1545,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh2-target}}
-        BOSH_USERNAME: {{bosh2-username}}
-        BOSH_PASSWORD: {{bosh2-password}}
+        <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
 
@@ -1691,9 +1568,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh2-target}}
-        BOSH_USERNAME: {{bosh2-username}}
-        BOSH_PASSWORD: {{bosh2-password}}
+        <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
 
@@ -1739,10 +1614,8 @@ jobs:
           - name: bits-service-release-version
           - name: manifests
         params:
+          <<: *bosh2-params
           MANIFEST_PATH: manifests/manifest-*.yml
-          BOSH_TARGET: {{bosh2-target}}
-          BOSH_USERNAME: {{bosh2-username}}
-          BOSH_PASSWORD: {{bosh2-password}}
           RELEASE_VERSION_FILE: bits-service-release-version/number
           CF_USER: admin
           CF_PASSWORD: admin
@@ -1767,9 +1640,7 @@ jobs:
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
-        BOSH_TARGET: {{bosh2-target}}
-        BOSH_USERNAME: {{bosh2-username}}
-        BOSH_PASSWORD: {{bosh2-password}}
+        <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
   - put: cf-bosh2-lock
@@ -1808,9 +1679,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-bits-service-release
         params:
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
+          <<: *bosh1-params
           RELEASE_FILE: s3-bits-service-release/*.tgz
     - task: upload-last-cf-release
       file: git-bits-service-ci/tasks/upload-release.yml
@@ -1819,9 +1688,7 @@ jobs:
           - name: git-bits-service-ci
           - name: s3-cf-release
         params:
-          BOSH_TARGET: {{bosh-target}}
-          BOSH_USERNAME: {{bosh-username}}
-          BOSH_PASSWORD: {{bosh-password}}
+          <<: *bosh1-params
           RELEASE_FILE: s3-cf-release/*.tgz
 
 - name: recreate-bosh-lite-acceptance
@@ -1881,10 +1748,7 @@ jobs:
   - task: cleanup-bosh
     file: git-bits-service-ci/tasks/bosh-cleanup.yml
     config:
-      params:
-        BOSH_USERNAME: {{bosh-username}}
-        BOSH_PASSWORD: {{bosh-password}}
-        BOSH_TARGET: {{bosh-target}}
+      params: *bosh1-params
 
 - name: cleanup-bosh-acceptance
   serial: true
