@@ -1,7 +1,3 @@
-releases:
-- name: simple-remote-syslog
-  version: latest
-
 resource_pools:
   - name: large_z1
     network: cf_private
@@ -46,8 +42,6 @@ resource_pools:
 jobs:
   - name: api_z1
     resource_pool: api_z1
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: ha_proxy_z1
     resource_pool: small_z2
@@ -55,8 +49,6 @@ jobs:
       router:
         servers:
           - (( grab jobs.router_z1.networks.cf_private.static_ips[0] ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: runner_z1
     instances: 3
@@ -84,36 +76,27 @@ jobs:
       release: cf
     - name: metron_agent
       release: cf
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: bits_service_z1
     networks:
     - (( replace ))
     - name: cf_private
     resource_pool: small_z1
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: postgres_z1
     networks:
       - name: cf_private
         static_ips: (( static_ips(5) ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: uaa_z1
     properties:
       uaadb:
         address: (( grab jobs.postgres_z1.networks.cf_private.static_ips[0] ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: router_z1
     networks:
       - name: cf_private
         static_ips: (( static_ips(1) ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: etcd_z1
     networks:
@@ -123,22 +106,16 @@ jobs:
       etcd_metrics_server:
         nats:
           machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: nats_z1
     networks:
       - name: cf_private
         static_ips: (( static_ips(2) ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
   - name: consul_z1
     networks:
       - name: cf_private
         static_ips: (( static_ips(4) ))
-    templates:
-    - {name: remote-syslog, release: simple-remote-syslog}
 
 properties:
   ccdb:
@@ -322,10 +299,6 @@ properties:
     enable_ssl: false
     server_cert:
     server_key:
-  remote_syslog:
-    address: logs4.papertrailapp.com
-    port: 48094
-    short_hostname: true
 
 networks:
   - name: elastic

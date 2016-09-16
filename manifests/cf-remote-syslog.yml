@@ -1,0 +1,51 @@
+releases:
+- name: simple-remote-syslog
+  version: latest
+
+jobs:
+  - name: api_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: ha_proxy_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: runner_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: bits_service_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: postgres_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: uaa_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: router_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: etcd_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: nats_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+  - name: consul_z1
+    templates:
+    - {name: remote-syslog, release: simple-remote-syslog}
+
+properties:
+  # Lastpass: Shared-Flintstone/Flintstone Concourse Papertrail
+  remote_syslog:
+    address: logs4.papertrailapp.com
+    port: 48094
+    short_hostname: true
