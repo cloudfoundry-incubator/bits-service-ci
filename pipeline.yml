@@ -794,6 +794,17 @@ jobs:
           BOSH_USERNAME: {{aws-bosh-username}}
           BOSH_PASSWORD: {{aws-bosh-password}}
           RELEASE_FILE: s3-cf-release/cf-*.tgz
+    - task: upload-remote-syslog-release-bosh-aws
+      file: git-bits-service-ci/tasks/upload-release.yml
+      config:
+        inputs:
+          - name: git-bits-service-ci
+        params:
+          BOSH_TARGET: {{aws-bosh-target}}
+          BOSH_USERNAME: {{aws-bosh-username}}
+          BOSH_PASSWORD: {{aws-bosh-password}}
+          RELEASE_FILE: https://bosh.io/d/github.com/cloudfoundry-community/simple-remote-syslog-boshrelease
+
     - task: upload-bits-release-bosh-aws
       file: git-bits-service-ci/tasks/upload-release.yml
       config:
