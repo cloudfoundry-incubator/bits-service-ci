@@ -662,7 +662,6 @@ jobs:
       trigger: true
     - get: git-bits-service-ci
       trigger: true
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
   - task: create-cf-release
     file: git-bits-service-ci/tasks/create-cf-release.yml
     config:
