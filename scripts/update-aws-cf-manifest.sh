@@ -44,12 +44,6 @@ spruce merge manifests/cf-aws-dynamic-sed.yml \
   ./manifests/tweaks.yml \
   ./manifests/bits-network-aws.yml \
   ${MANIFEST_STUBS} \
-> ./manifests/manifest-${VERSION}-no-syslog.yml
-
-# Weave papertrail into every job
-spruce merge \
-  ./manifests/manifest-${VERSION}-no-syslog.yml \
-  ./manifests/cf-remote-syslog.yml \
 > ../manifests/manifest-${VERSION}.yml
 
 # Replace '' with ' that somehow got introduced by spruce
