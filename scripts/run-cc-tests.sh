@@ -1,8 +1,6 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 service mysql start
-
-set -e
 
 cd $(dirname $0)/../../git-cloud-controller
 
