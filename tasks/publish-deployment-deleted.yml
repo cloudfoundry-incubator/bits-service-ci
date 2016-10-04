@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: git-bits-service-ci
+- name: git-bits-service-ci-metadata
+
+params:
+  DEPLOYMENT_NAME:
+
+run:
+  path: git-bits-service-ci/scripts/publish-deployment-deleted.sh

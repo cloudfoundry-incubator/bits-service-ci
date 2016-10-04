@@ -1,0 +1,10 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+params:
+  MESSAGE:
+
+run:
+  path: echo.sh

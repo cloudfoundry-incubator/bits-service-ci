@@ -43,6 +43,10 @@ groups:
   - prepare-migration-bosh2
   - release-cf-bosh2-lock
   - deploy-cf-bosh2
+  - manually-delete-cf-dea-aws
+  - manually-delete-cf-diego-aws
+  - manually-delete-cf-bosh1
+  - manually-delete-cf-bosh2
 - name: bits-service
   jobs:
   - run-service-tests
@@ -213,6 +217,13 @@ resources:
     file: version/bits-service-release/version
     private_key: {{github-private-key}}
     initial_version: 0.0.0-dev.2
+
+- name: git-bits-service-ci-metadata
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    private_key: {{github-private-key}}
 
 #
 # locks
@@ -686,6 +697,24 @@ jobs:
           VERSION_FILE: cf-release-version/number
           RELEASE_NAME: cf-release
 
+- name: manually-delete-cf-dea-aws
+  serial: true
+  plan: &delete-deployment-plan
+  - aggregate:
+    - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+  - task: delete-deployment
+    file: git-bits-service-ci/tasks/delete-deployment.yml
+    config:
+      params:
+        <<: *aws-bosh-params
+        DEPLOYMENT_NAME: cf1
+  - task: publish-deployment-deleted
+    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
+    config: { params: { DEPLOYMENT_NAME: cf1 } }
+  - put: git-bits-service-ci-metadata
+    params: {repository: git-bits-service-ci-metadata}
+
 - name: deploy-cf-dea-aws
   serial: true
   plan:
@@ -708,6 +737,9 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+      passed: [manually-delete-cf-dea-aws]
+      trigger: true
   - aggregate:
     - task: update-cf-manifest
       file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
@@ -792,6 +824,15 @@ jobs:
         <<: *aws-bosh-params
         ERRAND_NAME: acceptance_tests
         DEPLOYMENT_NAME: cf1
+    on_failure: &inform-pipeline-operator-dea-aws-cats
+      task: inform-pipeline-operator
+      file: git-bits-service-ci/tasks/echo.yml
+      config:
+        params:
+          MESSAGE: |
+              Consider doing a fresh deployment by manually running job
+              [manually-delete-cf-dea-aws]
+              (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-dea-aws)
 
 - name: enable-BITS-SERVICE
   serial: true
@@ -874,8 +915,27 @@ jobs:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf1
         ERRAND_NAME: acceptance_tests
+    on_failure: *inform-pipeline-operator-dea-aws-cats
   - put: cf1-aws-deployment-lock
     params: { release: cf1-aws-deployment-lock }
+
+- name: manually-delete-cf-diego-aws
+  serial: true
+  plan: &delete-deployment-plan
+  - aggregate:
+    - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+  - task: delete-deployment
+    file: git-bits-service-ci/tasks/delete-deployment.yml
+    config:
+      params:
+        <<: *aws-bosh-params
+        DEPLOYMENT_NAME: cf2
+  - task: publish-deployment-deleted
+    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
+    config: { params: { DEPLOYMENT_NAME: cf2 } }
+  - put: git-bits-service-ci-metadata
+    params: {repository: git-bits-service-ci-metadata}
 
 - name: deploy-cf-diego-aws
   serial: true
@@ -899,6 +959,9 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+      passed: [manually-delete-cf-diego-aws]
+      trigger: true
   - aggregate:
     - task: update-cf-manifest
       file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
@@ -981,6 +1044,15 @@ jobs:
         <<: *aws-bosh-params
         ERRAND_NAME: acceptance_tests
         DEPLOYMENT_NAME: cf2
+    on_failure: &inform-pipeline-operator-diego-aws-cats
+      task: inform-pipeline-operator
+      file: git-bits-service-ci/tasks/echo.yml
+      config:
+        params:
+          MESSAGE: |
+              Consider doing a fresh deployment by manually running job
+              [manually-delete-cf-diego-aws]
+              (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
 
 - name: enable-BITS-SERVICE-diego
   serial: true
@@ -1056,6 +1128,7 @@ jobs:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf2
         ERRAND_NAME: acceptance_tests
+    on_failure: *inform-pipeline-operator-diego-aws-cats
   - put: cf2-aws-deployment-lock
     params: { release: cf2-aws-deployment-lock }
     on_failure:
@@ -1070,6 +1143,24 @@ jobs:
           args: ["Lock was already released. Ignoring."]
 
 # Migration
+
+- name: manually-delete-cf-bosh1
+  serial: true
+  plan: &delete-deployment-plan
+  - aggregate:
+    - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+  - task: delete-deployment
+    file: git-bits-service-ci/tasks/delete-deployment.yml
+    config:
+      params:
+        <<: *bosh1-params
+        DEPLOYMENT_NAME: cf-warden
+  - task: publish-deployment-deleted
+    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
+    config: { params: { DEPLOYMENT_NAME: cf-warden } }
+  - put: git-bits-service-ci-metadata
+    params: {repository: git-bits-service-ci-metadata}
 
 - name: deploy-cf-bosh1
   serial: true
@@ -1093,6 +1184,9 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+      passed: [manually-delete-cf-bosh1]
+      trigger: true
   - aggregate:
     - task: update-cf-manifest
       file: git-bits-service-ci/tasks/update-cf-manifest.yml
@@ -1179,6 +1273,15 @@ jobs:
         <<: *bosh1-params
         ERRAND_NAME: bsmt_preparation
         DEPLOYMENT_NAME: cf-warden
+    on_failure: &inform-pipeline-operator-bosh1-migration-tests
+      task: inform-pipeline-operator
+      file: git-bits-service-ci/tasks/echo.yml
+      config:
+        params:
+          MESSAGE: |
+              Consider doing a fresh deployment by manually running job
+              [manually-delete-cf-bosh1]
+              (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh1)
 
 - name: enable-BITS-SERVICE-bosh1
   serial: true
@@ -1256,6 +1359,7 @@ jobs:
         <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
+    on_failure: *inform-pipeline-operator-bosh1-migration-tests
 
 - name: preparation-migration-backwards-bosh1
   serial: true
@@ -1279,6 +1383,7 @@ jobs:
         <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
+    on_failure: *inform-pipeline-operator-bosh1-migration-tests
 
 - name: disable-BITS-SERVICE-bosh1
   serial: true
@@ -1355,8 +1460,27 @@ jobs:
         <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
+    on_failure: &inform-pipeline-operator-bosh1-migration-tests
   - put: cf-bosh1-lock
     params: { release: cf-bosh1-lock }
+
+- name: manually-delete-cf-bosh2
+  serial: true
+  plan: &delete-deployment-plan
+  - aggregate:
+    - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+  - task: delete-deployment
+    file: git-bits-service-ci/tasks/delete-deployment.yml
+    config:
+      params:
+        <<: *bosh2-params
+        DEPLOYMENT_NAME: cf-warden
+  - task: publish-deployment-deleted
+    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
+    config: { params: { DEPLOYMENT_NAME: cf-warden } }
+  - put: git-bits-service-ci-metadata
+    params: {repository: git-bits-service-ci-metadata}
 
 # no-migration tests for webdav
 - name: deploy-cf-bosh2
@@ -1381,6 +1505,9 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
+    - get: git-bits-service-ci-metadata
+      passed: [manually-delete-cf-bosh2]
+      trigger: true
   - aggregate:
     - task: update-cf-manifest
       file: git-bits-service-ci/tasks/update-cf-manifest.yml
@@ -1467,6 +1594,15 @@ jobs:
         <<: *bosh2-params
         ERRAND_NAME: bsmt_preparation
         DEPLOYMENT_NAME: cf-warden
+    on_failure: &inform-pipeline-operator-bosh2-migration-tests
+      task: inform-pipeline-operator
+      file: git-bits-service-ci/tasks/echo.yml
+      config:
+        params:
+          MESSAGE: |
+              Consider doing a fresh deployment by manually running job
+              [manually-delete-cf-bosh2]
+              (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh2)
 
 - name: enable-BITS-SERVICE-bosh2
   serial: true
@@ -1540,6 +1676,7 @@ jobs:
         <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
+    on_failure: *inform-pipeline-operator-bosh2-migration-tests
 
 - name: preparation-migration-backwards-bosh2
   serial: true
@@ -1563,6 +1700,7 @@ jobs:
         <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
+    on_failure: *inform-pipeline-operator-bosh2-migration-tests
 
 - name: disable-BITS-SERVICE-bosh2
   serial: true
@@ -1635,6 +1773,7 @@ jobs:
         <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
+    on_failure: *inform-pipeline-operator-bosh2-migration-tests
   - put: cf-bosh2-lock
     params: { release: cf-bosh2-lock }
 
