@@ -222,7 +222,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
+    branch: events
     private_key: {{github-private-key}}
 
 #

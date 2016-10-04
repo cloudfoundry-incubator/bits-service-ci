@@ -12,6 +12,5 @@ date | tee "$EVENT_DIR"/deployment-deleted
 git config --global user.name "Pipeline"
 git config --global user.email flintstone@cloudfoundry.org
 
-git pull
 git add "$EVENT_DIR"/deployment-deleted
 git commit -m "Deployment $DEPLOYMENT_NAME was deleted"
