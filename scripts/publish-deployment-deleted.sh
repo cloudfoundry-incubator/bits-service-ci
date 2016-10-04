@@ -2,7 +2,7 @@
 
 DEPLOYMENT_NAME=${DEPLOYMENT_NAME:?DEPLOYMENT_NAME missing}
 
-cd git-bits-service-ci-metadata
+cd git-bits-service-ci-events
 
 EVENT_DIR="events/$DEPLOYMENT_NAME"
 mkdir -p "$EVENT_DIR"

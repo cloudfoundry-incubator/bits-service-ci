@@ -218,7 +218,7 @@ resources:
     private_key: {{github-private-key}}
     initial_version: 0.0.0-dev.2
 
-- name: git-bits-service-ci-metadata
+- name: git-bits-service-ci-events
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
@@ -702,7 +702,7 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
@@ -712,8 +712,8 @@ jobs:
   - task: publish-deployment-deleted
     file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
     config: { params: { DEPLOYMENT_NAME: cf1 } }
-  - put: git-bits-service-ci-metadata
-    params: {repository: git-bits-service-ci-metadata}
+  - put: git-bits-service-ci-events
+    params: {repository: git-bits-service-ci-events}
 
 - name: deploy-cf-dea-aws
   serial: true
@@ -737,7 +737,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
       passed: [manually-delete-cf-dea-aws]
       trigger: true
   - aggregate:
@@ -924,7 +924,7 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
@@ -934,8 +934,8 @@ jobs:
   - task: publish-deployment-deleted
     file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
     config: { params: { DEPLOYMENT_NAME: cf2 } }
-  - put: git-bits-service-ci-metadata
-    params: {repository: git-bits-service-ci-metadata}
+  - put: git-bits-service-ci-events
+    params: {repository: git-bits-service-ci-events}
 
 - name: deploy-cf-diego-aws
   serial: true
@@ -959,7 +959,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
       passed: [manually-delete-cf-diego-aws]
       trigger: true
   - aggregate:
@@ -1149,7 +1149,7 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
@@ -1159,8 +1159,8 @@ jobs:
   - task: publish-deployment-deleted
     file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
     config: { params: { DEPLOYMENT_NAME: cf-warden } }
-  - put: git-bits-service-ci-metadata
-    params: {repository: git-bits-service-ci-metadata}
+  - put: git-bits-service-ci-events
+    params: {repository: git-bits-service-ci-events}
 
 - name: deploy-cf-bosh1
   serial: true
@@ -1184,7 +1184,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
       passed: [manually-delete-cf-bosh1]
       trigger: true
   - aggregate:
@@ -1469,7 +1469,7 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
@@ -1479,8 +1479,8 @@ jobs:
   - task: publish-deployment-deleted
     file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
     config: { params: { DEPLOYMENT_NAME: cf-warden } }
-  - put: git-bits-service-ci-metadata
-    params: {repository: git-bits-service-ci-metadata}
+  - put: git-bits-service-ci-events
+    params: {repository: git-bits-service-ci-events}
 
 # no-migration tests for webdav
 - name: deploy-cf-bosh2
@@ -1505,7 +1505,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-metadata
+    - get: git-bits-service-ci-events
       passed: [manually-delete-cf-bosh2]
       trigger: true
   - aggregate:

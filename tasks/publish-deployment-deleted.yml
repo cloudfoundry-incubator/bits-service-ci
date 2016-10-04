@@ -5,7 +5,7 @@ image: docker:///flintstonecf/ci
 
 inputs:
 - name: git-bits-service-ci
-- name: git-bits-service-ci-metadata
+- name: git-bits-service-ci-events
 
 params:
   DEPLOYMENT_NAME:
