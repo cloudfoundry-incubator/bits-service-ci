@@ -218,12 +218,32 @@ resources:
     private_key: {{github-private-key}}
     initial_version: 0.0.0-dev.2
 
-- name: git-bits-service-ci-events
-  type: git
-  source:
+- name: cf-bosh1-deployment-events
+  type: semver
+  source: &deployment-events-source
+    driver: git
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: events
+    file: events/cf-bosh1/deployment-deleted
     private_key: {{github-private-key}}
+
+- name: cf-bosh2-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events/cf-bosh2/deployment-deleted
+
+- name: cf-dea-aws-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events/cf-dea-aws/deployment-deleted
+
+- name: cf-diego-aws-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events/cf-diego-aws/deployment-deleted
 
 #
 # locks
@@ -702,18 +722,16 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-dea-aws-deployment-events
+      params: { bump: major }
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
       params:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf1
-  - task: publish-deployment-deleted
-    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
-    config: { params: { DEPLOYMENT_NAME: cf1 } }
-  - put: git-bits-service-ci-events
-    params: {repository: git-bits-service-ci-events}
+  - put: cf-dea-aws-deployment-events
+    params: { file: cf-dea-aws-deployment-events/number }
 
 - name: deploy-cf-dea-aws
   serial: true
@@ -737,7 +755,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-dea-aws-deployment-events
       passed: [manually-delete-cf-dea-aws]
       trigger: true
   - aggregate:
@@ -924,18 +942,16 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-diego-aws-deployment-events
+      params: { bump: major }
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
       params:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf2
-  - task: publish-deployment-deleted
-    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
-    config: { params: { DEPLOYMENT_NAME: cf2 } }
-  - put: git-bits-service-ci-events
-    params: {repository: git-bits-service-ci-events}
+  - put: cf-diego-aws-deployment-events
+    params: { file: cf-diego-aws-deployment-events/number }
 
 - name: deploy-cf-diego-aws
   serial: true
@@ -959,7 +975,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-diego-aws-deployment-events
       passed: [manually-delete-cf-diego-aws]
       trigger: true
   - aggregate:
@@ -1149,18 +1165,16 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-bosh1-deployment-events
+      params: { bump: major }
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
       params:
         <<: *bosh1-params
         DEPLOYMENT_NAME: cf-warden
-  - task: publish-deployment-deleted
-    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
-    config: { params: { DEPLOYMENT_NAME: cf-warden } }
-  - put: git-bits-service-ci-events
-    params: {repository: git-bits-service-ci-events}
+  - put: cf-bosh1-deployment-events
+    params: { file: cf-bosh1-deployment-events/number }
 
 - name: deploy-cf-bosh1
   serial: true
@@ -1184,7 +1198,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-bosh1-deployment-events
       passed: [manually-delete-cf-bosh1]
       trigger: true
   - aggregate:
@@ -1469,18 +1483,16 @@ jobs:
   plan: &delete-deployment-plan
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-bosh2-deployment-events
+      params: { bump: major}
   - task: delete-deployment
     file: git-bits-service-ci/tasks/delete-deployment.yml
     config:
       params:
         <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
-  - task: publish-deployment-deleted
-    file: git-bits-service-ci/tasks/publish-deployment-deleted.yml
-    config: { params: { DEPLOYMENT_NAME: cf-warden } }
-  - put: git-bits-service-ci-events
-    params: {repository: git-bits-service-ci-events}
+  - put: cf-bosh2-deployment-events
+    params: { file: cf-bosh2-deployment-events/number }
 
 # no-migration tests for webdav
 - name: deploy-cf-bosh2
@@ -1505,7 +1517,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
-    - get: git-bits-service-ci-events
+    - get: cf-bosh2-deployment-events
       passed: [manually-delete-cf-bosh2]
       trigger: true
   - aggregate:
