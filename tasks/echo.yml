@@ -3,8 +3,11 @@ platform: linux
 
 image: docker:///flintstonecf/ci
 
+inputs:
+  - name: git-bits-service-ci
+
 params:
   MESSAGE:
 
 run:
-  path: echo.sh
+  path: git-bits-service-ci/scripts/echo.sh
