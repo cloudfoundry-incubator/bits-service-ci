@@ -42,7 +42,7 @@ groups:
   - enable-BITS-SERVICE-bosh2
   - prepare-migration-bosh2
   - release-cf-bosh2-lock
-  - deploy-cf-bosh2
+  - deploy-cf-bosh2 (webdav)
   - manually-delete-cf-dea-aws
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
@@ -98,7 +98,7 @@ groups:
   - enable-BITS-SERVICE-bosh2
   - prepare-migration-bosh2
   - release-cf-bosh2-lock
-  - deploy-cf-bosh2
+  - deploy-cf-bosh2 (webdav)
 - name: infrastructure
   jobs:
   - recreate-bosh-lite-1
@@ -1493,7 +1493,7 @@ jobs:
     params: { file: cf-bosh2-deployment-events/number }
 
 # no-migration tests for webdav
-- name: deploy-cf-bosh2
+- name: deploy-cf-bosh2 (webdav)
   serial: true
   plan:
   - aggregate:
@@ -1576,7 +1576,7 @@ jobs:
 - name: release-cf-bosh2-lock
   plan:
   - get: cf-bosh2-lock
-    passed: [deploy-cf-bosh2]
+    passed: [deploy-cf-bosh2 (webdav)]
   - put: cf-bosh2-lock
     params: { release: cf-bosh2-lock }
 
@@ -1585,18 +1585,18 @@ jobs:
   plan:
   - aggregate:
     - get: git-cf-release
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: s3-cf-release
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: s3-bits-service-release
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: cf-release-version
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: cf-bosh2-lock
       trigger: true
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-ci
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1630,9 +1630,9 @@ jobs:
       trigger: true
       passed: [prepare-migration-bosh2]
     - get: bits-service-release-version
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-release
-      passed: [deploy-cf-bosh2]
+      passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-ci
       passed: [prepare-migration-bosh2]
   - task: update-cf-manifest
