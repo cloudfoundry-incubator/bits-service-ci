@@ -34,7 +34,7 @@ groups:
   - enable-BITS-SERVICE-bosh1
   - prepare-migration-bosh1
   - release-cf-bosh1-lock
-  - deploy-cf-bosh1
+  - deploy-cf-bosh1 (S3)
   - preparation-migration-backwards-bosh2
   - disable-BITS-SERVICE-bosh2
   - verification-migration-backwards-bosh2
@@ -90,7 +90,7 @@ groups:
   - enable-BITS-SERVICE-bosh1
   - prepare-migration-bosh1
   - release-cf-bosh1-lock
-  - deploy-cf-bosh1
+  - deploy-cf-bosh1 (S3)
   - preparation-migration-backwards-bosh2
   - disable-BITS-SERVICE-bosh2
   - verification-migration-backwards-bosh2
@@ -1176,7 +1176,7 @@ jobs:
   - put: cf-bosh1-deployment-events
     params: { file: cf-bosh1-deployment-events/number }
 
-- name: deploy-cf-bosh1
+- name: deploy-cf-bosh1 (S3)
   serial: true
   plan:
   - aggregate:
@@ -1259,7 +1259,7 @@ jobs:
 - name: release-cf-bosh1-lock
   plan:
   - get: cf-bosh1-lock
-    passed: [deploy-cf-bosh1]
+    passed: [deploy-cf-bosh1 (S3)]
   - put: cf-bosh1-lock
     params: { release: cf-bosh1-lock }
 
@@ -1268,18 +1268,18 @@ jobs:
   plan:
   - aggregate:
     - get: git-cf-release
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: s3-cf-release
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: s3-bits-service-release
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: cf-release-version
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: cf-bosh1-lock
       trigger: true
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-ci
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1313,9 +1313,9 @@ jobs:
       trigger: true
       passed: [prepare-migration-bosh1]
     - get: bits-service-release-version
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-release
-      passed: [deploy-cf-bosh1]
+      passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-ci
       passed: [prepare-migration-bosh1]
   - task: update-cf-manifest
