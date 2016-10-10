@@ -1189,8 +1189,6 @@ jobs:
       passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: cf-release-version
-      passed: [create-cf-release]
     - get: bits-service-release-version
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
@@ -1305,8 +1303,6 @@ jobs:
       passed: [prepare-migration-bosh1]
     - get: s3-cf-release
       passed: [prepare-migration-bosh1]
-    - get: cf-release-version
-      passed: [prepare-migration-bosh1]
     - get: cf-bosh1-lock
       trigger: true
       passed: [prepare-migration-bosh1]
@@ -1407,8 +1403,6 @@ jobs:
       passed: [preparation-migration-backwards-bosh1]
     - get: s3-cf-release
       passed: [preparation-migration-backwards-bosh1]
-    - get: cf-release-version
-      passed: [preparation-migration-backwards-bosh1]
     - get: cf-bosh1-lock
       trigger: true
       passed: [preparation-migration-backwards-bosh1]
@@ -1508,8 +1502,6 @@ jobs:
       passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: cf-release-version
-      passed: [create-cf-release]
     - get: bits-service-release-version
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
@@ -1624,8 +1616,6 @@ jobs:
       passed: [prepare-migration-bosh2]
     - get: s3-cf-release
       passed: [prepare-migration-bosh2]
-    - get: cf-release-version
-      passed: [prepare-migration-bosh2]
     - get: cf-bosh2-lock
       trigger: true
       passed: [prepare-migration-bosh2]
@@ -1721,8 +1711,6 @@ jobs:
     - get: cf-release-version
       passed: [preparation-migration-backwards-bosh2]
     - get: s3-cf-release
-      passed: [preparation-migration-backwards-bosh2]
-    - get: cf-release-version
       passed: [preparation-migration-backwards-bosh2]
     - get: cf-bosh2-lock
       trigger: true
