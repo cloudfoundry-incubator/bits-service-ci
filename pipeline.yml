@@ -748,8 +748,6 @@ jobs:
       passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: cf-release-version
-      passed: [create-cf-release]
     - get: bits-service-release-version
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
       trigger: true
