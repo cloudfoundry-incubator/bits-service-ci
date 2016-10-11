@@ -48,9 +48,8 @@ sed \
 
 # Apply ERB templates
 TMP=../manifests/manifest.yml.tmp
-scripts/manifest_parser.rb ../manifests/manifest.yml > "$TMP"
+erb ../manifests/manifest.yml > "$TMP"
 mv ${TMP} ../manifests/manifest.yml
-
 
 echo "Content of ../manifests/manifest.yml:"
 cat ../manifests/manifest.yml
