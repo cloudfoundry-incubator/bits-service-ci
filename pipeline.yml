@@ -758,27 +758,42 @@ jobs:
     - get: cf-dea-aws-deployment-events
       passed: [manually-delete-cf-dea-aws]
       trigger: true
-  - task: update-cf-manifest
-    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-    config:
-      params:
-        IAAS: aws
-        MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
-        CF_USER: {{aws-cf1-user}}
-        CF_PASSWORD: {{aws-cf1-password}}
-        CF_DOMAIN: {{aws-cf1-domain}}
-        CF_PUBLIC_IP: {{aws-cf1-public-ip}}
-        CF_DEPLOYMENT_NAME: cf1
-        BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
-        BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
-        AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
-        AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
-        BLOBSTORE_TYPE: s3
+  - aggregate:
+    - task: update-cf-manifest
+      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+      config:
+        params:
+          IAAS: aws
+          MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
+          CF_USER: {{aws-cf1-user}}
+          CF_PASSWORD: {{aws-cf1-password}}
+          CF_DOMAIN: {{aws-cf1-domain}}
+          CF_PUBLIC_IP: {{aws-cf1-public-ip}}
+          CF_DEPLOYMENT_NAME: cf1
+          BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+    - task: download stemcell
+      config: &wget
+        platform: linux
+        image: docker:///flintstonecf/ci
+        outputs: [{ name: stemcells }]
+        run:
+          path: wget
+          args: ["https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent", "--output-document=stemcells/stemcell"]
+    # TODO: Uncomment, once permission problem is solved
+    # https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-cf-dea-aws/builds/123
+    # - task: download diego-release
+    #   config:
+    #     <<: *wget
+    #     outputs: [{ name: releases }]
+    #     run: { args: ["https://bosh.io/d/github.com/cloudfoundry/diego-release", "--output-document=releases/diego-release.tgz"] }
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml
-     stemcells:
-     - https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+     stemcells: ["stemcells/stemcell"]
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
