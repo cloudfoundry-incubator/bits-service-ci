@@ -758,13 +758,22 @@ jobs:
     - get: cf-dea-aws-deployment-events
       passed: [manually-delete-cf-dea-aws]
       trigger: true
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-      config:
-        params:
-          IAAS: aws
-          MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+    config:
+      params:
+        IAAS: aws
+        MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
+        CF_USER: {{aws-cf1-user}}
+        CF_PASSWORD: {{aws-cf1-password}}
+        CF_DOMAIN: {{aws-cf1-domain}}
+        CF_PUBLIC_IP: {{aws-cf1-public-ip}}
+        CF_DEPLOYMENT_NAME: cf1
+        BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml

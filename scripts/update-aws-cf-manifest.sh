@@ -46,5 +46,11 @@ sed \
   -e 's/"<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>"/<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>/g' \
   ../manifests/manifest.yml
 
+# Apply ERB templates
+TMP=../manifests/manifest.yml.tmp
+scripts/manifest_parser.rb ../manifests/manifest.yml > "$TMP"
+mv ${TMP} ../manifests/manifest.yml
+
+
 echo "Content of ../manifests/manifest.yml:"
 cat ../manifests/manifest.yml
