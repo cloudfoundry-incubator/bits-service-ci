@@ -190,13 +190,19 @@ resources:
   source:
     interval: 24h
 
-- name: cf-deployment
+- name: aws-dea-deployment
+  type: bosh-deployment
+  source: &cf1-deployment-source
+    target: {{aws-bosh-target}}
+    username: {{aws-bosh-username}}
+    password: {{aws-bosh-password}}
+    deployment: cf1
+
+- name: aws-diego-deployment
   type: bosh-deployment
   source:
-    target: {{bosh-target}}
-    username: {{bosh-username}}
-    password: {{bosh-password}}
-    deployment: cf-warden
+    <<: *cf1-deployment-source
+    deployment: cf2
 
 - name: cf-release-version
   type: semver
@@ -664,9 +670,7 @@ jobs:
         - verification-migration-backwards-bosh2
     - get: s3-cf-release
       passed: *cf-release-done-passed
-    - get: cf-release-version
       trigger: true
-      passed: *cf-release-done-passed
     - get: git-bits-service-ci
       passed: *cf-release-done-passed
     - get: git-bits-service-release
@@ -741,11 +745,9 @@ jobs:
       passed: [create-cf-release]
     - put: cf1-aws-deployment-lock
       params: { acquire: true }
-    - get: cf-release-version
-      passed: [create-cf-release]
-      trigger: true
     - get: s3-cf-release
       passed: [create-cf-release]
+      trigger: true
     - get: s3-bits-service-release
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: bits-service-release-version
@@ -763,50 +765,17 @@ jobs:
         params:
           IAAS: aws
           MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
-    - task: upload-cf-release-bosh-aws
-      file: git-bits-service-ci/tasks/upload-release.yml
-      config:
-        inputs:
-          - name: git-bits-service-ci
-          - name: s3-cf-release
-        params:
-          <<: *aws-bosh-params
-          RELEASE_FILE: s3-cf-release/cf-*.tgz
-
-    - task: upload-bits-release-bosh-aws
-      file: git-bits-service-ci/tasks/upload-release.yml
-      config:
-        inputs:
-          - name: git-bits-service-ci
-          - name: s3-bits-service-release
-        params:
-          <<: *aws-bosh-params
-          RELEASE_FILE: s3-bits-service-release/*.tgz
-  - aggregate:
-    - task: deploy-cf
-      file: git-bits-service-ci/tasks/deploy-release.yml
-      config:
-        inputs:
-          - name: git-bits-service-ci
-          - name: bits-service-release-version
-          - name: manifests
-        params:
-          <<: *aws-bosh-params
-          MANIFEST_PATH: manifests/manifest-*.yml
-          RELEASE_VERSION_FILE: bits-service-release-version/number
-          CF_USER: {{aws-cf1-user}}
-          CF_PASSWORD: {{aws-cf1-password}}
-          CF_DOMAIN: {{aws-cf1-domain}}
-          CF_PUBLIC_IP: {{aws-cf1-public-ip}}
-          CF_DEPLOYMENT_NAME: cf1
-          BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: s3
-      on_failure:
-        put: cf1-aws-deployment-lock
-        params: { release: cf1-aws-deployment-lock }
+  - put: aws-dea-deployment
+    params:
+     manifest: manifests/manifest.yml
+     stemcells:
+     - https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+     releases:
+     - s3-cf-release/cf-*.tgz
+     - s3-bits-service-release/*.tgz
+    on_failure:
+      put: cf1-aws-deployment-lock
+      params: { release: cf1-aws-deployment-lock }
 
 - name: release-cf1-aws-release-lock
   plan:
@@ -823,9 +792,8 @@ jobs:
       passed: [deploy-cf-dea-aws]
     - get: s3-cf-release
       passed: [deploy-cf-dea-aws]
+      trigger: true
     - get: s3-bits-service-release
-      passed: [deploy-cf-dea-aws]
-    - get: cf-release-version
       passed: [deploy-cf-dea-aws]
     - get: cf1-aws-deployment-lock
       trigger: true
@@ -856,13 +824,10 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [CATs-aws]
-    - get: cf-release-version
-      passed: [CATs-aws]
     - get: s3-cf-release
       passed: [CATs-aws]
+      trigger: true
     - get: s3-bits-service-release
-      passed: [CATs-aws]
-    - get: cf-release-version
       passed: [CATs-aws]
     - get: cf1-aws-deployment-lock
       trigger: true
@@ -916,8 +881,7 @@ jobs:
       passed: [enable-BITS-SERVICE]
     - get: s3-cf-release
       passed: [enable-BITS-SERVICE]
-    - get: cf-release-version
-      passed: [enable-BITS-SERVICE]
+      trigger: true
     - get: cf1-aws-deployment-lock
       trigger: true
       passed: [enable-BITS-SERVICE]

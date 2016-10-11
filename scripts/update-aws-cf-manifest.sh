@@ -2,14 +2,6 @@
 
 cd $(dirname $0)/../../git-bits-service-ci
 
-if [ -e "$VERSION_FILE" ]; then
-  export VERSION=$(cat $VERSION_FILE)
-  echo "Using VERSION=\"$VERSION\""
-else
-  echo "The \$VERSION_FILE \"$VERSION_FILE\" does not exist"
-  exit 1
-fi
-
 sed \
   -e 's/name: cf$/name: <%= ENV\.fetch\('"'"'CF_DEPLOYMENT_NAME\'"'"') %>/g' \
   -e 's/REPLACE_WITH_DIRECTOR_ID/<%= `bosh status --uuid` %>/g' \
@@ -44,7 +36,7 @@ spruce merge manifests/cf-aws-dynamic-sed.yml \
   ./manifests/tweaks.yml \
   ./manifests/bits-network-aws.yml \
   ${MANIFEST_STUBS} \
-> ../manifests/manifest-${VERSION}.yml
+> ../manifests/manifest.yml
 
 # Replace '' with ' that somehow got introduced by spruce
 # Remove double quotes around password in uaa
@@ -52,7 +44,7 @@ sed \
   -i \
   -e 's/'"'"''"'"'/'"'"'/g' \
   -e 's/"<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>"/<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>/g' \
-  ../manifests/manifest-${VERSION}.yml
+  ../manifests/manifest.yml
 
-echo "Content of ../manifests/manifest-${VERSION}.yml:"
-cat ../manifests/manifest-${VERSION}.yml
+echo "Content of ../manifests/manifest.yml:"
+cat ../manifests/manifest.yml

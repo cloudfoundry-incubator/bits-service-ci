@@ -2,14 +2,6 @@
 
 cd $(dirname $0)/../../git-bits-service-ci
 
-if [ -e "$VERSION_FILE" ]; then
-  export VERSION=$(cat $VERSION_FILE)
-  echo "Using VERSION=\"$VERSION\""
-else
-  echo "The \$VERSION_FILE \"$VERSION_FILE\" does not exist"
-  exit 1
-fi
-
 if [[ ${IAAS} == "lite" ]]; then
   ../git-cf-release/scripts/generate_deployment_manifest \
       bosh-lite \
@@ -20,7 +12,7 @@ fi
 echo "Content of ./manifests/cf-${IAAS}.yml:"
 cat ./manifests/cf-${IAAS}.yml
 
-spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest-${VERSION}.yml
+spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest.yml
 
-echo "Content of ../manifests/manifest-${VERSION}.yml:"
-cat ../manifests/manifest-${VERSION}.yml
+echo "Content of ../manifests/manifest.yml:"
+cat ../manifests/manifest.yml
