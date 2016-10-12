@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: git-bits-service-ci
+- name: git-bits-service-release
+
+outputs:
+- name: git-bits-service-release-bumped
+
+run:
+  path: git-bits-service-ci/scripts/bump-release.sh
