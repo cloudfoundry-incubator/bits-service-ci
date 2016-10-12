@@ -5,6 +5,7 @@ cd $(dirname $0)/../../git-bits-service-release
 git config --global user.name "Pipeline"
 git config --global user.email flintstone@cloudfoundry.org
 
+git checkout master
 pushd src/bits-service
   git checkout master
 popd
