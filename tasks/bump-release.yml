@@ -9,7 +9,7 @@ inputs:
 - name: git-bits-service
 
 outputs:
-- name: git-bits-service-release-bumped
+- name: bumped
 
 run:
   path: git-bits-service-ci/scripts/bump-release.sh

@@ -26,4 +26,4 @@ pushd git-bits-service-release
   fi
 popd
 
-cp -R git-bits-service-release/ git-bit-service-release-bumped
+cp -r git-bits-service-release bumped/git-bit-service-release
