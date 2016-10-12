@@ -791,7 +791,7 @@ jobs:
         outputs: [{ name: stemcells }]
         run:
           path: wget
-          args: ["https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent", "--output-document=stemcells/stemcell"]
+          args: ["https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent?v=3263.4", "--output-document=stemcells/stemcell"]
     # TODO: Uncomment, once permission problem is solved
     # https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-cf-dea-aws/builds/123
     # - task: download diego-release
