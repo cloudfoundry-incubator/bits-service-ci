@@ -770,7 +770,7 @@ jobs:
   - aggregate:
     - task: update-cf-manifest
       file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-      config:
+      config: &update-aws-cf-manifest-cf1-config
         params:
           IAAS: aws
           MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
@@ -871,38 +871,31 @@ jobs:
       passed: [deploy-cf-dea-aws]
     - get: git-bits-service-ci
       passed: [CATs-aws]
-  - task: update-cf-manifest
-    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-    config:
-      params:
-        MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
-        IAAS: aws
   - aggregate:
-    - task: deploy-CF-with-BITS
-      file: git-bits-service-ci/tasks/deploy-release.yml
+    - task: update-cf-manifest
+      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
       config:
-        inputs:
-          - name: git-bits-service-ci
-          - name: bits-service-release-version
-          - name: manifests
+        <<: *update-aws-cf-manifest-cf1-config
         params:
-          <<: *aws-bosh-params
-          MANIFEST_PATH: manifests/manifest-*.yml
-          RELEASE_VERSION_FILE: bits-service-release-version/number
-          CF_USER: {{aws-cf1-user}}
-          CF_PASSWORD: {{aws-cf1-password}}
-          CF_DOMAIN: {{aws-cf1-domain}}
-          CF_PUBLIC_IP: {{aws-cf1-public-ip}}
-          CF_DEPLOYMENT_NAME: cf1
-
-          BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: s3
-    - put: s3-cf-aws-manifest
-      params:
-        file: manifests/*.yml
+          MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
+          IAAS: aws
+    - task: download stemcell
+      config:
+        <<: *wget
+  - put: aws-dea-deployment
+    params:
+     manifest: manifests/manifest.yml
+     stemcells: ["stemcells/stemcell"]
+     releases:
+     - s3-cf-release/cf-*.tgz
+     - s3-bits-service-release/*.tgz
+    #  - releases/*.tgz
+    on_failure:
+      put: cf1-aws-deployment-lock
+      params: { release: cf1-aws-deployment-lock }
+  - put: s3-cf-aws-manifest
+    params:
+      file: manifests/*.yml
 
 - name: CATs-aws-with-bits
   serial: true
