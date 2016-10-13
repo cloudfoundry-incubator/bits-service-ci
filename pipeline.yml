@@ -878,7 +878,6 @@ jobs:
         <<: *update-aws-cf-manifest-cf1-config
         params:
           MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
-          IAAS: aws
     - task: download stemcell
       config: { <<: *download-stemcell-config }
   - put: aws-dea-deployment
@@ -1068,7 +1067,6 @@ jobs:
         <<: *update-aws-cf-manifest-cf2-config
         params:
           MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
-          IAAS: aws
     - task: download stemcell
       config: { <<: *download-stemcell-config }
   - put: aws-diego-deployment
