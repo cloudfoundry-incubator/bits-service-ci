@@ -2,6 +2,8 @@
 
 cd $(dirname $0)/../../git-bits-service-ci
 
+bosh -u x -p x target $BOSH_TARGET
+
 sed \
   -e 's/name: cf$/name: <%= ENV\.fetch\('"'"'CF_DEPLOYMENT_NAME\'"'"') %>/g' \
   -e 's/REPLACE_WITH_DIRECTOR_ID/<%= `bosh status --uuid` %>/g' \
