@@ -785,7 +785,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
           BLOBSTORE_TYPE: s3
     - task: download stemcell
-      config: &wget
+      config: &download-stemcell-config
         platform: linux
         image: docker:///flintstonecf/ci
         outputs: [{ name: stemcells }]
@@ -880,8 +880,7 @@ jobs:
           MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
           IAAS: aws
     - task: download stemcell
-      config:
-        <<: *wget
+      config: { <<: *download-stemcell-config }
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml
@@ -985,8 +984,7 @@ jobs:
           BLOBSTORE_TYPE: s3
           BOSH_TARGET: {{aws-bosh-target}}
     - task: download stemcell
-      config:
-        <<: *wget
+      config: { <<: *download-stemcell-config }
   - put: aws-diego-deployment
     params:
      manifest: manifests/manifest.yml
@@ -1072,7 +1070,7 @@ jobs:
           MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
           IAAS: aws
     - task: download stemcell
-      config: { <<: *wget }
+      config: { <<: *download-stemcell-config }
   - put: aws-diego-deployment
     params:
      manifest: manifests/manifest.yml
