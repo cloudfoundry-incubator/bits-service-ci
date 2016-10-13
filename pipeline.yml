@@ -107,6 +107,13 @@ groups:
   - cleanup-bosh-acceptance
 
 resources:
+- name: aws-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-aws-xen-ubuntu-trusty-go_agent }
+
+- name: boshlite-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent }
 
 - name: s3-bits-service-release
   type: s3
@@ -123,6 +130,10 @@ resources:
   source:
     <<: *s3-resource
     regexp: bits-service-manifest/manifest-(.*).yml
+
+- name: diego-release-tarball
+  type: bosh-io-release
+  source: { repository: cloudfoundry/diego-release }
 
 - name: s3-cf-release
   type: s3
@@ -783,43 +794,28 @@ jobs:
     - get: cf-dea-aws-deployment-events
       passed: [manually-delete-cf-dea-aws]
       trigger: true
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-      config: &update-aws-cf-manifest-cf1-config
-        params:
-          IAAS: aws
-          MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
-          CF_USER: {{aws-cf1-user}}
-          CF_PASSWORD: {{aws-cf1-password}}
-          CF_DOMAIN: {{aws-cf1-domain}}
-          CF_PUBLIC_IP: {{aws-cf1-public-ip}}
-          CF_DEPLOYMENT_NAME: cf1
-          BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: s3
-          BOSH_TARGET: {{aws-bosh-target}}
-    - task: download stemcell
-      config: &download-aws-stemcell-config
-        platform: linux
-        image: docker:///flintstonecf/ci
-        outputs: [{ name: stemcells }]
-        run:
-          path: wget
-          args: ["https://bosh.io/d/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent?v=3263.4", "--output-document=stemcells/stemcell"]
-    # TODO: Uncomment, once permission problem is solved
-    # https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-cf-dea-aws/builds/123
-    # - task: download diego-release
-    #   config:
-    #     <<: *wget
-    #     outputs: [{ name: releases }]
-    #     run: { args: ["https://bosh.io/d/github.com/cloudfoundry/diego-release", "--output-document=releases/diego-release.tgz"] }
+    - { get: stemcell, resource: aws-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+    config: &update-aws-cf-manifest-cf1-config
+      params:
+        IAAS: aws
+        MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
+        CF_USER: {{aws-cf1-user}}
+        CF_PASSWORD: {{aws-cf1-password}}
+        CF_DOMAIN: {{aws-cf1-domain}}
+        CF_PUBLIC_IP: {{aws-cf1-public-ip}}
+        CF_DEPLOYMENT_NAME: cf1
+        BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+        BOSH_TARGET: {{aws-bosh-target}}
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml
-     stemcells: ["stemcells/stemcell"]
+     stemcells: ["stemcell/stemcell.tgz"]
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
@@ -888,6 +884,7 @@ jobs:
       passed: [deploy-cf-dea-aws]
     - get: git-bits-service-ci
       passed: [CATs-aws]
+    - { get: stemcell, resource: aws-stemcell }
   - aggregate:
     - task: update-cf-manifest
       file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
@@ -895,16 +892,13 @@ jobs:
         <<: *update-aws-cf-manifest-cf1-config
         params:
           MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
-    - task: download stemcell
-      config: { <<: *download-aws-stemcell-config }
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml
-     stemcells: ["stemcells/stemcell"]
+     stemcells: ["stemcell/stemcell.tgz"]
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
-    #  - releases/*.tgz
     on_failure:
       put: cf1-aws-deployment-lock
       params: { release: cf1-aws-deployment-lock }
@@ -981,33 +975,33 @@ jobs:
     - get: cf-diego-aws-deployment-events
       passed: [manually-delete-cf-diego-aws]
       trigger: true
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-      config: &update-aws-cf-manifest-cf2-config
-        params:
-          IAAS: aws
-          MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml ../git-bits-service-release/templates/s3.yml
-          CF_USER: {{aws-cf2-user}}
-          CF_PASSWORD: {{aws-cf2-password}}
-          CF_DOMAIN: {{aws-cf2-domain}}
-          CF_PUBLIC_IP: {{aws-cf2-public-ip}}
-          CF_DEPLOYMENT_NAME: cf2
-          BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: s3
-          BOSH_TARGET: {{aws-bosh-target}}
-    - task: download stemcell
-      config: { <<: *download-aws-stemcell-config }
+    - { get: stemcell, resource: aws-stemcell }
+    - get: diego-release-tarball
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+    config: &update-aws-cf-manifest-cf2-config
+      params:
+        IAAS: aws
+        MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml ../git-bits-service-release/templates/s3.yml
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+        CF_DEPLOYMENT_NAME: cf2
+        BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+        BOSH_TARGET: {{aws-bosh-target}}
   - put: aws-diego-deployment
     params:
      manifest: manifests/manifest.yml
-     stemcells: ["stemcells/stemcell"]
+     stemcells: ["stemcell/stemcell.tgz"]
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
+     - diego-release-tarball/*.tgz
     on_failure:
       put: cf2-aws-deployment-lock
       params: { release: cf2-aws-deployment-lock }
@@ -1077,19 +1071,17 @@ jobs:
       passed: [deploy-cf-diego-aws]
     - get: git-bits-service-ci
       passed: [CATs-diego-aws]
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-      config:
-        <<: *update-aws-cf-manifest-cf2-config
-        params:
-          MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
-    - task: download stemcell
-      config: { <<: *download-aws-stemcell-config }
+    - { get: stemcell, resource: aws-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+    config:
+      <<: *update-aws-cf-manifest-cf2-config
+      params:
+        MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
   - put: aws-diego-deployment
     params:
      manifest: manifests/manifest.yml
-     stemcells: ["stemcells/stemcell"]
+     stemcells: ["stemcell/stemcell.tgz"]
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
@@ -1175,40 +1167,32 @@ jobs:
     - get: cf-bosh1-deployment-events
       passed: [manually-delete-cf-bosh1]
       trigger: true
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
-      config: &update-boshlite1-cf-manifest-config
-        params:
-          IAAS: lite
-          MANIFEST_STUBS: >
-            manifests/bits-service.yml
-            ../git-bits-service-release/templates/cc-blobstore-properties.yml
-            ../git-bits-service-release/templates/bits-service-signing-properties.yml
-            manifests/bits-network-bosh-lite.yml
-            ../git-bits-service-release/templates/s3.yml
-            manifests/bsmt-errands.yml
-          CF_USER: admin
-          CF_PASSWORD: admin
-          CF_DOMAIN: bosh-lite.com
-          BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: s3
-          BOSH_TARGET: {{bosh-target}}
-    - task: download stemcell
-      config: &download-boshlite-stemcell-config
-        platform: linux
-        image: docker:///flintstonecf/ci
-        outputs: [{ name: stemcells }]
-        run:
-          path: wget
-          args: ["https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent", "--output-document=stemcells/stemcell"]
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config: &update-boshlite1-cf-manifest-config
+      params:
+        IAAS: lite
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/bsmt-errands.yml
+        CF_USER: admin
+        CF_PASSWORD: admin
+        CF_DOMAIN: bosh-lite.com
+        BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+        BOSH_TARGET: {{bosh-target}}
   - put: boshlite1-deployment
     params:
       manifest: manifests/manifest.yml
-      stemcells: ["stemcells/stemcell"]
+      stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
@@ -1279,26 +1263,24 @@ jobs:
       passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-ci
       passed: [prepare-migration-bosh1]
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
-      config:
-        <<: *update-boshlite1-cf-manifest-config
-        params:
-          MANIFEST_STUBS: >
-            manifests/bits-network-bosh-lite.yml
-            manifests/bits-service.yml
-            ../git-bits-service-release/templates/cc-blobstore-properties.yml
-            ../git-bits-service-release/templates/bits-service-signing-properties.yml
-            manifests/enable-bits.yml
-            ../git-bits-service-release/templates/s3.yml
-            manifests/bsmt-errands.yml
-    - task: download stemcell
-      config: { <<: *download-boshlite-stemcell-config }
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config:
+      <<: *update-boshlite1-cf-manifest-config
+      params:
+        MANIFEST_STUBS: >
+          manifests/bits-network-bosh-lite.yml
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/bsmt-errands.yml
   - put: boshlite1-deployment
     params:
       manifest: manifests/manifest.yml
-      stemcells: ["stemcells/stemcell"]
+      stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
@@ -1374,25 +1356,23 @@ jobs:
       passed: [preparation-migration-backwards-bosh1]
     - get: git-bits-service-release
       passed: [enable-BITS-SERVICE-bosh1]
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
-      config:
-        <<: *update-boshlite1-cf-manifest-config
-        params:
-          MANIFEST_STUBS: >
-            manifests/bits-service.yml
-            ../git-bits-service-release/templates/cc-blobstore-properties.yml
-            ../git-bits-service-release/templates/bits-service-signing-properties.yml
-            manifests/bits-network-bosh-lite.yml
-            ../git-bits-service-release/templates/s3.yml
-            manifests/bsmt-errands.yml
-    - task: download stemcell
-      config: { <<: *download-boshlite-stemcell-config }
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config:
+      <<: *update-boshlite1-cf-manifest-config
+      params:
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/bsmt-errands.yml
   - put: boshlite1-deployment
     params:
       manifest: manifests/manifest.yml
-      stemcells: ["stemcells/stemcell"]
+      stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
@@ -1466,34 +1446,32 @@ jobs:
     - get: cf-bosh2-deployment-events
       passed: [manually-delete-cf-bosh2]
       trigger: true
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
-      config: &update-boshlite2-cf-manifest-config
-        params:
-          IAAS: lite
-          MANIFEST_STUBS: >
-            manifests/bits-service.yml
-            ../git-bits-service-release/templates/cc-blobstore-properties.yml
-            ../git-bits-service-release/templates/bits-service-signing-properties.yml
-            manifests/bits-network-bosh-lite.yml
-            ../git-bits-service-release/templates/webdav-cf.yml
-            manifests/bsmt-errands.yml
-          CF_USER: admin
-          CF_PASSWORD: admin
-          CF_DOMAIN: bosh-lite.com
-          BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: webdav
-          BOSH_TARGET: {{bosh2-target}}
-    - task: download stemcell
-      config: { <<: *download-boshlite-stemcell-config }
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config: &update-boshlite2-cf-manifest-config
+      params:
+        IAAS: lite
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/webdav-cf.yml
+          manifests/bsmt-errands.yml
+        CF_USER: admin
+        CF_PASSWORD: admin
+        CF_DOMAIN: bosh-lite.com
+        BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: webdav
+        BOSH_TARGET: {{bosh2-target}}
   - put: boshlite2-deployment
     params:
       manifest: manifests/manifest.yml
-      stemcells: ["stemcells/stemcell"]
+      stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
@@ -1563,26 +1541,24 @@ jobs:
       passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-ci
       passed: [prepare-migration-bosh2]
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
-      config:
-        <<: *update-boshlite2-cf-manifest-config
-        params:
-          MANIFEST_STUBS: >
-            manifests/bits-network-bosh-lite.yml
-            manifests/bits-service.yml
-            ../git-bits-service-release/templates/cc-blobstore-properties.yml
-            ../git-bits-service-release/templates/bits-service-signing-properties.yml
-            manifests/enable-bits.yml
-            ../git-bits-service-release/templates/webdav-cf.yml
-            manifests/bsmt-errands.yml
-    - task: download stemcell
-      config: { <<: *download-boshlite-stemcell-config }
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config:
+      <<: *update-boshlite2-cf-manifest-config
+      params:
+        MANIFEST_STUBS: >
+          manifests/bits-network-bosh-lite.yml
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          ../git-bits-service-release/templates/webdav-cf.yml
+          manifests/bsmt-errands.yml
   - put: boshlite2-deployment
     params:
       manifest: manifests/manifest.yml
-      stemcells: ["stemcells/stemcell"]
+      stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
@@ -1660,25 +1636,23 @@ jobs:
       passed: [preparation-migration-backwards-bosh2]
     - get: git-bits-service-release
       passed: [enable-BITS-SERVICE-bosh2]
-  - aggregate:
-    - task: update-cf-manifest
-      file: git-bits-service-ci/tasks/update-cf-manifest.yml
-      config:
-        <<: *update-boshlite2-cf-manifest-config
-        params:
-          MANIFEST_STUBS: >
-            manifests/bits-service.yml
-            ../git-bits-service-release/templates/cc-blobstore-properties.yml
-            ../git-bits-service-release/templates/bits-service-signing-properties.yml
-            manifests/bits-network-bosh-lite.yml
-            ../git-bits-service-release/templates/webdav-cf.yml
-            manifests/bsmt-errands.yml
-    - task: download stemcell
-      config: { <<: *download-boshlite-stemcell-config }
+    - { get: stemcell, resource: boshlite-stemcell }
+  - task: update-cf-manifest
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config:
+      <<: *update-boshlite2-cf-manifest-config
+      params:
+        MANIFEST_STUBS: >
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/bits-network-bosh-lite.yml
+          ../git-bits-service-release/templates/webdav-cf.yml
+          manifests/bsmt-errands.yml
   - put: boshlite2-deployment
     params:
       manifest: manifests/manifest.yml
-      stemcells: ["stemcells/stemcell"]
+      stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
