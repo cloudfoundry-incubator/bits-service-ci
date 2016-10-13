@@ -784,6 +784,7 @@ jobs:
           AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
           AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
           BLOBSTORE_TYPE: s3
+          BOSH_TARGET: {{aws-bosh-target}}
     - task: download stemcell
       config: &download-stemcell-config
         platform: linux
