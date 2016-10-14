@@ -219,11 +219,29 @@ resources:
 
 - name: boshlite1-deployment
   type: bosh-deployment
-  source:
+  source: &boshlite1-source
     target: {{bosh-target}}
     username: {{bosh-username}}
     password: {{bosh-password}}
     deployment: cf-warden
+
+- name: boshlite1-s3-deployment
+  type: bosh-deployment
+  source:
+    <<: *boshlite1-source
+    deployment: bits-service-s3
+
+- name: boshlite1-webdav-deployment
+  type: bosh-deployment
+  source:
+    <<: *boshlite1-source
+    deployment: bits-service-webdav
+
+- name: boshlite1-local-deployment
+  type: bosh-deployment
+  source:
+    <<: *boshlite1-source
+    deployment: bits-service-local
 
 - name: boshlite2-deployment
   type: bosh-deployment
@@ -420,6 +438,7 @@ jobs:
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
       trigger: true
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: create-manifest
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
@@ -433,15 +452,11 @@ jobs:
     on_failure:
       put: bits-deployment-s3-lock
       params: { release: bits-deployment-s3-lock }
-  - task: deploy
-    file: git-bits-service-ci/tasks/deploy-release.yml
-    config:
-      inputs:
-        - name: git-bits-service-ci
-        - name: manifests
-      params:
-        <<: *bosh1-params
-        MANIFEST_PATH: manifests/*.yml
+  - put: boshlite1-s3-deployment
+    params: &boshlite1-bits-service-deployment-params
+      manifest: manifests/manifest.yml
+      stemcells: ["stemcell/stemcell.tgz"]
+      releases: ["s3-bits-service-release/*.tgz"]
     on_failure:
       put: bits-deployment-s3-lock
       params: { release: bits-deployment-s3-lock }
@@ -482,6 +497,7 @@ jobs:
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
       trigger: true
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: create-manifest
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
@@ -492,15 +508,8 @@ jobs:
     on_failure:
       put: bits-deployment-local-lock
       params: { release: bits-deployment-local-lock }
-  - task: deploy
-    file: git-bits-service-ci/tasks/deploy-release.yml
-    config:
-      inputs:
-        - name: git-bits-service-ci
-        - name: manifests
-      params:
-        <<: *bosh1-params
-        MANIFEST_PATH: manifests/*.yml
+  - put: boshlite1-local-deployment
+    params: *boshlite1-bits-service-deployment-params
     on_failure:
       put: bits-deployment-local-lock
       params: { release: bits-deployment-local-lock }
@@ -549,6 +558,7 @@ jobs:
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
       trigger: true
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: create-manifest
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
@@ -558,15 +568,8 @@ jobs:
     on_failure:
       put: bits-deployment-webdav-lock
       params: { release: bits-deployment-webdav-lock }
-  - task: deploy
-    file: git-bits-service-ci/tasks/deploy-release.yml
-    config:
-      inputs:
-        - name: git-bits-service-ci
-        - name: manifests
-      params:
-        <<: *bosh1-params
-        MANIFEST_PATH: manifests/*.yml
+  - put: boshlite1-webdav-deployment
+    params: *boshlite1-bits-service-deployment-params
     on_failure:
       put: bits-deployment-webdav-lock
       params: { release: bits-deployment-webdav-lock }
