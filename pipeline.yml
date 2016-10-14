@@ -714,10 +714,10 @@ jobs:
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/local.yml
         BOSH_TARGET: {{bosh-target}}
-  - put: s3-cf-manifest
-    params:
-      file: manifests/*.yml
   - aggregate:
+    - put: s3-cf-manifest
+      params:
+        file: manifests/*.yml
     - task: upload-cf-release-to-acceptance
       file: git-bits-service-ci/tasks/scp-to-acceptance.yml
       config:
