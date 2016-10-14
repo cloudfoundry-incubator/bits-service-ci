@@ -515,7 +515,7 @@ jobs:
       params: { release: bits-deployment-local-lock }
   - put: s3-bits-service-manifest
     params:
-      file: manifests/*.yml
+      file: manifests/manifest-*.yml
     on_failure:
       put: bits-deployment-local-lock
       params: { release: bits-deployment-local-lock }
