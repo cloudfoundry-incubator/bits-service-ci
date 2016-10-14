@@ -692,6 +692,8 @@ jobs:
     - get: s3-cf-release
       passed: *cf-release-done-passed
       trigger: true
+    - get: cf-release-version
+      passed: [verification-migration-backwards-bosh1, verification-migration-backwards-bosh2, CATs-diego-aws-with-bits, CATs-aws-with-bits]
     - get: git-bits-service-ci
       passed: *cf-release-done-passed
     - get: git-bits-service-release
@@ -711,7 +713,7 @@ jobs:
           manifests/enable-bits.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/local.yml
-        BOSH_TARGET: {{bosh-acceptance-target}}
+        BOSH_TARGET: {{bosh-target}}
   - put: s3-cf-manifest
     params:
       file: manifests/*.yml
@@ -770,6 +772,8 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
       trigger: true
+    - get: cf-release-version
+      passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: *run-system-tests-passed
       trigger: true
@@ -830,6 +834,8 @@ jobs:
       passed: [deploy-cf-dea-aws]
     - get: git-bits-service-ci
       passed: [deploy-cf-dea-aws]
+    - get: cf-release-version
+      passed: [deploy-cf-dea-aws]
   - task: run-cats
     attempts: 6
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -858,6 +864,8 @@ jobs:
       passed: [CATs-aws]
       trigger: true
     - get: s3-bits-service-release
+      passed: [CATs-aws]
+    - get: cf-release-version
       passed: [CATs-aws]
     - get: cf1-aws-deployment-lock
       trigger: true
@@ -899,6 +907,8 @@ jobs:
     - get: s3-cf-release
       passed: [enable-BITS-SERVICE]
       trigger: true
+    - get: cf-release-version
+      passed: [enable-BITS-SERVICE]
     - get: cf1-aws-deployment-lock
       trigger: true
       passed: [enable-BITS-SERVICE]
