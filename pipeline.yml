@@ -711,6 +711,7 @@ jobs:
           manifests/enable-bits.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/local.yml
+        BOSH_TARGET: {{bosh-acceptance-target}}
   - put: s3-cf-manifest
     params:
       file: manifests/*.yml
