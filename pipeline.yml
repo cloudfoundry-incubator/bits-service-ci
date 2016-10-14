@@ -160,6 +160,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: master
     private_key: {{github-private-key}}
+    paths: ["manifests/*", "scripts/*", "tasks/*"]
 
 - name: git-cloud-controller
   type: git
