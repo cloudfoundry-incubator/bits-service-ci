@@ -1,7 +1,7 @@
 groups:
 - name: all
   jobs:
-  - run-service-tests-and-bump
+  - run-unit-and-integration-tests
   - run-bits-service-client-tests
   - create-and-upload-release
   - release-bits-deployment-local-lock
@@ -47,9 +47,10 @@ groups:
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
+  - bump-bits-service-release
 - name: bits-service
   jobs:
-  - run-service-tests-and-bump
+  - run-unit-and-integration-tests
   - run-bits-service-client-tests
 - name: bits-service-release
   jobs:
@@ -344,20 +345,30 @@ aws-bosh-params: &aws-bosh-params
 
 jobs:
 # BITS-SERVICE
-- name: run-service-tests-and-bump
+- name: run-unit-and-integration-tests
   plan:
   - aggregate:
     - get: git-bits-service
       trigger: true
     - get: git-bits-service-ci
       trigger: true
-    - get: git-bits-service-release
   - task: run-tests
     file: git-bits-service-ci/tasks/run-service-tests.yml
+
+- name: bump-bits-service-release
+  plan:
+  - aggregate:
+    - get: git-bits-service
+      trigger: true
+      passed: [run-unit-and-integration-tests]
+    - get: git-bits-service-ci
+      trigger: true
+    - get: git-bits-service-release
   - task: Bump bits-service-release
     file: git-bits-service-ci/tasks/bump-release.yml
   - put: git-bits-service-release
     params: {repository: bumped/git-bits-service-release}
+
 
 # BITS-SERVICE-CLIENT
 - name: run-bits-service-client-tests
