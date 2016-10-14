@@ -414,14 +414,12 @@ jobs:
     params: { acquire: true }
   - aggregate:
     - get: s3-bits-service-release
-      passed: [create-and-upload-release]
-    - get: bits-service-release-version
-      passed: [create-and-upload-release]
       trigger: true
+    - get: bits-service-release-version
     - get: git-bits-service-release
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
-      passed: [create-and-upload-release]
+      trigger: true
   - task: create-manifest
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
@@ -456,8 +454,6 @@ jobs:
     - get: bits-deployment-s3-lock
       trigger: true
       passed: [deploy-with-S3]
-    - get: bits-service-release-version
-      passed: [deploy-with-S3]
     - get: git-bits-service-release
       passed: [deploy-with-S3]
     - get: git-bits-service-ci
@@ -480,14 +476,12 @@ jobs:
     params: { acquire: true }
   - aggregate:
     - get: s3-bits-service-release
-      passed: [create-and-upload-release]
-    - get: bits-service-release-version
-      passed: [create-and-upload-release]
       trigger: true
+    - get: bits-service-release-version
     - get: git-bits-service-release
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
-      passed: [create-and-upload-release]
+      trigger: true
   - task: create-manifest
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
@@ -527,9 +521,6 @@ jobs:
     - get: bits-deployment-local-lock
       trigger: true
       passed: [deploy-with-LOCAL]
-    - get: bits-service-release-version
-      passed: [deploy-with-LOCAL]
-      trigger: true
     - get: git-bits-service-release
       passed: [deploy-with-LOCAL]
     - get: git-bits-service-ci
@@ -552,14 +543,12 @@ jobs:
     params: { acquire: true }
   - aggregate:
     - get: s3-bits-service-release
-      passed: [create-and-upload-release]
-    - get: bits-service-release-version
-      passed: [create-and-upload-release]
       trigger: true
+    - get: bits-service-release-version
     - get: git-bits-service-release
       passed: [create-and-upload-release]
     - get: git-bits-service-ci
-      passed: [create-and-upload-release]
+      trigger: true
   - task: create-manifest
     file: git-bits-service-ci/tasks/create-bits-manifest.yml
     config:
@@ -590,8 +579,6 @@ jobs:
     - get: bits-deployment-webdav-lock
       trigger: true
       passed: [deploy-with-WEBDAV]
-    - get: bits-service-release-version
-      passed: [deploy-with-WEBDAV]
     - get: git-bits-service-release
       passed: [deploy-with-WEBDAV]
     - get: git-bits-service-ci
@@ -616,19 +603,14 @@ jobs:
         - run-system-tests-LOCAL
       trigger: true
     - get: s3-bits-service-release
-      passed: &upload-bits-service-release-and-manifest-to-acceptance-passed
+      passed: &run-system-tests-passed
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
       trigger: true
     - get: bits-service-release-version
-      passed: *upload-bits-service-release-and-manifest-to-acceptance-passed
-      trigger: true
-    - get: git-bits-service-release
-      passed: *upload-bits-service-release-and-manifest-to-acceptance-passed
-      trigger: true
     - get: git-bits-service-ci
-      passed: *upload-bits-service-release-and-manifest-to-acceptance-passed
+      passed: *run-system-tests-passed
       trigger: true
   - aggregate:
     - task: upload-bits-service-release-to-acceptance
@@ -785,9 +767,7 @@ jobs:
       passed: [create-cf-release]
       trigger: true
     - get: s3-bits-service-release
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: bits-service-release-version
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
+      passed: *run-system-tests-passed
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -878,8 +858,6 @@ jobs:
     - get: cf1-aws-deployment-lock
       trigger: true
       passed: [CATs-aws]
-    - get: bits-service-release-version
-      passed: [deploy-cf-dea-aws]
     - get: git-bits-service-release
       passed: [deploy-cf-dea-aws]
     - get: git-bits-service-ci
@@ -964,12 +942,10 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
+      passed: *run-system-tests-passed
+      trigger: true
     - get: cf-release-version
       passed: [create-cf-release]
-    - get: bits-service-release-version
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
-      trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
     - get: cf-diego-aws-deployment-events
@@ -1065,8 +1041,6 @@ jobs:
     - get: cf2-aws-deployment-lock
       trigger: true
       passed: [CATs-diego-aws]
-    - get: bits-service-release-version
-      passed: [deploy-cf-diego-aws]
     - get: git-bits-service-release
       passed: [deploy-cf-diego-aws]
     - get: git-bits-service-ci
@@ -1158,9 +1132,7 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: bits-service-release-version
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
+      passed: *run-system-tests-passed
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -1257,8 +1229,6 @@ jobs:
     - get: cf-bosh1-lock
       trigger: true
       passed: [prepare-migration-bosh1]
-    - get: bits-service-release-version
-      passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-release
       passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-ci
@@ -1350,8 +1320,6 @@ jobs:
     - get: cf-bosh1-lock
       trigger: true
       passed: [preparation-migration-backwards-bosh1]
-    - get: bits-service-release-version
-      passed: [enable-BITS-SERVICE-bosh1]
     - get: git-bits-service-ci
       passed: [preparation-migration-backwards-bosh1]
     - get: git-bits-service-release
@@ -1437,9 +1405,7 @@ jobs:
     - get: s3-cf-release
       passed: [create-cf-release]
     - get: s3-bits-service-release
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: bits-service-release-version
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
+      passed: *run-system-tests-passed
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
@@ -1535,8 +1501,6 @@ jobs:
     - get: cf-bosh2-lock
       trigger: true
       passed: [prepare-migration-bosh2]
-    - get: bits-service-release-version
-      passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-release
       passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-ci
@@ -1630,8 +1594,6 @@ jobs:
     - get: cf-bosh2-lock
       trigger: true
       passed: [preparation-migration-backwards-bosh2]
-    - get: bits-service-release-version
-      passed: [enable-BITS-SERVICE-bosh2]
     - get: git-bits-service-ci
       passed: [preparation-migration-backwards-bosh2]
     - get: git-bits-service-release
