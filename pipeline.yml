@@ -202,6 +202,22 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 
+- name: bits-service-deployment-manifest-generation-tools
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    branch: master
+    private_key: {{github-private-key}}
+    paths: ["templates/*", "scripts/*"]
+
+- name: bits-service-system-test-source
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    branch: master
+    private_key: {{github-private-key}}
+    paths: ["spec/*"]
+
 - name: git-cf-release
   type: git
   source:
@@ -399,6 +415,7 @@ jobs:
       trigger: true
     - get: ci-tasks
       trigger: true
+    - get: bits-service-deployment-manifest-generation-tools # pure "new-version-blocker"
   - put: bits-service-release-version
     params: { file: bits-service-release-version/number }
   - task: create-release
@@ -434,16 +451,13 @@ jobs:
   - put: bits-deployment-s3-lock
     params: { acquire: true }
   - aggregate:
-    - get: s3-bits-service-release
-      trigger: true
-    - get: bits-service-release-version
-    - get: git-bits-service-release
-      passed: [create-and-upload-release]
-    - get: git-bits-service-ci
-      trigger: true
+    - { get: s3-bits-service-release, trigger: true }
+    - { get: bits-service-release-version }
+    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release] }
+    - { get: ci-tasks, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
   - task: create-manifest
-    file: git-bits-service-ci/tasks/create-bits-manifest.yml
+    file: ci-tasks/tasks/create-bits-manifest.yml
     config:
       params:
         <<: *bosh1-params
@@ -452,7 +466,7 @@ jobs:
         AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
         AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
         BLOBSTORE_TYPE: s3
-    on_failure:
+    on_failure: &release-bits-deployment-s3-lock
       put: bits-deployment-s3-lock
       params: { release: bits-deployment-s3-lock }
   - put: boshlite1-s3-deployment
@@ -460,146 +474,117 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["s3-bits-service-release/*.tgz"]
-    on_failure:
-      put: bits-deployment-s3-lock
-      params: { release: bits-deployment-s3-lock }
+    on_failure: *release-bits-deployment-s3-lock
 
 - name: run-system-tests-S3
   plan:
   - aggregate:
     - get: s3-bits-service-release
       passed: [deploy-with-S3]
-    - get: bits-deployment-s3-lock
       trigger: true
+    - get: bits-deployment-s3-lock
       passed: [deploy-with-S3]
-    - get: git-bits-service-release
-      passed: [deploy-with-S3]
-    - get: git-bits-service-ci
-      passed: [deploy-with-S3]
+      trigger: true
+    - get: bits-service-system-test-source
+    - get: ci-tasks
   - task: run-tests
     attempts: 3
-    file: git-bits-service-ci/tasks/run-release-tests.yml
+    file: ci-tasks/tasks/run-release-tests.yml
     config:
       params:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.1.2
         RELEASE_NAME: bits-service-s3
-    ensure:
-      put: bits-deployment-s3-lock
-      params: { release: bits-deployment-s3-lock }
+    ensure: *release-bits-deployment-s3-lock
 
 - name: deploy-with-LOCAL
   plan:
   - put: bits-deployment-local-lock
     params: { acquire: true }
   - aggregate:
-    - get: s3-bits-service-release
-      trigger: true
-    - get: bits-service-release-version
-    - get: git-bits-service-release
-      passed: [create-and-upload-release]
-    - get: git-bits-service-ci
-      trigger: true
+    - { get: s3-bits-service-release, trigger: true }
+    - { get: bits-service-release-version }
+    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release] }
+    - { get: ci-tasks, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
   - task: create-manifest
-    file: git-bits-service-ci/tasks/create-bits-manifest.yml
+    file: ci-tasks/tasks/create-bits-manifest.yml
     config:
       params:
         <<: *bosh1-params
         BITS_DIRECTORY_KEY: another-directory
         BLOBSTORE_TYPE: local
-    on_failure:
+    on_failure: &release-bits-deployment-local-lock
       put: bits-deployment-local-lock
       params: { release: bits-deployment-local-lock }
   - put: boshlite1-local-deployment
     params: *boshlite1-bits-service-deployment-params
-    on_failure:
-      put: bits-deployment-local-lock
-      params: { release: bits-deployment-local-lock }
+    on_failure: *release-bits-deployment-local-lock
   - put: s3-bits-service-manifest
-    params:
-      file: manifests/manifest-*.yml
-    on_failure:
-      put: bits-deployment-local-lock
-      params: { release: bits-deployment-local-lock }
+    params: { file: manifests/manifest-*.yml }
+    on_failure: *release-bits-deployment-local-lock
 
 - name: run-system-tests-LOCAL
   plan:
   - aggregate:
-    - get: s3-bits-service-manifest
-      passed: [deploy-with-LOCAL]
-    - get: s3-bits-service-release
-      passed: [deploy-with-LOCAL]
-    - get: bits-deployment-local-lock
-      trigger: true
-      passed: [deploy-with-LOCAL]
-    - get: git-bits-service-release
-      passed: [deploy-with-LOCAL]
-    - get: git-bits-service-ci
-      passed: [deploy-with-LOCAL]
+    - { get: s3-bits-service-manifest, passed: [deploy-with-LOCAL], trigger: true }
+    - { get: s3-bits-service-release,  passed: [deploy-with-LOCAL], trigger: true }
+    - { get: bits-deployment-local-lock, passed: [deploy-with-LOCAL], trigger: true }
+    - { get: bits-service-system-test-source }
+    - { get: ci-tasks }
   - task: run-tests
     attempts: 3
-    file: git-bits-service-ci/tasks/run-release-tests.yml
+    file: ci-tasks/tasks/run-release-tests.yml
     config:
       params:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.0.2
         RELEASE_NAME: bits-service-local
-    ensure:
-      put: bits-deployment-local-lock
-      params: { release: bits-deployment-local-lock }
+    ensure: *release-bits-deployment-local-lock
 
 - name: deploy-with-WEBDAV
   plan:
   - put: bits-deployment-webdav-lock
     params: { acquire: true }
   - aggregate:
-    - get: s3-bits-service-release
-      trigger: true
-    - get: bits-service-release-version
-    - get: git-bits-service-release
-      passed: [create-and-upload-release]
-    - get: git-bits-service-ci
-      trigger: true
+    - { get: s3-bits-service-release, trigger: true }
+    - { get: bits-service-release-version }
+    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release] }
+    - { get: ci-tasks, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
   - task: create-manifest
-    file: git-bits-service-ci/tasks/create-bits-manifest.yml
+    file: ci-tasks/tasks/create-bits-manifest.yml
     config:
       params:
         <<: *bosh1-params
         BLOBSTORE_TYPE: webdav
-    on_failure:
+    on_failure: &release-bits-deployment-webdav-lock
       put: bits-deployment-webdav-lock
       params: { release: bits-deployment-webdav-lock }
   - put: boshlite1-webdav-deployment
     params: *boshlite1-bits-service-deployment-params
-    on_failure:
-      put: bits-deployment-webdav-lock
-      params: { release: bits-deployment-webdav-lock }
+    on_failure: *release-bits-deployment-webdav-lock
 
 - name: run-system-tests-WEBDAV
   plan:
   - aggregate:
     - get: s3-bits-service-release
       passed: [deploy-with-WEBDAV]
-    - get: bits-deployment-webdav-lock
       trigger: true
+    - get: bits-deployment-webdav-lock
       passed: [deploy-with-WEBDAV]
-    - get: git-bits-service-release
-      passed: [deploy-with-WEBDAV]
-    - get: git-bits-service-ci
-      passed: [deploy-with-WEBDAV]
+      trigger: true
+    - get: bits-service-system-test-source
+    - get: ci-tasks
   - task: run-tests
     attempts: 3
-    file: git-bits-service-ci/tasks/run-release-tests.yml
+    file: ci-tasks/tasks/run-release-tests.yml
     config:
       params:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.3.2
         RELEASE_NAME: bits-service-webdav
-    ensure:
-      put: bits-deployment-webdav-lock
-      params: { release: bits-deployment-webdav-lock }
+    ensure: *release-bits-deployment-webdav-lock
 
 - name: upload-bits-service-release-and-manifest-to-acceptance
   plan:
@@ -615,15 +600,14 @@ jobs:
         - run-system-tests-WEBDAV
       trigger: true
     - get: bits-service-release-version
-    - get: git-bits-service-ci
+    - get: ci-tasks
       passed: *run-system-tests-passed
       trigger: true
   - aggregate:
     - task: upload-bits-service-release-to-acceptance
-      file: git-bits-service-ci/tasks/scp-to-acceptance.yml
+      file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
         inputs:
-          - name: git-bits-service-ci
           - name: s3-bits-service-release
           - name: bits-service-release-version
         params:
@@ -633,10 +617,9 @@ jobs:
           VERSION_FILE: bits-service-release-version/number
           RELEASE_NAME: bits-service-release
     - task: upload-bits-service-manifest-to-acceptance
-      file: git-bits-service-ci/tasks/scp-to-acceptance.yml
+      file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
         inputs:
-          - name: git-bits-service-ci
           - name: s3-bits-service-manifest
           - name: bits-service-release-version
         params:

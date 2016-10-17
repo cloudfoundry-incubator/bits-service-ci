@@ -4,8 +4,8 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-- name: git-bits-service-release
-- name: git-bits-service-ci
+- name: bits-service-system-test-source
+- name: ci-tasks
 
 params:
   BOSH_USERNAME:
@@ -15,4 +15,4 @@ params:
   DEPLOYMENT_NAME:
 
 run:
-  path: git-bits-service-ci/scripts/run-release-tests.sh
+  path: ci-tasks/scripts/run-release-tests.sh

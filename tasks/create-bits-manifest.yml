@@ -4,8 +4,8 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-- name: git-bits-service-ci
-- name: git-bits-service-release
+- name: ci-tasks
+- name: bits-service-deployment-manifest-generation-tools
 - name: bits-service-release-version
 
 params:
@@ -23,4 +23,4 @@ outputs:
 - name: manifests
 
 run:
-  path: git-bits-service-ci/scripts/create-bits-manifest.sh
+  path: ci-tasks/scripts/create-bits-manifest.sh

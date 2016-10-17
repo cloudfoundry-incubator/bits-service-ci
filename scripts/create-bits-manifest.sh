@@ -1,6 +1,6 @@
-#!/bin/bash -e
+x#!/bin/bash -e
 
-cd $(dirname $0)/../../git-bits-service-release
+cd $(dirname $0)/../../bits-service-deployment-manifest-generation-tools
 
 if [ -e "$VERSION_FILE" ]; then
   export VERSION=$(cat $VERSION_FILE)
