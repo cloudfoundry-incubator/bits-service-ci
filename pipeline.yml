@@ -548,8 +548,6 @@ jobs:
       trigger: true
     - get: bits-service-release-version
     - get: ci-tasks
-      passed: *run-system-tests-passed
-      trigger: true
   - aggregate:
     - task: upload-bits-service-release-to-acceptance
       file: ci-tasks/tasks/scp-to-acceptance.yml
@@ -594,14 +592,13 @@ jobs:
   plan:
   - aggregate:
     - get: cf-release-version
-      params:
-        pre: dev
+      params: { pre: dev }
     - get: git-cf-release
       trigger: true
-    - get: git-bits-service-ci
+    - get: ci-tasks
       trigger: true
   - task: create-cf-release
-    file: git-bits-service-ci/tasks/create-cf-release.yml
+    file: ci-tasks/tasks/create-cf-release.yml
     config:
       params:
         VERSION_FILE: ../cf-release-version/number
@@ -684,11 +681,11 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: git-bits-service-ci
+    - get: ci-tasks
     - get: cf-dea-aws-deployment-events
       params: { bump: major }
   - task: delete-deployment
-    file: git-bits-service-ci/tasks/delete-deployment.yml
+    file: ci-tasks/tasks/delete-deployment.yml
     config:
       params:
         <<: *aws-bosh-params
@@ -865,11 +862,11 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: git-bits-service-ci
+    - get: ci-tasks
     - get: cf-diego-aws-deployment-events
       params: { bump: major }
   - task: delete-deployment
-    file: git-bits-service-ci/tasks/delete-deployment.yml
+    file: ci-tasks/tasks/delete-deployment.yml
     config:
       params:
         <<: *aws-bosh-params
@@ -1055,11 +1052,11 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: git-bits-service-ci
+    - get: ci-tasks
     - get: cf-bosh1-deployment-events
       params: { bump: major }
   - task: delete-deployment
-    file: git-bits-service-ci/tasks/delete-deployment.yml
+    file: ci-tasks/tasks/delete-deployment.yml
     config:
       params:
         <<: *bosh1-params
@@ -1327,11 +1324,11 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: git-bits-service-ci
+    - get: ci-tasks
     - get: cf-bosh2-deployment-events
       params: { bump: major}
   - task: delete-deployment
-    file: git-bits-service-ci/tasks/delete-deployment.yml
+    file: ci-tasks/tasks/delete-deployment.yml
     config:
       params:
         <<: *bosh2-params
