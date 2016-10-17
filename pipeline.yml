@@ -369,13 +369,13 @@ jobs:
   plan:
   - aggregate:
     - get: git-bits-service
-      trigger: true
       passed: [run-unit-and-integration-tests]
-    - get: git-bits-service-ci
+      trigger: true
+    - get: ci-tasks
       trigger: true
     - get: git-bits-service-release
   - task: Bump bits-service-release
-    file: git-bits-service-ci/tasks/bump-release.yml
+    file: ci-tasks/tasks/bump-release.yml
   - put: git-bits-service-release
     params: {repository: bumped/git-bits-service-release}
 

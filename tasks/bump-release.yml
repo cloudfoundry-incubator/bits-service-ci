@@ -4,7 +4,7 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-- name: git-bits-service-ci
+- name: ci-tasks
 - name: git-bits-service-release
 - name: git-bits-service
 
@@ -12,4 +12,4 @@ outputs:
 - name: bumped
 
 run:
-  path: git-bits-service-ci/scripts/bump-release.sh
+  path: ci-tasks/scripts/bump-release.sh
