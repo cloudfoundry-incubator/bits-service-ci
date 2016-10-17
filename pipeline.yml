@@ -394,36 +394,19 @@ jobs:
   plan:
   - aggregate:
     - get: bits-service-release-version
-      params:
-        pre: dev
+      params: { pre: dev }
     - get: git-bits-service-release
       trigger: true
-    - get: git-bits-service-ci
+    - get: ci-tasks
       trigger: true
   - put: bits-service-release-version
-    params:
-      file: bits-service-release-version/number
+    params: { file: bits-service-release-version/number }
   - task: create-release
-    file: git-bits-service-ci/tasks/create-bits-release.yml
+    file: ci-tasks/tasks/create-bits-release.yml
     config:
-      params:
-        VERSION_FILE: ../bits-service-release-version/number
-  - aggregate:
-    - task: upload-release-bosh-1
-      file: git-bits-service-ci/tasks/upload-release.yml
-      config:
-        params:
-          <<: *bosh1-params
-          RELEASE_FILE: releases/bits-service-*.tgz
-    - task: upload-release-bosh-2
-      file: git-bits-service-ci/tasks/upload-release.yml
-      config:
-        params:
-          <<: *bosh2-params
-          RELEASE_FILE: releases/bits-service-*.tgz
-    - put: s3-bits-service-release
-      params:
-        file: releases/*.tgz
+      params: { VERSION_FILE: ../bits-service-release-version/number }
+  - put: s3-bits-service-release
+    params: { file: releases/*.tgz }
 
 - name: release-bits-deployment-local-lock
   plan:
