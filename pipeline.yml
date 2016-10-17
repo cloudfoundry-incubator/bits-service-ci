@@ -162,6 +162,14 @@ resources:
     private_key: {{github-private-key}}
     paths: ["manifests/*", "scripts/*", "tasks/*"]
 
+- name: ci-tasks
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: master
+    private_key: {{github-private-key}}
+    paths: ["scripts/*", "tasks/*"]
+
 - name: git-cloud-controller
   type: git
   source:
@@ -351,10 +359,10 @@ jobs:
   - aggregate:
     - get: git-bits-service
       trigger: true
-    - get: git-bits-service-ci
+    - get: ci-tasks
       trigger: true
   - task: run-tests
-    file: git-bits-service-ci/tasks/run-service-tests.yml
+    file: ci-tasks/tasks/run-service-tests.yml
 
 - name: bump-bits-service-release
   plan:
