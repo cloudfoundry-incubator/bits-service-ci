@@ -4,9 +4,6 @@ groups:
   - run-unit-and-integration-tests
   - run-bits-service-client-tests
   - create-and-upload-release
-  - release-bits-deployment-local-lock
-  - release-bits-deployment-s3-lock
-  - release-bits-deployment-webdav-lock
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
@@ -55,9 +52,6 @@ groups:
 - name: bits-service-release
   jobs:
   - create-and-upload-release
-  - release-bits-deployment-local-lock
-  - release-bits-deployment-s3-lock
-  - release-bits-deployment-webdav-lock
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
@@ -343,15 +337,6 @@ resources:
 - name: cf1-aws-deployment-lock
   type: pool
   source: { <<: *lock-meta-data, pool: locks/cf1-aws-deployment }
-- name: bits-deployment-local-lock
-  type: pool
-  source: { <<: *lock-meta-data, pool: locks/bits-deployment-local }
-- name: bits-deployment-s3-lock
-  type: pool
-  source: { <<: *lock-meta-data, pool: locks/bits-deployment-s3 }
-- name: bits-deployment-webdav-lock
-  type: pool
-  source: { <<: *lock-meta-data, pool: locks/bits-deployment-webdav }
 
 bosh1-params: &bosh1-params
   BOSH_TARGET: {{bosh-target}}
@@ -425,31 +410,10 @@ jobs:
   - put: s3-bits-service-release
     params: { file: releases/*.tgz }
 
-- name: release-bits-deployment-local-lock
-  plan:
-  - get: bits-deployment-local-lock
-    passed: [deploy-with-LOCAL]
-  - put: bits-deployment-local-lock
-    params: { release: bits-deployment-local-lock }
-
-- name: release-bits-deployment-s3-lock
-  plan:
-  - get: bits-deployment-s3-lock
-    passed: [deploy-with-S3]
-  - put: bits-deployment-s3-lock
-    params: { release: bits-deployment-s3-lock }
-
-- name: release-bits-deployment-webdav-lock
-  plan:
-  - get: bits-deployment-webdav-lock
-    passed: [deploy-with-WEBDAV]
-  - put: bits-deployment-webdav-lock
-    params: { release: bits-deployment-webdav-lock }
-
 - name: deploy-with-S3
+  serial: true
+  serial_groups: [bits-deployment-s3]
   plan:
-  - put: bits-deployment-s3-lock
-    params: { acquire: true }
   - aggregate:
     - { get: s3-bits-service-release, trigger: true }
     - { get: bits-service-release-version }
@@ -466,23 +430,18 @@ jobs:
         AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
         AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
         BLOBSTORE_TYPE: s3
-    on_failure: &release-bits-deployment-s3-lock
-      put: bits-deployment-s3-lock
-      params: { release: bits-deployment-s3-lock }
   - put: boshlite1-s3-deployment
     params: &boshlite1-bits-service-deployment-params
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["s3-bits-service-release/*.tgz"]
-    on_failure: *release-bits-deployment-s3-lock
 
 - name: run-system-tests-S3
+  serial: true
+  serial_groups: [bits-deployment-s3]
   plan:
   - aggregate:
     - get: s3-bits-service-release
-      passed: [deploy-with-S3]
-      trigger: true
-    - get: bits-deployment-s3-lock
       passed: [deploy-with-S3]
       trigger: true
     - get: bits-service-system-test-source
@@ -495,12 +454,11 @@ jobs:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.1.2
         RELEASE_NAME: bits-service-s3
-    ensure: *release-bits-deployment-s3-lock
 
 - name: deploy-with-LOCAL
+  serial: true
+  serial_groups: [bits-deployment-local]
   plan:
-  - put: bits-deployment-local-lock
-    params: { acquire: true }
   - aggregate:
     - { get: s3-bits-service-release, trigger: true }
     - { get: bits-service-release-version }
@@ -514,22 +472,18 @@ jobs:
         <<: *bosh1-params
         BITS_DIRECTORY_KEY: another-directory
         BLOBSTORE_TYPE: local
-    on_failure: &release-bits-deployment-local-lock
-      put: bits-deployment-local-lock
-      params: { release: bits-deployment-local-lock }
   - put: boshlite1-local-deployment
     params: *boshlite1-bits-service-deployment-params
-    on_failure: *release-bits-deployment-local-lock
   - put: s3-bits-service-manifest
     params: { file: manifests/manifest-*.yml }
-    on_failure: *release-bits-deployment-local-lock
 
 - name: run-system-tests-LOCAL
+  serial: true
+  serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
     - { get: s3-bits-service-manifest, passed: [deploy-with-LOCAL], trigger: true }
     - { get: s3-bits-service-release,  passed: [deploy-with-LOCAL], trigger: true }
-    - { get: bits-deployment-local-lock, passed: [deploy-with-LOCAL], trigger: true }
     - { get: bits-service-system-test-source }
     - { get: ci-tasks }
   - task: run-tests
@@ -540,12 +494,11 @@ jobs:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.0.2
         RELEASE_NAME: bits-service-local
-    ensure: *release-bits-deployment-local-lock
 
 - name: deploy-with-WEBDAV
+  serial: true
+  serial_groups: [bits-deployment-webdav]
   plan:
-  - put: bits-deployment-webdav-lock
-    params: { acquire: true }
   - aggregate:
     - { get: s3-bits-service-release, trigger: true }
     - { get: bits-service-release-version }
@@ -558,20 +511,15 @@ jobs:
       params:
         <<: *bosh1-params
         BLOBSTORE_TYPE: webdav
-    on_failure: &release-bits-deployment-webdav-lock
-      put: bits-deployment-webdav-lock
-      params: { release: bits-deployment-webdav-lock }
   - put: boshlite1-webdav-deployment
     params: *boshlite1-bits-service-deployment-params
-    on_failure: *release-bits-deployment-webdav-lock
 
 - name: run-system-tests-WEBDAV
+  serial: true
+  serial_groups: [bits-deployment-webdav]
   plan:
   - aggregate:
     - get: s3-bits-service-release
-      passed: [deploy-with-WEBDAV]
-      trigger: true
-    - get: bits-deployment-webdav-lock
       passed: [deploy-with-WEBDAV]
       trigger: true
     - get: bits-service-system-test-source
@@ -584,7 +532,6 @@ jobs:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.3.2
         RELEASE_NAME: bits-service-webdav
-    ensure: *release-bits-deployment-webdav-lock
 
 - name: upload-bits-service-release-and-manifest-to-acceptance
   plan:
