@@ -608,6 +608,7 @@ jobs:
       file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
         inputs:
+          - name: ci-tasks
           - name: s3-bits-service-release
           - name: bits-service-release-version
         params:
@@ -620,6 +621,7 @@ jobs:
       file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
         inputs:
+          - name: ci-tasks
           - name: s3-bits-service-manifest
           - name: bits-service-release-version
         params:
