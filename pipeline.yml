@@ -24,20 +24,12 @@ groups:
   - enable-BITS-SERVICE
   - release-cf2-aws-release-lock
   - release-cf1-aws-release-lock
-  - preparation-migration-backwards-bosh1
-  - disable-BITS-SERVICE-bosh1
-  - verification-migration-backwards-bosh1
-  - verification-migration-bosh1
-  - enable-BITS-SERVICE-bosh1
-  - prepare-migration-bosh1
+  - migration-bosh1
+  - migration-backwards-bosh1
   - release-cf-bosh1-lock
   - deploy-cf-bosh1 (S3)
-  - preparation-migration-backwards-bosh2
-  - disable-BITS-SERVICE-bosh2
-  - verification-migration-backwards-bosh2
-  - verification-migration-bosh2
-  - enable-BITS-SERVICE-bosh2
-  - prepare-migration-bosh2
+  - migration-backwards-bosh2
+  - migration-bosh2
   - release-cf-bosh2-lock
   - deploy-cf-bosh2 (webdav)
   - manually-delete-cf-dea-aws
@@ -78,20 +70,12 @@ groups:
   - release-cf2-aws-release-lock
 - name: migration
   jobs:
-  - preparation-migration-backwards-bosh1
-  - disable-BITS-SERVICE-bosh1
-  - verification-migration-backwards-bosh1
-  - verification-migration-bosh1
-  - enable-BITS-SERVICE-bosh1
-  - prepare-migration-bosh1
+  - migration-backwards-bosh1
+  - migration-bosh1
   - release-cf-bosh1-lock
   - deploy-cf-bosh1 (S3)
-  - preparation-migration-backwards-bosh2
-  - disable-BITS-SERVICE-bosh2
-  - verification-migration-backwards-bosh2
-  - verification-migration-bosh2
-  - enable-BITS-SERVICE-bosh2
-  - prepare-migration-bosh2
+  - migration-backwards-bosh2
+  - migration-bosh2
   - release-cf-bosh2-lock
   - deploy-cf-bosh2 (webdav)
 - name: infrastructure
@@ -619,13 +603,13 @@ jobs:
       passed: &cf-release-done-passed
         - CATs-aws-with-bits
         - CATs-diego-aws-with-bits
-        - verification-migration-backwards-bosh1
-        - verification-migration-backwards-bosh2
+        - migration-backwards-bosh1
+        - migration-backwards-bosh2
     - get: s3-cf-release
       passed: *cf-release-done-passed
       trigger: true
     - get: cf-release-version
-      passed: [verification-migration-backwards-bosh1, verification-migration-backwards-bosh2, CATs-diego-aws-with-bits, CATs-aws-with-bits]
+      passed: [migration-backwards-bosh1, migration-backwards-bosh2, CATs-diego-aws-with-bits, CATs-aws-with-bits]
     - get: ci-tasks
       resource: git-bits-service-ci
       passed: *cf-release-done-passed
@@ -635,8 +619,8 @@ jobs:
       passed:
         - enable-BITS-SERVICE
         - enable-BITS-SERVICE-diego
-        - disable-BITS-SERVICE-bosh1
-        - disable-BITS-SERVICE-bosh2
+        - migration-backwards-bosh1
+        - migration-backwards-bosh2
   - task: create-bosh-lite-manifest
     file: ci-tasks/tasks/update-cf-manifest.yml
     config:
@@ -1129,7 +1113,7 @@ jobs:
   - put: cf-bosh1-lock
     params: { release: cf-bosh1-lock }
 
-- name: prepare-migration-bosh1
+- name: migration-bosh1
   serial: true
   plan:
   - aggregate:
@@ -1146,6 +1130,8 @@ jobs:
       passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-ci
       passed: [deploy-cf-bosh1 (S3)]
+    - get: git-bits-service-release
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1163,26 +1149,6 @@ jobs:
               [manually-delete-cf-bosh1]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh1)
 
-- name: enable-BITS-SERVICE-bosh1
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [prepare-migration-bosh1]
-    - get: cf-release-version
-      passed: [prepare-migration-bosh1]
-    - get: s3-cf-release
-      passed: [prepare-migration-bosh1]
-    - get: s3-bits-service-release
-      passed: [prepare-migration-bosh1]
-    - get: cf-bosh1-lock
-      trigger: true
-      passed: [prepare-migration-bosh1]
-    - get: git-bits-service-release
-      passed: [deploy-cf-bosh1 (S3)]
-    - get: git-bits-service-ci
-      passed: [prepare-migration-bosh1]
-    - { get: stemcell, resource: boshlite-stemcell }
   - task: update-cf-manifest
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
@@ -1206,22 +1172,6 @@ jobs:
     on_failure:
       put: cf-bosh1-lock
       params: { release: cf-bosh1-lock }
-
-- name: verification-migration-bosh1
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [enable-BITS-SERVICE-bosh1]
-    - get: s3-cf-release
-      passed: [enable-BITS-SERVICE-bosh1]
-    - get: cf-release-version
-      passed: [enable-BITS-SERVICE-bosh1]
-    - get: cf-bosh1-lock
-      trigger: true
-      passed: [enable-BITS-SERVICE-bosh1]
-    - get: git-bits-service-ci
-      passed: [enable-BITS-SERVICE-bosh1]
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1231,21 +1181,24 @@ jobs:
         ERRAND_NAME: bsmt_verification
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
 
-- name: preparation-migration-backwards-bosh1
+- name: migration-backwards-bosh1
   serial: true
   plan:
   - aggregate:
     - get: git-cf-release
-      passed: [verification-migration-bosh1]
+      passed: [migration-bosh1]
     - get: s3-cf-release
-      passed: [verification-migration-bosh1]
+      passed: [migration-bosh1]
     - get: cf-release-version
-      passed: [verification-migration-bosh1]
+      passed: [migration-bosh1]
     - get: cf-bosh1-lock
       trigger: true
-      passed: [verification-migration-bosh1]
+      passed: [migration-bosh1]
     - get: git-bits-service-ci
-      passed: [verification-migration-bosh1]
+      passed: [migration-bosh1]
+    - get: git-bits-service-release
+      passed: [migration-bosh1]
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1254,26 +1207,6 @@ jobs:
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
-
-- name: disable-BITS-SERVICE-bosh1
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [preparation-migration-backwards-bosh1]
-    - get: cf-release-version
-      passed: [preparation-migration-backwards-bosh1]
-    - get: s3-cf-release
-      passed: [preparation-migration-backwards-bosh1]
-    - get: s3-bits-service-release
-    - get: cf-bosh1-lock
-      trigger: true
-      passed: [preparation-migration-backwards-bosh1]
-    - get: git-bits-service-ci
-      passed: [preparation-migration-backwards-bosh1]
-    - get: git-bits-service-release
-      passed: [enable-BITS-SERVICE-bosh1]
-    - { get: stemcell, resource: boshlite-stemcell }
   - task: update-cf-manifest
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
@@ -1292,26 +1225,9 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
-      - s3-bits-service-release/*.tgz
     on_failure:
       put: cf-bosh1-lock
       params: { release: cf-bosh1-lock }
-
-- name: verification-migration-backwards-bosh1
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [disable-BITS-SERVICE-bosh1]
-    - get: s3-cf-release
-      passed: [disable-BITS-SERVICE-bosh1]
-    - get: cf-release-version
-      passed: [disable-BITS-SERVICE-bosh1]
-    - get: cf-bosh1-lock
-      trigger: true
-      passed: [disable-BITS-SERVICE-bosh1]
-    - get: git-bits-service-ci
-      passed: [disable-BITS-SERVICE-bosh1]
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1401,7 +1317,7 @@ jobs:
   - put: cf-bosh2-lock
     params: { release: cf-bosh2-lock }
 
-- name: prepare-migration-bosh2
+- name: migration-bosh2
   serial: true
   plan:
   - aggregate:
@@ -1418,6 +1334,9 @@ jobs:
       passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-ci
       passed: [deploy-cf-bosh2 (webdav)]
+    - get: git-bits-service-release
+      passed: [deploy-cf-bosh2 (webdav)]
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1435,26 +1354,6 @@ jobs:
               [manually-delete-cf-bosh2]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh2)
 
-- name: enable-BITS-SERVICE-bosh2
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [prepare-migration-bosh2]
-    - get: cf-release-version
-      passed: [prepare-migration-bosh2]
-    - get: s3-cf-release
-      passed: [prepare-migration-bosh2]
-    - get: s3-bits-service-release
-      passed: [prepare-migration-bosh2]
-    - get: cf-bosh2-lock
-      trigger: true
-      passed: [prepare-migration-bosh2]
-    - get: git-bits-service-release
-      passed: [deploy-cf-bosh2 (webdav)]
-    - get: git-bits-service-ci
-      passed: [prepare-migration-bosh2]
-    - { get: stemcell, resource: boshlite-stemcell }
   - task: update-cf-manifest
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
@@ -1478,22 +1377,6 @@ jobs:
     on_failure:
       put: cf-bosh2-lock
       params: { release: cf-bosh2-lock }
-
-- name: verification-migration-bosh2
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [enable-BITS-SERVICE-bosh2]
-    - get: s3-cf-release
-      passed: [enable-BITS-SERVICE-bosh2]
-    - get: cf-release-version
-      passed: [enable-BITS-SERVICE-bosh2]
-    - get: cf-bosh2-lock
-      trigger: true
-      passed: [enable-BITS-SERVICE-bosh2]
-    - get: git-bits-service-ci
-      passed: [enable-BITS-SERVICE-bosh2]
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1503,22 +1386,25 @@ jobs:
         ERRAND_NAME: bsmt_verification
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
 
-- name: preparation-migration-backwards-bosh2
+- name: migration-backwards-bosh2
   serial: true
   plan:
   - aggregate:
     - get: git-cf-release
-      passed: [verification-migration-bosh2]
+      passed: [migration-bosh2]
     - get: s3-cf-release
-      passed: [verification-migration-bosh2]
+      passed: [migration-bosh2]
     - get: s3-bits-service-release
     - get: cf-release-version
-      passed: [verification-migration-bosh2]
+      passed: [migration-bosh2]
     - get: cf-bosh2-lock
       trigger: true
-      passed: [verification-migration-bosh2]
+      passed: [migration-bosh2]
     - get: git-bits-service-ci
-      passed: [verification-migration-bosh2]
+      passed: [migration-bosh2]
+    - get: git-bits-service-release
+      passed: [migration-bosh2]
+    - { get: stemcell, resource: boshlite-stemcell }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1527,27 +1413,6 @@ jobs:
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
-
-- name: disable-BITS-SERVICE-bosh2
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [preparation-migration-backwards-bosh2]
-    - get: cf-release-version
-      passed: [preparation-migration-backwards-bosh2]
-    - get: s3-cf-release
-      passed: [preparation-migration-backwards-bosh2]
-    - get: s3-bits-service-release
-      passed: [preparation-migration-backwards-bosh2]
-    - get: cf-bosh2-lock
-      trigger: true
-      passed: [preparation-migration-backwards-bosh2]
-    - get: git-bits-service-ci
-      passed: [preparation-migration-backwards-bosh2]
-    - get: git-bits-service-release
-      passed: [enable-BITS-SERVICE-bosh2]
-    - { get: stemcell, resource: boshlite-stemcell }
   - task: update-cf-manifest
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
@@ -1566,26 +1431,9 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
-      - s3-bits-service-release/*.tgz
     on_failure:
       put: cf-bosh2-lock
       params: { release: cf-bosh2-lock }
-
-- name: verification-migration-backwards-bosh2
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [disable-BITS-SERVICE-bosh2]
-    - get: s3-cf-release
-      passed: [disable-BITS-SERVICE-bosh2]
-    - get: cf-release-version
-      passed: [disable-BITS-SERVICE-bosh2]
-    - get: cf-bosh2-lock
-      trigger: true
-      passed: [disable-BITS-SERVICE-bosh2]
-    - get: git-bits-service-ci
-      passed: [disable-BITS-SERVICE-bosh2]
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
