@@ -626,6 +626,9 @@ jobs:
       trigger: true
     - get: cf-release-version
       passed: [verification-migration-backwards-bosh1, verification-migration-backwards-bosh2, CATs-diego-aws-with-bits, CATs-aws-with-bits]
+    - get: ci-tasks
+      resource: git-bits-service-ci
+      passed: *cf-release-done-passed
     - get: git-bits-service-ci
       passed: *cf-release-done-passed
     - get: git-bits-service-release
@@ -635,7 +638,7 @@ jobs:
         - disable-BITS-SERVICE-bosh1
         - disable-BITS-SERVICE-bosh2
   - task: create-bosh-lite-manifest
-    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    file: ci-tasks/tasks/update-cf-manifest.yml
     config:
       params:
         MANIFEST_STUBS: >
@@ -651,10 +654,10 @@ jobs:
       params:
         file: manifests/*.yml
     - task: upload-cf-release-to-acceptance
-      file: git-bits-service-ci/tasks/scp-to-acceptance.yml
+      file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
         inputs:
-          - name: git-bits-service-ci
+          - name: ci-tasks
           - name: s3-cf-release
           - name: cf-release-version
         params:
@@ -664,10 +667,10 @@ jobs:
           VERSION_FILE: cf-release-version/number
           RELEASE_NAME: cf-release
     - task: upload-manifest-to-acceptance
-      file: git-bits-service-ci/tasks/scp-to-acceptance.yml
+      file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
         inputs:
-          - name: git-bits-service-ci
+          - name: ci-tasks
           - name: manifests
           - name: cf-release-version
         params:
