@@ -22,15 +22,11 @@ groups:
   - enable-BITS-SERVICE-diego
   - CATs-diego-aws-with-bits
   - enable-BITS-SERVICE
-  - release-cf2-aws-release-lock
-  - release-cf1-aws-release-lock
   - migration-bosh1
   - migration-backwards-bosh1
-  - release-cf-bosh1-lock
   - deploy-cf-bosh1 (S3)
   - migration-backwards-bosh2
   - migration-bosh2
-  - release-cf-bosh2-lock
   - deploy-cf-bosh2 (webdav)
   - manually-delete-cf-dea-aws
   - manually-delete-cf-diego-aws
@@ -62,21 +58,17 @@ groups:
   - cf-release-done
   - enable-BITS-SERVICE
   - CATs-aws
-  - release-cf1-aws-release-lock
   - deploy-cf-diego-aws
   - CATs-diego-aws
   - enable-BITS-SERVICE-diego
   - CATs-diego-aws-with-bits
-  - release-cf2-aws-release-lock
 - name: migration
   jobs:
   - migration-backwards-bosh1
   - migration-bosh1
-  - release-cf-bosh1-lock
   - deploy-cf-bosh1 (S3)
   - migration-backwards-bosh2
   - migration-bosh2
-  - release-cf-bosh2-lock
   - deploy-cf-bosh2 (webdav)
 - name: infrastructure
   jobs:
@@ -301,26 +293,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-diego-aws/deployment-deleted
-
-#
-# locks
-#
-- name: cf-bosh1-lock
-  type: pool
-  source: &lock-meta-data
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    pool: locks/cf-bosh1-lock
-    private_key: {{github-private-key}}
-- name: cf-bosh2-lock
-  type: pool
-  source: { <<: *lock-meta-data, pool: locks/cf-bosh2-lock }
-- name: cf2-aws-deployment-lock
-  type: pool
-  source: { <<: *lock-meta-data, pool: locks/cf2-aws-deployment }
-- name: cf1-aws-deployment-lock
-  type: pool
-  source: { <<: *lock-meta-data, pool: locks/cf1-aws-deployment }
 
 bosh1-params: &bosh1-params
   BOSH_TARGET: {{bosh-target}}
@@ -682,12 +654,11 @@ jobs:
 
 - name: deploy-cf-dea-aws
   serial: true
+  serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [create-cf-release]
-    - put: cf1-aws-deployment-lock
-      params: { acquire: true }
     - get: s3-cf-release
       passed: [create-cf-release]
       trigger: true
@@ -726,19 +697,10 @@ jobs:
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf1-aws-deployment-lock
-      params: { release: cf1-aws-deployment-lock }
-
-- name: release-cf1-aws-release-lock
-  plan:
-  - get: cf1-aws-deployment-lock
-    passed: [deploy-cf-dea-aws]
-  - put: cf1-aws-deployment-lock
-    params: { release: cf1-aws-deployment-lock }
 
 - name: CATs-aws
   serial: true
+  serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
@@ -747,9 +709,6 @@ jobs:
       passed: [deploy-cf-dea-aws]
       trigger: true
     - get: s3-bits-service-release
-      passed: [deploy-cf-dea-aws]
-    - get: cf1-aws-deployment-lock
-      trigger: true
       passed: [deploy-cf-dea-aws]
     - get: git-bits-service-ci
       passed: [deploy-cf-dea-aws]
@@ -775,6 +734,7 @@ jobs:
 
 - name: enable-BITS-SERVICE
   serial: true
+  serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
@@ -785,9 +745,6 @@ jobs:
     - get: s3-bits-service-release
       passed: [CATs-aws]
     - get: cf-release-version
-      passed: [CATs-aws]
-    - get: cf1-aws-deployment-lock
-      trigger: true
       passed: [CATs-aws]
     - get: git-bits-service-release
       passed: [deploy-cf-dea-aws]
@@ -808,15 +765,12 @@ jobs:
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf1-aws-deployment-lock
-      params: { release: cf1-aws-deployment-lock }
   - put: s3-cf-aws-manifest
-    params:
-      file: manifests/*.yml
+    params: { file: manifests/*.yml }
 
 - name: CATs-aws-with-bits
   serial: true
+  serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
@@ -827,9 +781,6 @@ jobs:
       passed: [enable-BITS-SERVICE]
       trigger: true
     - get: cf-release-version
-      passed: [enable-BITS-SERVICE]
-    - get: cf1-aws-deployment-lock
-      trigger: true
       passed: [enable-BITS-SERVICE]
     - get: git-bits-service-ci
       passed: [enable-BITS-SERVICE]
@@ -842,8 +793,6 @@ jobs:
         DEPLOYMENT_NAME: cf1
         ERRAND_NAME: acceptance_tests
     on_failure: *inform-pipeline-operator-dea-aws-cats
-  - put: cf1-aws-deployment-lock
-    params: { release: cf1-aws-deployment-lock }
 
 - name: manually-delete-cf-diego-aws
   serial: true
@@ -863,12 +812,11 @@ jobs:
 
 - name: deploy-cf-diego-aws
   serial: true
+  serial_groups: [cf2-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [create-cf-release]
-    - put: cf2-aws-deployment-lock
-      params: { acquire: true }
     - get: cf-release-version
       passed: [create-cf-release]
       trigger: true
@@ -911,31 +859,21 @@ jobs:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
      - diego-release-tarball/*.tgz
-    on_failure:
-      put: cf2-aws-deployment-lock
-      params: { release: cf2-aws-deployment-lock }
-
-- name: release-cf2-aws-release-lock
-  plan:
-  - get: cf2-aws-deployment-lock
-    passed: [deploy-cf-diego-aws]
-  - put: cf2-aws-deployment-lock
-    params: { release: cf2-aws-deployment-lock }
 
 - name: CATs-diego-aws
   serial: true
+  serial_groups: [cf2-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [deploy-cf-diego-aws]
     - get: s3-cf-release
       passed: [deploy-cf-diego-aws]
+      trigger: true
     - get: s3-bits-service-release
       passed: [deploy-cf-diego-aws]
-    - get: cf-release-version
-      passed: [deploy-cf-diego-aws]
-    - get: cf2-aws-deployment-lock
       trigger: true
+    - get: cf-release-version
       passed: [deploy-cf-diego-aws]
     - get: git-bits-service-ci
       passed: [deploy-cf-diego-aws]
@@ -959,6 +897,7 @@ jobs:
 
 - name: enable-BITS-SERVICE-diego
   serial: true
+  serial_groups: [cf2-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
@@ -967,12 +906,11 @@ jobs:
       passed: [CATs-diego-aws]
     - get: s3-cf-release
       passed: [CATs-diego-aws]
+      trigger: true
     - get: s3-bits-service-release
       passed: [CATs-diego-aws]
-    - get: cf-release-version
-      passed: [CATs-diego-aws]
-    - get: cf2-aws-deployment-lock
       trigger: true
+    - get: cf-release-version
       passed: [CATs-diego-aws]
     - get: git-bits-service-release
       passed: [deploy-cf-diego-aws]
@@ -992,22 +930,18 @@ jobs:
      releases:
      - s3-cf-release/cf-*.tgz
      - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf2-aws-deployment-lock
-      params: { release: cf2-aws-deployment-lock }
 
 - name: CATs-diego-aws-with-bits
   serial: true
+  serial_groups: [cf2-aws-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [enable-BITS-SERVICE-diego]
     - get: s3-cf-release
       passed: [enable-BITS-SERVICE-diego]
-    - get: cf-release-version
-      passed: [enable-BITS-SERVICE-diego]
-    - get: cf2-aws-deployment-lock
       trigger: true
+    - get: cf-release-version
       passed: [enable-BITS-SERVICE-diego]
     - get: git-bits-service-ci
       passed: [enable-BITS-SERVICE-diego]
@@ -1020,18 +954,6 @@ jobs:
         DEPLOYMENT_NAME: cf2
         ERRAND_NAME: acceptance_tests
     on_failure: *inform-pipeline-operator-diego-aws-cats
-  - put: cf2-aws-deployment-lock
-    params: { release: cf2-aws-deployment-lock }
-    on_failure:
-      task: noop
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source: {repository: ubuntu}
-        run:
-          path: echo
-          args: ["Lock was already released. Ignoring."]
 
 # Migration
 
@@ -1053,12 +975,11 @@ jobs:
 
 - name: deploy-cf-bosh1 (S3)
   serial: true
+  serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [create-cf-release]
-    - put: cf-bosh1-lock
-      params: { acquire: true }
     - get: cf-release-version
       passed: [create-cf-release]
       trigger: true
@@ -1101,17 +1022,6 @@ jobs:
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf-bosh1-lock
-      params: { release: cf-bosh1-lock }
-
-
-- name: release-cf-bosh1-lock
-  plan:
-  - get: cf-bosh1-lock
-    passed: [deploy-cf-bosh1 (S3)]
-  - put: cf-bosh1-lock
-    params: { release: cf-bosh1-lock }
 
 - name: migration-bosh1
   serial: true
@@ -1121,12 +1031,11 @@ jobs:
       passed: [deploy-cf-bosh1 (S3)]
     - get: s3-cf-release
       passed: [deploy-cf-bosh1 (S3)]
+      trigger: true
     - get: s3-bits-service-release
       passed: [deploy-cf-bosh1 (S3)]
-    - get: cf-release-version
-      passed: [deploy-cf-bosh1 (S3)]
-    - get: cf-bosh1-lock
       trigger: true
+    - get: cf-release-version
       passed: [deploy-cf-bosh1 (S3)]
     - get: git-bits-service-ci
       passed: [deploy-cf-bosh1 (S3)]
@@ -1169,9 +1078,6 @@ jobs:
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf-bosh1-lock
-      params: { release: cf-bosh1-lock }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1183,16 +1089,15 @@ jobs:
 
 - name: migration-backwards-bosh1
   serial: true
+  serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [migration-bosh1]
     - get: s3-cf-release
       passed: [migration-bosh1]
-    - get: cf-release-version
-      passed: [migration-bosh1]
-    - get: cf-bosh1-lock
       trigger: true
+    - get: cf-release-version
       passed: [migration-bosh1]
     - get: git-bits-service-ci
       passed: [migration-bosh1]
@@ -1225,9 +1130,6 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
-    on_failure:
-      put: cf-bosh1-lock
-      params: { release: cf-bosh1-lock }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1236,8 +1138,6 @@ jobs:
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
     on_failure: &inform-pipeline-operator-bosh1-migration-tests
-  - put: cf-bosh1-lock
-    params: { release: cf-bosh1-lock }
 
 - name: manually-delete-cf-bosh2
   serial: true
@@ -1258,12 +1158,11 @@ jobs:
 # no-migration tests for webdav
 - name: deploy-cf-bosh2 (webdav)
   serial: true
+  serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [create-cf-release]
-    - put: cf-bosh2-lock
-      params: { acquire: true }
     - get: cf-release-version
       passed: [create-cf-release]
       trigger: true
@@ -1306,31 +1205,21 @@ jobs:
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf-bosh2-lock
-      params: { release: cf-bosh2-lock }
-
-- name: release-cf-bosh2-lock
-  plan:
-  - get: cf-bosh2-lock
-    passed: [deploy-cf-bosh2 (webdav)]
-  - put: cf-bosh2-lock
-    params: { release: cf-bosh2-lock }
 
 - name: migration-bosh2
   serial: true
+  serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [deploy-cf-bosh2 (webdav)]
     - get: s3-cf-release
       passed: [deploy-cf-bosh2 (webdav)]
+      trigger: true
     - get: s3-bits-service-release
       passed: [deploy-cf-bosh2 (webdav)]
-    - get: cf-release-version
-      passed: [deploy-cf-bosh2 (webdav)]
-    - get: cf-bosh2-lock
       trigger: true
+    - get: cf-release-version
       passed: [deploy-cf-bosh2 (webdav)]
     - get: git-bits-service-ci
       passed: [deploy-cf-bosh2 (webdav)]
@@ -1374,9 +1263,6 @@ jobs:
       releases:
       - s3-cf-release/cf-*.tgz
       - s3-bits-service-release/*.tgz
-    on_failure:
-      put: cf-bosh2-lock
-      params: { release: cf-bosh2-lock }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1388,17 +1274,17 @@ jobs:
 
 - name: migration-backwards-bosh2
   serial: true
+  serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
       passed: [migration-bosh2]
     - get: s3-cf-release
       passed: [migration-bosh2]
-    - get: s3-bits-service-release
-    - get: cf-release-version
-      passed: [migration-bosh2]
-    - get: cf-bosh2-lock
       trigger: true
+    - get: s3-bits-service-release
+      trigger: true
+    - get: cf-release-version
       passed: [migration-bosh2]
     - get: git-bits-service-ci
       passed: [migration-bosh2]
@@ -1431,9 +1317,6 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - s3-cf-release/cf-*.tgz
-    on_failure:
-      put: cf-bosh2-lock
-      params: { release: cf-bosh2-lock }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1442,8 +1325,6 @@ jobs:
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_verification
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
-  - put: cf-bosh2-lock
-    params: { release: cf-bosh2-lock }
 
 # Infrastructure
 - name: recreate-bosh-lite-1
