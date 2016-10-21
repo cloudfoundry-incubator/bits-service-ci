@@ -25,3 +25,6 @@ fi
 
 cp deployments/bits-service-release.yml ../manifests/manifest-$VERSION.yml
 cp deployments/bits-service-release.yml ../manifests/manifest.yml
+
+echo "Content of ../manifests/manifest.yml:"
+cat ../manifests/manifest.yml
