@@ -409,6 +409,7 @@ jobs:
       params:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.1.2
+        BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.1.2
         RELEASE_NAME: bits-service-s3
 
 - name: deploy-with-LOCAL
@@ -449,6 +450,7 @@ jobs:
       params:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.0.2
+        BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.0.2
         RELEASE_NAME: bits-service-local
 
 - name: deploy-with-WEBDAV
@@ -487,6 +489,7 @@ jobs:
       params:
         <<: *bosh1-params
         BITS_SERVICE_ENDPOINT: 10.250.3.2
+        BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.3.2
         RELEASE_NAME: bits-service-webdav
 
 - name: upload-bits-service-release-and-manifest-to-acceptance
