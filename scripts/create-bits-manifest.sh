@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 cd $(dirname $0)/../../bits-service-deployment-manifest-generation-tools
 
