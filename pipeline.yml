@@ -1039,6 +1039,7 @@ jobs:
 
 - name: migration-bosh1
   serial: true
+  serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
     - get: git-cf-release
