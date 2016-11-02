@@ -482,7 +482,8 @@ properties:
         aws_secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
         provider: AWS
         region: <%= ENV['BITS_AWS_REGION'] %>
-    public_endpoint: bits-service.<%= ENV.fetch('CF_DOMAIN', 'system.domain') %>
+    public_endpoint: http://bits-service.<%= ENV.fetch('CF_DOMAIN', 'system.domain') %>
+    private_endpoint: http://bits-service.service.cf.internal
     secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
     signing_users:
     - password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
@@ -1171,4 +1172,3 @@ update:
   max_in_flight: 1
   serial: false
   update_watch_time: 5000-600000
-

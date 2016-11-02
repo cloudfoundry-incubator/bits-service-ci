@@ -12,3 +12,4 @@ jobs:
 properties:
   bits-service:
     public_endpoint: (( concat "http://bits-service." properties.system_domain))
+    private_endpoint: http://bits-service.service.cf.internal
