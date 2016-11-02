@@ -5,6 +5,7 @@ image: docker:///flintstonecf/ci
 
 inputs:
 - name: ci-tasks
+- name: ci-deployment-manifest-templates
 - name: bits-service-deployment-manifest-generation-tools
 - name: bits-service-release-version
 
