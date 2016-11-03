@@ -1112,6 +1112,9 @@ jobs:
     - get: s3-cf-release
       passed: [migration-bosh1]
       trigger: true
+    - get: s3-bits-service-release
+      passed: [migration-bosh2]
+      trigger: true
     - get: cf-release-version
       passed: [migration-bosh1]
     - get: git-bits-service-ci
@@ -1298,6 +1301,7 @@ jobs:
       passed: [migration-bosh2]
       trigger: true
     - get: s3-bits-service-release
+      passed: [migration-bosh2]
       trigger: true
     - get: cf-release-version
       passed: [migration-bosh2]
