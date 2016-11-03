@@ -21,8 +21,8 @@ pushd git-bits-service-release
     git config --global user.email flintstone@cloudfoundry.org
 
     git add src/bits-service
-    # TODO: Add bits-service commit messages to this commit message
-    git commit -m "Bump src/bits-service"
+    scripts/staged_shortlog
+    scripts/staged_shortlog | git commit -F -
   fi
 popd
 
