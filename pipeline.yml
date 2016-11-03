@@ -724,6 +724,7 @@ jobs:
       trigger: true
     - get: s3-bits-service-release
       passed: [deploy-cf-dea-aws]
+      trigger: true
     - get: git-bits-service-ci
       passed: [deploy-cf-dea-aws]
     - get: cf-release-version
