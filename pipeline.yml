@@ -759,6 +759,7 @@ jobs:
       trigger: true
     - get: s3-bits-service-release
       passed: [CATs-aws]
+      trigger: true
     - get: cf-release-version
       passed: [CATs-aws]
     - get: git-bits-service-release
@@ -793,6 +794,9 @@ jobs:
     - get: s3-cf-aws-manifest
       passed: [enable-BITS-SERVICE]
     - get: s3-cf-release
+      passed: [enable-BITS-SERVICE]
+      trigger: true
+    - get: s3-bits-service-release
       passed: [enable-BITS-SERVICE]
       trigger: true
     - get: cf-release-version
