@@ -1114,7 +1114,7 @@ jobs:
       passed: [migration-bosh1]
       trigger: true
     - get: s3-bits-service-release
-      passed: [migration-bosh2]
+      passed: [migration-bosh1]
       trigger: true
     - get: cf-release-version
       passed: [migration-bosh1]
