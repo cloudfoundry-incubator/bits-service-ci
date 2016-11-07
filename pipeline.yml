@@ -1285,15 +1285,16 @@ jobs:
     - get: git-bits-service-release
       passed: [migration-bosh2]
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: run-bits-service-migration-tests
+  - task: Run preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
+    attempts: 3
     config:
       params:
         <<: *bosh2-params
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
-  - task: update-cf-manifest
+  - task: Update CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       <<: *update-boshlite2-cf-manifest-config
@@ -1311,8 +1312,9 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
       - cf-release-tarball/cf-*.tgz
-  - task: run-bits-service-migration-tests
+  - task: Run verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
+    attempts: 3
     config:
       params:
         <<: *bosh2-params
