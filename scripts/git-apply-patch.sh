@@ -4,7 +4,7 @@ pwd
 ls git-cf-release
 
 pushd $1
-git am < $2
+curl $2 | git am
 popd
 
 mv $1 "$1-patched"
