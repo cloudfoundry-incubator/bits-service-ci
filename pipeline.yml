@@ -322,55 +322,43 @@ jobs:
 - name: run-unit-and-integration-tests
   plan:
   - aggregate:
-    - get: git-bits-service
-      trigger: true
-    - get: ci-tasks
-      trigger: true
-  - task: run-tests
+    - { get: git-bits-service, trigger: true }
+    - { get: ci-tasks, trigger: true }
+  - task: Run tests
     file: ci-tasks/tasks/run-service-tests.yml
 
 - name: bump-bits-service-release
   plan:
   - aggregate:
-    - get: git-bits-service
-      passed: [run-unit-and-integration-tests]
-      trigger: true
-    - get: ci-tasks
-      trigger: true
-    - get: git-bits-service-release
+    - { get: git-bits-service, passed: [run-unit-and-integration-tests], trigger: true }
+    - { get: ci-tasks, trigger: true }
+    - { get: git-bits-service-release }
   - task: Bump bits-service-release
     file: ci-tasks/tasks/bump-release.yml
   - put: git-bits-service-release
     params: {repository: bumped/git-bits-service-release}
 
 
-# BITS-SERVICE-CLIENT
 - name: run-bits-service-client-tests
   plan:
-  - get: git-bits-service-client
-    trigger: true
-  - get: git-bits-service-ci
-  - task: run-tests
+  - { get: git-bits-service-client, trigger: true }
+  - { get: git-bits-service-ci }
+  - task: Run tests
     file: git-bits-service-ci/tasks/run-bits-service-client-tests.yml
 
 
-# BITS-RELEASE
 - name: create-and-upload-release
   plan:
   - aggregate:
-    - get: bits-service-release-version
-      params: { pre: dev }
-    - get: git-bits-service-release
-      trigger: true
-    - get: ci-tasks
-      trigger: true
-    - get: bits-service-deployment-manifest-generation-tools # pure "new-version-blocker"
+    - { get: bits-service-release-version, params: { pre: dev } }
+    - { get: git-bits-service-release, trigger: true }
+    - { get: ci-tasks, trigger: true }
+    - { get: bits-service-deployment-manifest-generation-tools } # pure "new-version-blocker"
   - put: bits-service-release-version
     params: { file: bits-service-release-version/number }
-  - task: create-release
+  - task: Create release
     file: ci-tasks/tasks/create-bits-release.yml
-    config:
-      params: { VERSION_FILE: ../bits-service-release-version/number }
+    config: { params: { VERSION_FILE: ../bits-service-release-version/number } }
   - put: s3-bits-service-release
     params: { file: releases/*.tgz }
 
@@ -385,7 +373,7 @@ jobs:
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: create-manifest
+  - task: Create manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     config:
       params:
@@ -406,12 +394,10 @@ jobs:
   serial_groups: [bits-deployment-s3]
   plan:
   - aggregate:
-    - get: s3-bits-service-release
-      passed: [deploy-with-S3]
-      trigger: true
-    - get: bits-service-system-test-source
-    - get: ci-tasks
-  - task: run-tests
+    - { get: s3-bits-service-release, passed: [deploy-with-S3], trigger: true }
+    - { get: bits-service-system-test-source }
+    - { get: ci-tasks }
+  - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     config:
@@ -432,7 +418,7 @@ jobs:
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: create-manifest
+  - task: Create manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     config:
       params:
@@ -453,7 +439,7 @@ jobs:
     - { get: s3-bits-service-release,  passed: [deploy-with-LOCAL], trigger: true }
     - { get: bits-service-system-test-source }
     - { get: ci-tasks }
-  - task: run-tests
+  - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     config:
@@ -474,7 +460,7 @@ jobs:
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: create-manifest
+  - task: Create manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     config:
       params:
@@ -561,26 +547,16 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: cf-release-version
-      params: { pre: dev }
-    - get: git-cf-release
-      trigger: true
-    - get: ci-tasks
-      trigger: true
-  - task: create-cf-release
+    - { get: cf-release-version, params: { pre: dev } }
+    - { get: git-cf-release, trigger: true }
+    - { get: ci-tasks, trigger: true }
+  - task: Create cf-release tarball
     file: ci-tasks/tasks/create-cf-release.yml
-    config:
-      params:
-        VERSION_FILE: ../cf-release-version/number
+    config: { params: { VERSION_FILE: ../cf-release-version/number } }
   - put: s3-cf-release
-    params:
-      file: releases/*.tgz
-    on_failure:
-      put: cf-release-version
-      params: { file: cf-release-version/number }
+    params: { file: releases/*.tgz }
   - put: cf-release-version
-    params:
-      file: cf-release-version/number
+    params: { file: cf-release-version/number }
 
 - name: cf-release-done
   plan:
