@@ -3,5 +3,8 @@
 pwd
 ls git-cf-release
 
-cd $1
+pushd $1
 git am < $2
+popd
+
+mv $1 "$1-patched"
