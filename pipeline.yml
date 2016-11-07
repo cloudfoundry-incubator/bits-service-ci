@@ -742,7 +742,12 @@ jobs:
       config:
         <<: *update-aws-cf-manifest-cf1-config
         params:
-          MANIFEST_STUBS: manifests/cf-aws-network-1.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
+          MANIFEST_STUBS: >
+            manifests/cf-aws-network-1.yml
+            manifests/enable-bits.yml
+            manifests/bits-network-aws.yml
+            ../git-bits-service-release/templates/s3.yml
+            manifests/disable-diego-backend.yml
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml
