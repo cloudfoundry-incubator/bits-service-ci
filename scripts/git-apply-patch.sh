@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 pwd
-ls
+ls git-cf-release
 
 cd $1
 git am < $2
