@@ -106,7 +106,7 @@ resources:
   type: bosh-io-release
   source: { repository: cloudfoundry/diego-release }
 
-- name: s3-cf-release
+- name: cf-release-tarball
   type: s3
   source:
     <<: *s3-resource
@@ -553,7 +553,7 @@ jobs:
   - task: Create cf-release tarball
     file: ci-tasks/tasks/create-cf-release.yml
     config: { params: { VERSION_FILE: ../cf-release-version/number } }
-  - put: s3-cf-release
+  - put: cf-release-tarball
     params: { file: releases/*.tgz }
   - put: cf-release-version
     params: { file: cf-release-version/number }
@@ -567,7 +567,7 @@ jobs:
         - CATs-diego-aws-with-bits
         - migration-backwards-bosh1
         - migration-backwards-bosh2
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: *cf-release-done-passed
       trigger: true
     - get: cf-release-version
@@ -604,12 +604,12 @@ jobs:
       config:
         inputs:
           - name: ci-tasks
-          - name: s3-cf-release
+          - name: cf-release-tarball
           - name: cf-release-version
         params:
           ACCEPTANCE_IP: {{acceptance-ip}}
           SSH_KEY: {{acceptance-private-key}}
-          FILE: s3-cf-release/*.tgz
+          FILE: cf-release-tarball/*.tgz
           VERSION_FILE: cf-release-version/number
           RELEASE_NAME: cf-release
     - task: upload-manifest-to-acceptance
@@ -649,7 +649,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [create-cf-release]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [create-cf-release]
       trigger: true
     - get: cf-release-version
@@ -685,7 +685,7 @@ jobs:
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
      releases:
-     - s3-cf-release/cf-*.tgz
+     - cf-release-tarball/cf-*.tgz
      - s3-bits-service-release/*.tgz
 
 - name: CATs-aws
@@ -695,7 +695,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [deploy-cf-dea-aws]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [deploy-cf-dea-aws]
       trigger: true
     - get: s3-bits-service-release
@@ -730,7 +730,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [CATs-aws]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [CATs-aws]
       trigger: true
     - get: s3-bits-service-release
@@ -755,7 +755,7 @@ jobs:
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
      releases:
-     - s3-cf-release/cf-*.tgz
+     - cf-release-tarball/cf-*.tgz
      - s3-bits-service-release/*.tgz
   - put: s3-cf-aws-manifest
     params: { file: manifests/*.yml }
@@ -769,7 +769,7 @@ jobs:
       passed: [enable-BITS-SERVICE]
     - get: s3-cf-aws-manifest
       passed: [enable-BITS-SERVICE]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [enable-BITS-SERVICE]
       trigger: true
     - get: s3-bits-service-release
@@ -815,7 +815,7 @@ jobs:
     - get: cf-release-version
       passed: [create-cf-release]
       trigger: true
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: *run-system-tests-passed
@@ -851,7 +851,7 @@ jobs:
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
      releases:
-     - s3-cf-release/cf-*.tgz
+     - cf-release-tarball/cf-*.tgz
      - s3-bits-service-release/*.tgz
      - diego-release-tarball/*.tgz
 
@@ -862,7 +862,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [deploy-cf-diego-aws]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [deploy-cf-diego-aws]
       trigger: true
     - get: s3-bits-service-release
@@ -899,7 +899,7 @@ jobs:
       passed: [CATs-diego-aws]
     - get: cf-release-version
       passed: [CATs-diego-aws]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [CATs-diego-aws]
       trigger: true
     - get: s3-bits-service-release
@@ -923,7 +923,7 @@ jobs:
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
      releases:
-     - s3-cf-release/cf-*.tgz
+     - cf-release-tarball/cf-*.tgz
      - s3-bits-service-release/*.tgz
 
 - name: CATs-diego-aws-with-bits
@@ -933,7 +933,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [enable-BITS-SERVICE-diego]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [enable-BITS-SERVICE-diego]
       trigger: true
     - get: cf-release-version
@@ -978,7 +978,7 @@ jobs:
     - get: cf-release-version
       passed: [create-cf-release]
       trigger: true
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: *run-system-tests-passed
@@ -1015,7 +1015,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
-      - s3-cf-release/cf-*.tgz
+      - cf-release-tarball/cf-*.tgz
       - s3-bits-service-release/*.tgz
 
 - name: migration-bosh1
@@ -1025,7 +1025,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [deploy-cf-bosh1 (S3)]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [deploy-cf-bosh1 (S3)]
       trigger: true
     - get: s3-bits-service-release
@@ -1072,7 +1072,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
-      - s3-cf-release/cf-*.tgz
+      - cf-release-tarball/cf-*.tgz
       - s3-bits-service-release/*.tgz
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -1090,7 +1090,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [migration-bosh1]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [migration-bosh1]
       trigger: true
     - get: s3-bits-service-release
@@ -1128,7 +1128,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
-      - s3-cf-release/cf-*.tgz
+      - cf-release-tarball/cf-*.tgz
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1165,7 +1165,7 @@ jobs:
     - get: cf-release-version
       passed: [create-cf-release]
       trigger: true
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [create-cf-release]
     - get: s3-bits-service-release
       passed: *run-system-tests-passed
@@ -1202,7 +1202,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
-      - s3-cf-release/cf-*.tgz
+      - cf-release-tarball/cf-*.tgz
       - s3-bits-service-release/*.tgz
 
 - name: migration-bosh2
@@ -1212,7 +1212,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [deploy-cf-bosh2 (webdav)]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [deploy-cf-bosh2 (webdav)]
       trigger: true
     - get: s3-bits-service-release
@@ -1260,7 +1260,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
-      - s3-cf-release/cf-*.tgz
+      - cf-release-tarball/cf-*.tgz
       - s3-bits-service-release/*.tgz
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -1278,7 +1278,7 @@ jobs:
   - aggregate:
     - get: git-cf-release
       passed: [migration-bosh2]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [migration-bosh2]
       trigger: true
     - get: s3-bits-service-release
@@ -1316,7 +1316,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases:
-      - s3-cf-release/cf-*.tgz
+      - cf-release-tarball/cf-*.tgz
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1335,7 +1335,7 @@ jobs:
     - get: git-bits-service
     - get: s3-bits-service-release
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [create-cf-release]
   - task: recreate-bosh-lite
     file: git-bits-service-ci/tasks/recreate-bosh-lite.yml
@@ -1366,10 +1366,10 @@ jobs:
       config:
         inputs:
           - name: git-bits-service-ci
-          - name: s3-cf-release
+          - name: cf-release-tarball
         params:
           <<: *bosh1-params
-          RELEASE_FILE: s3-cf-release/*.tgz
+          RELEASE_FILE: cf-release-tarball/*.tgz
 
 - name: recreate-bosh-lite-acceptance
   serial: true
@@ -1379,7 +1379,7 @@ jobs:
     - get: git-bits-service
     - get: s3-bits-service-release
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: s3-cf-release
+    - get: cf-release-tarball
       passed: [create-cf-release]
   - task: recreate-bosh-lite
     file: git-bits-service-ci/tasks/recreate-bosh-lite.yml
@@ -1412,12 +1412,12 @@ jobs:
       config:
         inputs:
           - name: git-bits-service-release
-          - name: s3-cf-release
+          - name: cf-release-tarball
         params:
           BOSH_TARGET: {{bosh-acceptance-target}}
           BOSH_USERNAME: {{bosh-acceptance-username}}
           BOSH_PASSWORD: {{bosh-acceptance-password}}
-          RELEASE_FILE: s3-cf-release/*.tgz
+          RELEASE_FILE: cf-release-tarball/*.tgz
 
 - name: cleanup-bosh-1
   serial: true
