@@ -647,23 +647,15 @@ jobs:
   serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [create-cf-release]
-    - get: cf-release-tarball
-      passed: [create-cf-release]
-      trigger: true
-    - get: cf-release-version
-      passed: [create-cf-release]
-    - get: s3-bits-service-release
-      passed: *run-system-tests-passed
-      trigger: true
-    - get: git-bits-service-release
-    - get: git-bits-service-ci
-    - get: cf-dea-aws-deployment-events
-      passed: [manually-delete-cf-dea-aws]
-      trigger: true
+    - { get: git-cf-release,     passed: [create-cf-release] }
+    - { get: cf-release-tarball, passed: [create-cf-release], trigger: true}
+    - { get: cf-release-version, passed: [create-cf-release] }
+    - { get: s3-bits-service-release, passed: *run-system-tests-passed, trigger: true}
+    - { get: git-bits-service-release }
+    - { get: git-bits-service-ci }
+    - { get: cf-dea-aws-deployment-events, passed: [manually-delete-cf-dea-aws], trigger: true}
     - { get: stemcell, resource: aws-stemcell }
-  - task: update-cf-manifest
+  - task: Update CF deployment manifest
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config: &update-aws-cf-manifest-cf1-config
       params:
@@ -682,11 +674,9 @@ jobs:
         BOSH_TARGET: {{aws-bosh-target}}
   - put: aws-dea-deployment
     params:
-     manifest: manifests/manifest.yml
-     stemcells: ["stemcell/stemcell.tgz"]
-     releases:
-     - cf-release-tarball/cf-*.tgz
-     - s3-bits-service-release/*.tgz
+      manifest: manifests/manifest.yml
+      stemcells: ["stemcell/stemcell.tgz"]
+      releases: ["cf-release-tarball/cf-*.tgz", "s3-bits-service-release/*.tgz"]
 
 - name: CATs-aws
   serial: true
