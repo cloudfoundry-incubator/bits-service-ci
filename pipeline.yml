@@ -660,7 +660,10 @@ jobs:
     config: &update-aws-cf-manifest-cf1-config
       params:
         IAAS: aws
-        MANIFEST_STUBS: manifests/cf-aws-network-1.yml ../git-bits-service-release/templates/s3.yml
+        MANIFEST_STUBS: >
+          manifests/cf-aws-network-1.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/disable-diego-backend.yml
         CF_USER: {{aws-cf1-user}}
         CF_PASSWORD: {{aws-cf1-password}}
         CF_DOMAIN: {{aws-cf1-domain}}
