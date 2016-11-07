@@ -1,3 +1,4 @@
 #!/bin/bash -ex
 
-git am < $1
+cd $1
+git am < $2

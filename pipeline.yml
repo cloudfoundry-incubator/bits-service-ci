@@ -554,17 +554,22 @@ jobs:
     config:
       platform: linux
       image: docker:///flintstonecf/ci
-      input: git-cf-release
-      output: git-cf-release
+      inputs:
+        - name: git-cf-release
+        - name: ci-tasks
+      outputs:
+        - name: git-cf-release
       run:
-        dir: git-cf-release/src/capi-release
-        path: git-apply-patch.sh
-        args: ["https://github.com/petergtz/capi-release/commit/2d47bd42bc656006b57c464752c6d593b67ddcae.patch"]
+        path: ci-tasks/git-apply-patch.sh
+        args:
+          - git-cf-release/src/capi-release
+          - https://github.com/petergtz/capi-release/commit/2d47bd42bc656006b57c464752c6d593b67ddcae.patch
   - task: Show patched blobstore code
     config:
       platform: linux
       image: docker:///flintstonecf/ci
-      input: git-cf-release
+      inputs:
+        - name: git-cf-release
       run: { path: cat, args: ["git-cf-release/src/capi-release/jobs/blobstore/templates/blobstore.conf.erb"] }
   - task: Create cf-release tarball
     file: ci-tasks/tasks/create-cf-release.yml
