@@ -4,7 +4,7 @@ platform: linux
 image: docker:///flintstonecf/ci
 
 inputs:
-- name: git-bits-service
+- name: bits-service
 - name: ci-tasks
 
 params:

@@ -6,7 +6,7 @@ image: docker:///flintstonecf/ci
 inputs:
 - name: ci-tasks
 - name: git-bits-service-release
-- name: git-bits-service
+- name: bits-service
 
 outputs:
 - name: bumped

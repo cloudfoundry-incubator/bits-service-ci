@@ -161,7 +161,7 @@ resources:
     branch: bits-service
     private_key: {{github-private-key}}
 
-- name: git-bits-service
+- name: bits-service
   type: git
   source:
     uri: https://github.com/cloudfoundry-incubator/bits-service.git
@@ -322,7 +322,7 @@ jobs:
 - name: run-unit-and-integration-tests
   plan:
   - aggregate:
-    - { get: git-bits-service, trigger: true }
+    - { get: bits-service, trigger: true }
     - { get: ci-tasks, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-service-tests.yml
@@ -330,7 +330,7 @@ jobs:
 - name: bump-bits-service-release
   plan:
   - aggregate:
-    - { get: git-bits-service, passed: [run-unit-and-integration-tests], trigger: true }
+    - { get: bits-service, passed: [run-unit-and-integration-tests], trigger: true }
     - { get: ci-tasks, trigger: true }
     - { get: git-bits-service-release }
   - task: Bump bits-service-release
@@ -1322,7 +1322,7 @@ jobs:
   plan:
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service
+    - get: bits-service
     - get: bits-service-release-tarball
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-tarball
@@ -1366,7 +1366,7 @@ jobs:
   plan:
   - aggregate:
     - get: git-bits-service-ci
-    - get: git-bits-service
+    - get: bits-service
     - get: bits-service-release-tarball
       passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-tarball

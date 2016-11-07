@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-pushd git-bits-service
+pushd bits-service
   SOURCE_MASTER_SHA=$(git rev-parse HEAD)
 popd
 pushd git-bits-service-release
