@@ -979,6 +979,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
+      trigger: true
     - get: cf-bosh1-deployment-events
       passed: [manually-delete-cf-bosh1]
       trigger: true
@@ -1166,6 +1167,7 @@ jobs:
       trigger: true
     - get: git-bits-service-release
     - get: git-bits-service-ci
+      trigger: true
     - get: cf-bosh2-deployment-events
       passed: [manually-delete-cf-bosh2]
       trigger: true
