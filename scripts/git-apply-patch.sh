@@ -7,4 +7,4 @@ pushd $GIT_REPO_DIR
 curl $PATCH_URL | git am
 popd
 
-mv $INPUT_DIR $OUTPUT_DIR
+cp -a $INPUT_DIR/* $OUTPUT_DIR/*
