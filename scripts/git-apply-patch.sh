@@ -3,8 +3,8 @@
 pwd
 ls git-cf-release
 
-pushd $1
-curl $2 | git am
+pushd $GIT_REPO_DIR
+curl $PATCH_URL | git am
 popd
 
-mv $1 "$1-patched"
+mv $INPUT_DIR $OUTPUT_DIR
