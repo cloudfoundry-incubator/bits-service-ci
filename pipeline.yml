@@ -652,7 +652,7 @@ jobs:
     - { get: cf-release-version, passed: [create-cf-release] }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
     - { get: git-bits-service-release }
-    - { get: git-bits-service-ci }
+    - { get: git-bits-service-ci, trigger: true }
     - { get: cf-dea-aws-deployment-events, passed: [manually-delete-cf-dea-aws], trigger: true}
     - { get: stemcell, resource: aws-stemcell }
   - task: Update CF deployment manifest
@@ -817,6 +817,7 @@ jobs:
       passed: [create-cf-release]
     - get: git-bits-service-release
     - get: git-bits-service-ci
+      trigger: true
     - get: cf-diego-aws-deployment-events
       passed: [manually-delete-cf-diego-aws]
       trigger: true
