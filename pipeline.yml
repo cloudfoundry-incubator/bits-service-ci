@@ -22,9 +22,8 @@ groups:
   - enable-BITS-SERVICE-diego
   - CATs-diego-aws-with-bits
   - enable-BITS-SERVICE
-  - migration-bosh1
+  - migration-bosh1 (S3)
   - migration-backwards-bosh1
-  - deploy-cf-bosh1 (S3)
   - migration-backwards-bosh2
   - migration-bosh2
   - deploy-cf-bosh2 (webdav)
@@ -65,8 +64,7 @@ groups:
 - name: migration
   jobs:
   - migration-backwards-bosh1
-  - migration-bosh1
-  - deploy-cf-bosh1 (S3)
+  - migration-bosh1 (S3)
   - migration-backwards-bosh2
   - migration-bosh2
   - deploy-cf-bosh2 (webdav)
@@ -1001,29 +999,20 @@ jobs:
   - put: cf-bosh1-deployment-events
     params: { file: cf-bosh1-deployment-events/number }
 
-- name: deploy-cf-bosh1 (S3)
+- name: migration-bosh1 (S3)
   serial: true
   serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [create-cf-release]
-    - get: cf-release-version
-      passed: [create-cf-release]
-      trigger: true
-    - get: cf-release-tarball
-      passed: [create-cf-release]
-    - get: bits-service-release-tarball
-      passed: *run-system-tests-passed
-      trigger: true
-    - get: git-bits-service-release
-    - get: git-bits-service-ci
-      trigger: true
-    - get: cf-bosh1-deployment-events
-      passed: [manually-delete-cf-bosh1]
-      trigger: true
+    - { get: git-cf-release, passed: [create-cf-release] }
+    - { get: cf-release-version, passed: [create-cf-release], trigger: true }
+    - { get: cf-release-tarball, passed: [create-cf-release], trigger: true  }
+    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
+    - { get: git-bits-service-release }
+    - { get: git-bits-service-ci, trigger: true }
+    - { get: cf-bosh1-deployment-events, passed: [manually-delete-cf-bosh1], trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config: &update-boshlite1-cf-manifest-config
       params:
@@ -1048,30 +1037,8 @@ jobs:
     params:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases:
-      - cf-release-tarball/cf-*.tgz
-      - bits-service-release-tarball/*.tgz
-
-- name: migration-bosh1
-  serial: true
-  serial_groups: [cf-bosh1-deployment]
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [deploy-cf-bosh1 (S3)]
-    - get: cf-release-tarball
-      passed: [deploy-cf-bosh1 (S3)]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [deploy-cf-bosh1 (S3)]
-      trigger: true
-    - get: cf-release-version
-      passed: [deploy-cf-bosh1 (S3)]
-    - get: git-bits-service-ci
-      passed: [deploy-cf-bosh1 (S3)]
-    - get: git-bits-service-release
-    - { get: stemcell, resource: boshlite-stemcell }
-  - task: run-bits-service-migration-tests
+      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+  - task: Run migration preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1087,8 +1054,7 @@ jobs:
               Consider doing a fresh deployment by manually running job
               [manually-delete-cf-bosh1]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh1)
-
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       <<: *update-boshlite1-cf-manifest-config
@@ -1105,10 +1071,8 @@ jobs:
     params:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases:
-      - cf-release-tarball/cf-*.tgz
-      - bits-service-release-tarball/*.tgz
-  - task: run-bits-service-migration-tests
+      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+  - task: Run migration verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1123,19 +1087,19 @@ jobs:
   plan:
   - aggregate:
     - get: git-cf-release
-      passed: [migration-bosh1]
+      passed: [migration-bosh1 (S3)]
     - get: cf-release-tarball
-      passed: [migration-bosh1]
+      passed: [migration-bosh1 (S3)]
       trigger: true
     - get: bits-service-release-tarball
-      passed: [migration-bosh1]
+      passed: [migration-bosh1 (S3)]
       trigger: true
     - get: cf-release-version
-      passed: [migration-bosh1]
+      passed: [migration-bosh1 (S3)]
     - get: git-bits-service-ci
-      passed: [migration-bosh1]
+      passed: [migration-bosh1 (S3)]
     - get: git-bits-service-release
-      passed: [migration-bosh1]
+      passed: [migration-bosh1 (S3)]
     - { get: stemcell, resource: boshlite-stemcell }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
