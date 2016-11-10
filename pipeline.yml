@@ -14,12 +14,10 @@ groups:
   - cc-tests
   - create-cf-release
   - deploy-and-test-cf-dea-aws
-  - cf-release-done
-  - deploy-cf-diego-aws
-  - CATs-diego-aws
-  - enable-BITS-SERVICE-diego
-  - CATs-diego-aws-with-bits
+  - deploy-and-test-cf-diego-aws
+  - enable-BITS-SERVICE-diego-and-run-CATs
   - enable-BITS-SERVICE-and-run-CATs
+  - cf-release-done
   - migration-bosh1 (S3)
   - migration-backwards-bosh1
   - migration-backwards-bosh2
@@ -50,12 +48,10 @@ groups:
   jobs:
   - create-cf-release
   - deploy-and-test-cf-dea-aws
-  - cf-release-done
   - enable-BITS-SERVICE-and-run-CATs
-  - deploy-cf-diego-aws
-  - CATs-diego-aws
-  - enable-BITS-SERVICE-diego
-  - CATs-diego-aws-with-bits
+  - deploy-and-test-cf-diego-aws
+  - enable-BITS-SERVICE-diego-and-run-CATs
+  - cf-release-done
 - name: migration
   jobs:
   - migration-backwards-bosh1
@@ -590,25 +586,21 @@ jobs:
     - get: git-cf-release
       passed: &cf-release-done-passed
         - enable-BITS-SERVICE-and-run-CATs
-        - CATs-diego-aws-with-bits
+        - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
     - get: cf-release-tarball
       passed: *cf-release-done-passed
       trigger: true
     - get: cf-release-version
-      passed: [migration-backwards-bosh1, migration-backwards-bosh2, CATs-diego-aws-with-bits, enable-BITS-SERVICE-and-run-CATs]
+      passed: *cf-release-done-passed
     - get: ci-tasks
       resource: git-bits-service-ci
       passed: *cf-release-done-passed
     - get: git-bits-service-ci
       passed: *cf-release-done-passed
     - get: git-bits-service-release
-      passed:
-        - enable-BITS-SERVICE-and-run-CATs
-        - enable-BITS-SERVICE-diego
-        - migration-backwards-bosh1
-        - migration-backwards-bosh2
+      passed: *cf-release-done-passed
   - task: create-bosh-lite-manifest
     file: ci-tasks/tasks/update-cf-manifest.yml
     config:
@@ -776,31 +768,21 @@ jobs:
   - put: cf-diego-aws-deployment-events
     params: { file: cf-diego-aws-deployment-events/number }
 
-- name: deploy-cf-diego-aws
+- name: deploy-and-test-cf-diego-aws
   serial: true
   serial_groups: [cf2-aws-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [create-cf-release]
-    - get: cf-release-version
-      passed: [create-cf-release]
-      trigger: true
-    - get: cf-release-tarball
-      passed: [create-cf-release]
-    - get: bits-service-release-tarball
-      passed: *run-system-tests-passed
-      trigger: true
-    - get: cf-release-version
-      passed: [create-cf-release]
-    - get: git-bits-service-release
-    - get: git-bits-service-ci
-      trigger: true
-    - get: cf-diego-aws-deployment-events
-      passed: [manually-delete-cf-diego-aws]
-      trigger: true
+    - { get: git-cf-release, passed: [create-cf-release] }
+    - { get: cf-release-version, passed: [create-cf-release], trigger: true }
+    - { get: cf-release-tarball, passed: [create-cf-release] }
+    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
+    - { get: cf-release-version, passed: [create-cf-release] }
+    - { get: git-bits-service-release }
+    - { get: git-bits-service-ci, trigger: true}
+    - { get: cf-diego-aws-deployment-events, passed: [manually-delete-cf-diego-aws], trigger: true}
     - { get: stemcell, resource: aws-stemcell }
-    - get: diego-release-tarball
+    - { get: diego-release-tarball }
   - task: update-cf-manifest
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config: &update-aws-cf-manifest-cf2-config
@@ -819,34 +801,13 @@ jobs:
         BLOBSTORE_TYPE: s3
         BOSH_TARGET: {{aws-bosh-target}}
   - put: aws-diego-deployment
-    params:
+    params: &params-deployment-cf-release-bits-service-release-diego-release
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
-     releases:
-     - cf-release-tarball/cf-*.tgz
-     - bits-service-release-tarball/*.tgz
-     - diego-release-tarball/*.tgz
-
-- name: CATs-diego-aws
-  serial: true
-  serial_groups: [cf2-aws-deployment]
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [deploy-cf-diego-aws]
-    - get: cf-release-tarball
-      passed: [deploy-cf-diego-aws]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [deploy-cf-diego-aws]
-      trigger: true
-    - get: cf-release-version
-      passed: [deploy-cf-diego-aws]
-    - get: git-bits-service-ci
-      passed: [deploy-cf-diego-aws]
-  - task: run-cats
+     releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz", "diego-release-tarball/*.tgz"]
+  - task: Run CATs
     file: git-bits-service-ci/tasks/run-errand.yml
-    attempts: 6
+    attempts: 3
     config:
       params:
         <<: *aws-bosh-params
@@ -862,29 +823,20 @@ jobs:
               [manually-delete-cf-diego-aws]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
 
-- name: enable-BITS-SERVICE-diego
+- name: enable-BITS-SERVICE-diego-and-run-CATs
   serial: true
   serial_groups: [cf2-aws-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [CATs-diego-aws]
-    - get: cf-release-version
-      passed: [CATs-diego-aws]
-    - get: cf-release-tarball
-      passed: [CATs-diego-aws]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [CATs-diego-aws]
-      trigger: true
-    - get: cf-release-version
-      passed: [CATs-diego-aws]
-    - get: git-bits-service-release
-      passed: [deploy-cf-diego-aws]
-    - get: git-bits-service-ci
-      passed: [CATs-diego-aws]
+    - { get: git-cf-release, passed: [deploy-and-test-cf-diego-aws] }
+    - { get: cf-release-version, passed: [deploy-and-test-cf-diego-aws] }
+    - { get: cf-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: cf-release-version, passed: [deploy-and-test-cf-diego-aws] }
+    - { get: git-bits-service-release, passed: [deploy-and-test-cf-diego-aws] }
+    - { get: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell }
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with biits-service enabled
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config:
       <<: *update-aws-cf-manifest-cf2-config
@@ -892,24 +844,9 @@ jobs:
         MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
   - put: aws-diego-deployment
     params: *params-deployment-cf-release-bits-service-release
-
-- name: CATs-diego-aws-with-bits
-  serial: true
-  serial_groups: [cf2-aws-deployment]
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [enable-BITS-SERVICE-diego]
-    - get: cf-release-tarball
-      passed: [enable-BITS-SERVICE-diego]
-      trigger: true
-    - get: cf-release-version
-      passed: [enable-BITS-SERVICE-diego]
-    - get: git-bits-service-ci
-      passed: [enable-BITS-SERVICE-diego]
-  - task: run-cats
+  - task: Run CATs
     file: git-bits-service-ci/tasks/run-errand.yml
-    attempts: 6
+    attempts: 3
     config:
       params:
         <<: *aws-bosh-params
