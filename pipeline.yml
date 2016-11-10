@@ -13,10 +13,9 @@ groups:
   - upload-bits-service-release-and-manifest-to-acceptance
   - cc-tests
   - create-cf-release
-  - deploy-cf-dea-aws
+  - deploy-and-test-cf-dea-aws
   - CATs-aws-with-bits
   - cf-release-done
-  - CATs-aws
   - deploy-cf-diego-aws
   - CATs-diego-aws
   - enable-BITS-SERVICE-diego
@@ -52,11 +51,10 @@ groups:
 - name: cf-release
   jobs:
   - create-cf-release
-  - deploy-cf-dea-aws
+  - deploy-and-test-cf-dea-aws
   - CATs-aws-with-bits
   - cf-release-done
   - enable-BITS-SERVICE
-  - CATs-aws
   - deploy-cf-diego-aws
   - CATs-diego-aws
   - enable-BITS-SERVICE-diego
@@ -674,7 +672,7 @@ jobs:
   - put: cf-dea-aws-deployment-events
     params: { file: cf-dea-aws-deployment-events/number }
 
-- name: deploy-cf-dea-aws
+- name: deploy-and-test-cf-dea-aws
   serial: true
   serial_groups: [cf1-aws-deployment]
   plan:
@@ -713,26 +711,8 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
-
-- name: CATs-aws
-  serial: true
-  serial_groups: [cf1-aws-deployment]
-  plan:
-  - aggregate:
-    - get: git-cf-release
-      passed: [deploy-cf-dea-aws]
-    - get: cf-release-tarball
-      passed: [deploy-cf-dea-aws]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [deploy-cf-dea-aws]
-      trigger: true
-    - get: git-bits-service-ci
-      passed: [deploy-cf-dea-aws]
-    - get: cf-release-version
-      passed: [deploy-cf-dea-aws]
-  - task: run-cats
-    attempts: 6
+  - task: Run CATs
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -755,19 +735,19 @@ jobs:
   plan:
   - aggregate:
     - get: git-cf-release
-      passed: [CATs-aws]
+      passed: [deploy-and-test-cf-dea-aws]
     - get: cf-release-tarball
-      passed: [CATs-aws]
+      passed: [deploy-and-test-cf-dea-aws]
       trigger: true
     - get: bits-service-release-tarball
-      passed: [CATs-aws]
+      passed: [deploy-and-test-cf-dea-aws]
       trigger: true
     - get: cf-release-version
-      passed: [CATs-aws]
+      passed: [deploy-and-test-cf-dea-aws]
     - get: git-bits-service-release
-      passed: [deploy-cf-dea-aws]
+      passed: [deploy-and-test-cf-dea-aws]
     - get: git-bits-service-ci
-      passed: [CATs-aws]
+      passed: [deploy-and-test-cf-dea-aws]
     - { get: stemcell, resource: aws-stemcell }
   - aggregate:
     - task: update-cf-manifest
