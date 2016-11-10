@@ -10,13 +10,11 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - upload-bits-service-release-and-manifest-to-acceptance
   - create-cf-release
   - deploy-and-test-cf-dea-aws
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
   - enable-BITS-SERVICE-and-run-CATs
-  - cf-release-done
   - migration-bosh1 (S3)
   - migration-backwards-bosh1
   - migration-backwards-bosh2
@@ -28,6 +26,10 @@ groups:
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
+- name: Acceptance box
+  jobs:
+    - upload-bits-service-release-and-manifest-to-acceptance
+    - cf-release-done
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
