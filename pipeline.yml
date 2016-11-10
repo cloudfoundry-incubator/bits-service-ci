@@ -1023,6 +1023,21 @@ jobs:
     - { get: git-bits-service-ci, passed: [migration-bosh1 (S3)] }
     - { get: git-bits-service-release, passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
+  - task: Generate CF deployment manifest with bits-service enabled
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config:
+      <<: *update-boshlite1-cf-manifest-config
+      params:
+        MANIFEST_STUBS: >
+          manifests/bits-network-bosh-lite.yml
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          ../git-bits-service-release/templates/s3.yml
+          manifests/bsmt-errands.yml
+  - put: boshlite1-deployment
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1165,6 +1180,21 @@ jobs:
     - { get: git-bits-service-ci, passed: [migration-bosh2 (webdav)] }
     - { get: git-bits-service-release, passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
+  - task: Generate CF deployment manifest with bits-service enabled
+    file: git-bits-service-ci/tasks/update-cf-manifest.yml
+    config:
+      <<: *update-boshlite2-cf-manifest-config
+      params:
+        MANIFEST_STUBS: >
+          manifests/bits-network-bosh-lite.yml
+          manifests/bits-service.yml
+          ../git-bits-service-release/templates/cc-blobstore-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          manifests/enable-bits.yml
+          ../git-bits-service-release/templates/webdav-cf.yml
+          manifests/bsmt-errands.yml
+  - put: boshlite2-deployment
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
