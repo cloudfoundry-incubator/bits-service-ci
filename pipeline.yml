@@ -21,11 +21,13 @@ groups:
   - migration-backwards-bosh1
   - migration-backwards-bosh2
   - migration-bosh2 (webdav)
+  - bump-bits-service-release
+- name: Manual interventions
+  jobs:
   - manually-delete-cf-dea-aws
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
-  - bump-bits-service-release
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -386,6 +388,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
         BLOBSTORE_TYPE: s3
   - put: boshlite1-s3-deployment
+    attempts: 3
     params: &boshlite1-bits-service-deployment-params
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
@@ -428,6 +431,7 @@ jobs:
         BITS_DIRECTORY_KEY: another-directory
         BLOBSTORE_TYPE: local
   - put: boshlite1-local-deployment
+    attempts: 3
     params: *boshlite1-bits-service-deployment-params
   - put: s3-bits-service-manifest
     params: { file: manifests/manifest-*.yml }
@@ -469,6 +473,7 @@ jobs:
         <<: *bosh1-params
         BLOBSTORE_TYPE: webdav
   - put: boshlite1-webdav-deployment
+    attempts: 3
     params: *boshlite1-bits-service-deployment-params
 
 - name: run-system-tests-WEBDAV
