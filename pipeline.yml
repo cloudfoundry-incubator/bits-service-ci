@@ -705,10 +705,7 @@ jobs:
         BLOBSTORE_TYPE: s3
         BOSH_TARGET: {{aws-bosh-target}}
   - put: aws-dea-deployment
-    params:
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run CATs
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -732,20 +729,12 @@ jobs:
   serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [deploy-and-test-cf-dea-aws]
-    - get: cf-release-tarball
-      passed: [deploy-and-test-cf-dea-aws]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [deploy-and-test-cf-dea-aws]
-      trigger: true
-    - get: cf-release-version
-      passed: [deploy-and-test-cf-dea-aws]
-    - get: git-bits-service-release
-      passed: [deploy-and-test-cf-dea-aws]
-    - get: git-bits-service-ci
-      passed: [deploy-and-test-cf-dea-aws]
+    - { get: git-cf-release, passed: [deploy-and-test-cf-dea-aws] }
+    - { get: cf-release-tarball, passed: [deploy-and-test-cf-dea-aws], trigger: true}
+    - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-dea-aws], trigger: true}
+    - { get: cf-release-version, passed: [deploy-and-test-cf-dea-aws] }
+    - { get: git-bits-service-release, passed: [deploy-and-test-cf-dea-aws] }
+    - { get: git-bits-service-ci, passed: [deploy-and-test-cf-dea-aws] }
     - { get: stemcell, resource: aws-stemcell }
   - aggregate:
     - task: update-cf-manifest
@@ -761,12 +750,7 @@ jobs:
             manifests/disable-diego-backend.yml
             manifests/hm9000-job.yml
   - put: aws-dea-deployment
-    params:
-     manifest: manifests/manifest.yml
-     stemcells: ["stemcell/stemcell.tgz"]
-     releases:
-     - cf-release-tarball/cf-*.tgz
-     - bits-service-release-tarball/*.tgz
+    params: *params-deployment-cf-release-bits-service-release
   - put: s3-cf-aws-manifest
     params: { file: manifests/*.yml }
 
@@ -775,21 +759,13 @@ jobs:
   serial_groups: [cf1-aws-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [enable-BITS-SERVICE]
-    - get: s3-cf-aws-manifest
-      passed: [enable-BITS-SERVICE]
-    - get: cf-release-tarball
-      passed: [enable-BITS-SERVICE]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [enable-BITS-SERVICE]
-      trigger: true
-    - get: cf-release-version
-      passed: [enable-BITS-SERVICE]
-    - get: git-bits-service-ci
-      passed: [enable-BITS-SERVICE]
-  - task: run-cats
+    - { get: git-cf-release, passed: [enable-BITS-SERVICE] }
+    - { get: s3-cf-aws-manifest, passed: [enable-BITS-SERVICE] }
+    - { get: cf-release-tarball, passed: [enable-BITS-SERVICE], trigger: true}
+    - { get: bits-service-release-tarball, passed: [enable-BITS-SERVICE], trigger: true }
+    - { get: cf-release-version, passed: [enable-BITS-SERVICE] }
+    - { get: git-bits-service-ci, passed: [enable-BITS-SERVICE] }
+  - task: Run CATs
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 6
     config:
@@ -930,12 +906,7 @@ jobs:
       params:
         MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
   - put: aws-diego-deployment
-    params:
-     manifest: manifests/manifest.yml
-     stemcells: ["stemcell/stemcell.tgz"]
-     releases:
-     - cf-release-tarball/cf-*.tgz
-     - bits-service-release-tarball/*.tgz
+    params: *params-deployment-cf-release-bits-service-release
 
 - name: CATs-diego-aws-with-bits
   serial: true
@@ -1014,10 +985,7 @@ jobs:
         BLOBSTORE_TYPE: s3
         BOSH_TARGET: {{bosh-target}}
   - put: boshlite1-deployment
-    params:
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1048,10 +1016,7 @@ jobs:
           ../git-bits-service-release/templates/s3.yml
           manifests/bsmt-errands.yml
   - put: boshlite1-deployment
-    params:
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run migration verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1066,22 +1031,14 @@ jobs:
   serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [migration-bosh1 (S3)]
-    - get: cf-release-tarball
-      passed: [migration-bosh1 (S3)]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [migration-bosh1 (S3)]
-      trigger: true
-    - get: cf-release-version
-      passed: [migration-bosh1 (S3)]
-    - get: git-bits-service-ci
-      passed: [migration-bosh1 (S3)]
-    - get: git-bits-service-release
-      passed: [migration-bosh1 (S3)]
+    - { get: git-cf-release, passed: [migration-bosh1 (S3)] }
+    - { get: cf-release-tarball, passed: [migration-bosh1 (S3)], trigger: true}
+    - { get: bits-service-release-tarball, passed: [migration-bosh1 (S3)], trigger: true}
+    - { get: cf-release-version, passed: [migration-bosh1 (S3)] }
+    - { get: git-bits-service-ci, passed: [migration-bosh1 (S3)] }
+    - { get: git-bits-service-release, passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: run-bits-service-migration-tests
+  - task: Run migration preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1089,7 +1046,7 @@ jobs:
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       <<: *update-boshlite1-cf-manifest-config
@@ -1102,12 +1059,11 @@ jobs:
           ../git-bits-service-release/templates/s3.yml
           manifests/bsmt-errands.yml
   - put: boshlite1-deployment
-    params:
+    params: &params-deployment-cf-release
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases:
-      - cf-release-tarball/cf-*.tgz
-  - task: run-bits-service-migration-tests
+      releases: ["cf-release-tarball/cf-*.tgz"]
+  - task: Run migration verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1168,12 +1124,10 @@ jobs:
         BLOBSTORE_TYPE: webdav
         BOSH_TARGET: {{bosh2-target}}
   - put: boshlite2-deployment
-    params:
+    params: &params-deployment-cf-release-bits-service-release
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases:
-      - cf-release-tarball/cf-*.tgz
-      - bits-service-release-tarball/*.tgz
+      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
   - task: Run migration preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1204,12 +1158,7 @@ jobs:
           ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
   - put: boshlite2-deployment
-    params:
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases:
-      - cf-release-tarball/cf-*.tgz
-      - bits-service-release-tarball/*.tgz
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run migration verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
@@ -1253,10 +1202,7 @@ jobs:
           ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
   - put: boshlite2-deployment
-    params:
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["cf-release-tarball/cf-*.tgz"]
+    params: *params-deployment-cf-release
   - task: Run verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
