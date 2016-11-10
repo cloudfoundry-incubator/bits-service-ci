@@ -554,8 +554,7 @@ jobs:
       inputs:
         - name: git-cf-release
         - name: ci-tasks
-      outputs:
-        - name: git-cf-release-patched
+      outputs: [ name: git-cf-release-patched ]
       params:
         GIT_REPO_DIR: git-cf-release/src/capi-release
         PATCH_URL: https://github.com/petergtz/capi-release/commit/2d47bd42bc656006b57c464752c6d593b67ddcae.patch
@@ -566,8 +565,7 @@ jobs:
     config:
       platform: linux
       image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-cf-release-patched
+      inputs: [ name: git-cf-release-patched ]
       run: { path: cat, args: ["git-cf-release-patched/src/capi-release/jobs/blobstore/templates/blobstore.conf.erb"] }
   - task: Create cf-release tarball
     file: ci-tasks/tasks/create-cf-release.yml
@@ -578,8 +576,7 @@ jobs:
         - name: ci-tasks
         - name: cf-release-version
         - name: git-cf-release-patched
-      outputs:
-      - name: releases
+      outputs: [ name: releases ]
       params:
         VERSION_FILE: cf-release-version/number
         CF_RELEASE_DIR: git-cf-release-patched
@@ -624,8 +621,7 @@ jobs:
         BOSH_TARGET: {{bosh-target}}
   - aggregate:
     - put: s3-cf-manifest
-      params:
-        file: manifests/*.yml
+      params: { file: manifests/*.yml }
     - task: upload-cf-release-to-acceptance
       file: ci-tasks/tasks/scp-to-acceptance.yml
       config:
@@ -657,9 +653,8 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: ci-tasks
-    - get: cf-dea-aws-deployment-events
-      params: { bump: major }
+    - { get: ci-tasks }
+    - { get: cf-dea-aws-deployment-events, params: { bump: major } }
   - task: delete-deployment
     file: ci-tasks/tasks/delete-deployment.yml
     config:
@@ -765,9 +760,8 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: ci-tasks
-    - get: cf-diego-aws-deployment-events
-      params: { bump: major }
+    - { get: ci-tasks }
+    - { get: cf-diego-aws-deployment-events, params: { bump: major } }
   - task: delete-deployment
     file: ci-tasks/tasks/delete-deployment.yml
     config:
@@ -1010,9 +1004,8 @@ jobs:
   serial: true
   plan: &delete-deployment-plan
   - aggregate:
-    - get: ci-tasks
-    - get: cf-bosh2-deployment-events
-      params: { bump: major}
+    - { get: ci-tasks }
+    - { get: cf-bosh2-deployment-events, params: { bump: major} }
   - task: delete-deployment
     file: ci-tasks/tasks/delete-deployment.yml
     config:
