@@ -305,6 +305,30 @@ aws-bosh-params: &aws-bosh-params
   BOSH_USERNAME: {{aws-bosh-username}}
   BOSH_PASSWORD: {{aws-bosh-password}}
 
+boshlite2-bsmt-preparation-errand-config: &boshlite2-bsmt-preparation-errand-config
+  params:
+    <<: *bosh2-params
+    DEPLOYMENT_NAME: cf-warden
+    ERRAND_NAME: bsmt_preparation
+
+boshlite1-bsmt-preparation-errand-config: &boshlite1-bsmt-preparation-errand-config
+  params:
+    <<: *bosh1-params
+    DEPLOYMENT_NAME: cf-warden
+    ERRAND_NAME: bsmt_preparation
+
+boshlite2-bsmt-verification-errand-config: &boshlite2-bsmt-verification-errand-config
+  params:
+    <<: *bosh2-params
+    DEPLOYMENT_NAME: cf-warden
+    ERRAND_NAME: bsmt_verification
+
+boshlite1-bsmt-verification-errand-config: &boshlite1-bsmt-verification-errand-config
+  params:
+    <<: *bosh1-params
+    DEPLOYMENT_NAME: cf-warden
+    ERRAND_NAME: bsmt_verification
+
 jobs:
 # BITS-SERVICE
 - name: run-unit-and-integration-tests
@@ -911,11 +935,7 @@ jobs:
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
-    config:
-      params:
-        <<: *bosh1-params
-        ERRAND_NAME: bsmt_preparation
-        DEPLOYMENT_NAME: cf-warden
+    config: *boshlite1-bsmt-preparation-errand-config
     on_failure: &inform-pipeline-operator-bosh1-migration-tests
       task: inform-pipeline-operator
       file: git-bits-service-ci/tasks/echo.yml
@@ -943,11 +963,7 @@ jobs:
   - task: Run migration verification tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
-    config:
-      params:
-        <<: *bosh1-params
-        DEPLOYMENT_NAME: cf-warden
-        ERRAND_NAME: bsmt_verification
+    config: *boshlite1-bsmt-verification-errand-config
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
 
 - name: migration-backwards-bosh1
@@ -980,11 +996,7 @@ jobs:
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
-    config:
-      params:
-        <<: *bosh1-params
-        DEPLOYMENT_NAME: cf-warden
-        ERRAND_NAME: bsmt_preparation
+    config: *boshlite1-bsmt-preparation-errand-config
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
@@ -1006,11 +1018,7 @@ jobs:
   - task: Run migration verification tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
-    config:
-      params:
-        <<: *bosh1-params
-        DEPLOYMENT_NAME: cf-warden
-        ERRAND_NAME: bsmt_verification
+    config: *boshlite1-bsmt-verification-errand-config
     on_failure: &inform-pipeline-operator-bosh1-migration-tests
 
 - name: manually-delete-cf-bosh2
@@ -1072,11 +1080,7 @@ jobs:
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
-    config:
-      params:
-        <<: *bosh2-params
-        ERRAND_NAME: bsmt_preparation
-        DEPLOYMENT_NAME: cf-warden
+    config: *boshlite2-bsmt-preparation-errand-config
     on_failure: &inform-pipeline-operator-bosh2-migration-tests
       task: inform-pipeline-operator
       file: git-bits-service-ci/tasks/echo.yml
@@ -1104,11 +1108,7 @@ jobs:
   - task: Run migration verification tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
-    config:
-      params:
-        <<: *bosh2-params
-        DEPLOYMENT_NAME: cf-warden
-        ERRAND_NAME: bsmt_verification
+    config: *boshlite2-bsmt-verification-errand-config
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
 
 - name: migration-backwards-bosh2
@@ -1141,11 +1141,7 @@ jobs:
   - task: Run preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
-    config:
-      params:
-        <<: *bosh2-params
-        DEPLOYMENT_NAME: cf-warden
-        ERRAND_NAME: bsmt_preparation
+    config: *boshlite2-bsmt-preparation-errand-config
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
   - task: Update CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
@@ -1164,11 +1160,7 @@ jobs:
   - task: Run verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
-    config:
-      params:
-        <<: *bosh2-params
-        DEPLOYMENT_NAME: cf-warden
-        ERRAND_NAME: bsmt_verification
+    config: *boshlite2-bsmt-verification-errand-config
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
 
 # Infrastructure
