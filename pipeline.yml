@@ -24,8 +24,7 @@ groups:
   - migration-bosh1 (S3)
   - migration-backwards-bosh1
   - migration-backwards-bosh2
-  - migration-bosh2
-  - deploy-cf-bosh2 (webdav)
+  - migration-bosh2 (webdav)
   - manually-delete-cf-dea-aws
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
@@ -64,8 +63,7 @@ groups:
   - migration-backwards-bosh1
   - migration-bosh1 (S3)
   - migration-backwards-bosh2
-  - migration-bosh2
-  - deploy-cf-bosh2 (webdav)
+  - migration-bosh2 (webdav)
 - name: infrastructure
   jobs:
   - recreate-bosh-lite-1
@@ -1135,7 +1133,7 @@ jobs:
     params: { file: cf-bosh2-deployment-events/number }
 
 # no-migration tests for webdav
-- name: deploy-cf-bosh2 (webdav)
+- name: migration-bosh2 (webdav)
   serial: true
   serial_groups: [cf-bosh2-deployment]
   plan:
@@ -1176,20 +1174,7 @@ jobs:
       releases:
       - cf-release-tarball/cf-*.tgz
       - bits-service-release-tarball/*.tgz
-
-- name: migration-bosh2
-  serial: true
-  serial_groups: [cf-bosh2-deployment]
-  plan:
-  - aggregate:
-    - { get: git-cf-release, passed: [deploy-cf-bosh2 (webdav)] }
-    - { get: cf-release-tarball, passed: [deploy-cf-bosh2 (webdav)], trigger: true}
-    - { get: bits-service-release-tarball, passed: [deploy-cf-bosh2 (webdav)], trigger: true }
-    - { get: cf-release-version, passed: [deploy-cf-bosh2 (webdav)] }
-    - { get: git-bits-service-ci, passed: [deploy-cf-bosh2 (webdav)] }
-    - { get: git-bits-service-release, passed: [deploy-cf-bosh2 (webdav)] }
-    - { get: stemcell, resource: boshlite-stemcell }
-  - task: run-bits-service-migration-tests
+  - task: Run migration preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1205,8 +1190,7 @@ jobs:
               Consider doing a fresh deployment by manually running job
               [manually-delete-cf-bosh2]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh2)
-
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       <<: *update-boshlite2-cf-manifest-config
@@ -1226,7 +1210,7 @@ jobs:
       releases:
       - cf-release-tarball/cf-*.tgz
       - bits-service-release-tarball/*.tgz
-  - task: run-bits-service-migration-tests
+  - task: Run migration verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1240,12 +1224,12 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    - { get: git-cf-release, passed: [migration-bosh2] }
-    - { get: cf-release-tarball, passed: [migration-bosh2], trigger: true }
-    - { get: bits-service-release-tarball, passed: [migration-bosh2], trigger: true }
-    - { get: cf-release-version, passed: [migration-bosh2] }
-    - { get: git-bits-service-ci, passed: [migration-bosh2] }
-    - { get: git-bits-service-release, passed: [migration-bosh2] }
+    - { get: git-cf-release, passed: [migration-bosh2 (webdav)] }
+    - { get: cf-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: bits-service-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: cf-release-version, passed: [migration-bosh2 (webdav)] }
+    - { get: git-bits-service-ci, passed: [migration-bosh2 (webdav)] }
+    - { get: git-bits-service-release, passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Run preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
