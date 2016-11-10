@@ -909,6 +909,7 @@ jobs:
   - put: boshlite1-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -940,6 +941,7 @@ jobs:
   - put: boshlite1-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration verification tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -976,6 +978,7 @@ jobs:
   - put: boshlite1-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1001,6 +1004,7 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["cf-release-tarball/cf-*.tgz"]
   - task: Run migration verification tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1066,6 +1070,7 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
   - task: Run migration preparation tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
@@ -1097,6 +1102,7 @@ jobs:
   - put: boshlite2-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration verification tests
+    attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
     config:
       params:
