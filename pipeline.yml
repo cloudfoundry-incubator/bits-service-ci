@@ -11,7 +11,6 @@ groups:
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
   - upload-bits-service-release-and-manifest-to-acceptance
-  - cc-tests
   - create-cf-release
   - deploy-and-test-cf-dea-aws
   - deploy-and-test-cf-diego-aws
@@ -41,9 +40,6 @@ groups:
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
   - upload-bits-service-release-and-manifest-to-acceptance
-- name: cloud-controller
-  jobs:
-  - cc-tests
 - name: cf-release
   jobs:
   - create-cf-release
@@ -135,12 +131,6 @@ resources:
     branch: master
     private_key: {{github-private-key}}
     paths: ["manifests/*"]
-
-- name: git-cloud-controller
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/cloud_controller_ng.git
-    branch: bits-service
 
 - name: git-capi-release
   type: git
@@ -543,16 +533,6 @@ jobs:
           FILE: s3-bits-service-manifest/*.yml
           VERSION_FILE: bits-service-release-version/number
           RELEASE_NAME: bits-service-release
-
-# CLOUD CONTROLLER
-- name: cc-tests
-  plan:
-  - aggregate:
-    - get: git-bits-service-ci
-    - get: git-cloud-controller
-      trigger: true
-  - task: run-tests
-    file: git-bits-service-ci/tasks/run-cc-tests.yml
 
 # CF-RELEASE
 - name: create-cf-release
