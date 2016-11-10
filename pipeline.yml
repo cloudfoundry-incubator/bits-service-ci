@@ -696,6 +696,7 @@ jobs:
           manifests/cf-aws-network-1.yml
           ../git-bits-service-release/templates/s3.yml
           manifests/disable-diego-backend.yml
+          manifests/hm9000-job.yml
         CF_USER: {{aws-cf1-user}}
         CF_PASSWORD: {{aws-cf1-password}}
         CF_DOMAIN: {{aws-cf1-domain}}
@@ -780,6 +781,7 @@ jobs:
             manifests/bits-network-aws.yml
             ../git-bits-service-release/templates/s3.yml
             manifests/disable-diego-backend.yml
+            manifests/hm9000-job.yml
   - put: aws-dea-deployment
     params:
      manifest: manifests/manifest.yml
