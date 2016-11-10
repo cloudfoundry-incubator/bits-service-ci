@@ -1140,24 +1140,15 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [create-cf-release]
-    - get: cf-release-version
-      passed: [create-cf-release]
-      trigger: true
-    - get: cf-release-tarball
-      passed: [create-cf-release]
-    - get: bits-service-release-tarball
-      passed: *run-system-tests-passed
-      trigger: true
-    - get: git-bits-service-release
-    - get: git-bits-service-ci
-      trigger: true
-    - get: cf-bosh2-deployment-events
-      passed: [manually-delete-cf-bosh2]
-      trigger: true
+    - { get: git-cf-release, passed: [create-cf-release] }
+    - { get: cf-release-version, passed: [create-cf-release], trigger: true }
+    - { get: cf-release-tarball, passed: [create-cf-release]}
+    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
+    - { get: git-bits-service-release }
+    - { get: git-bits-service-ci, trigger: true }
+    - { get: cf-bosh2-deployment-events, passed: [manually-delete-cf-bosh2], trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config: &update-boshlite2-cf-manifest-config
       params:
@@ -1191,20 +1182,12 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [deploy-cf-bosh2 (webdav)]
-    - get: cf-release-tarball
-      passed: [deploy-cf-bosh2 (webdav)]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [deploy-cf-bosh2 (webdav)]
-      trigger: true
-    - get: cf-release-version
-      passed: [deploy-cf-bosh2 (webdav)]
-    - get: git-bits-service-ci
-      passed: [deploy-cf-bosh2 (webdav)]
-    - get: git-bits-service-release
-      passed: [deploy-cf-bosh2 (webdav)]
+    - { get: git-cf-release, passed: [deploy-cf-bosh2 (webdav)] }
+    - { get: cf-release-tarball, passed: [deploy-cf-bosh2 (webdav)], trigger: true}
+    - { get: bits-service-release-tarball, passed: [deploy-cf-bosh2 (webdav)], trigger: true }
+    - { get: cf-release-version, passed: [deploy-cf-bosh2 (webdav)] }
+    - { get: git-bits-service-ci, passed: [deploy-cf-bosh2 (webdav)] }
+    - { get: git-bits-service-release, passed: [deploy-cf-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
   - task: run-bits-service-migration-tests
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -1257,20 +1240,12 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    - get: git-cf-release
-      passed: [migration-bosh2]
-    - get: cf-release-tarball
-      passed: [migration-bosh2]
-      trigger: true
-    - get: bits-service-release-tarball
-      passed: [migration-bosh2]
-      trigger: true
-    - get: cf-release-version
-      passed: [migration-bosh2]
-    - get: git-bits-service-ci
-      passed: [migration-bosh2]
-    - get: git-bits-service-release
-      passed: [migration-bosh2]
+    - { get: git-cf-release, passed: [migration-bosh2] }
+    - { get: cf-release-tarball, passed: [migration-bosh2], trigger: true }
+    - { get: bits-service-release-tarball, passed: [migration-bosh2], trigger: true }
+    - { get: cf-release-version, passed: [migration-bosh2] }
+    - { get: git-bits-service-ci, passed: [migration-bosh2] }
+    - { get: git-bits-service-release, passed: [migration-bosh2] }
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Run preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -1281,7 +1256,7 @@ jobs:
         DEPLOYMENT_NAME: cf-warden
         ERRAND_NAME: bsmt_preparation
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
-  - task: Update CF deployment manifest with bits-service enabled
+  - task: Update CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
     config:
       <<: *update-boshlite2-cf-manifest-config
@@ -1297,8 +1272,7 @@ jobs:
     params:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases:
-      - cf-release-tarball/cf-*.tgz
+      releases: ["cf-release-tarball/cf-*.tgz"]
   - task: Run verification tests
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
