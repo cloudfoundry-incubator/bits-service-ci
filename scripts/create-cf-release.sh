@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-version="$(date +%s)" # current time in seconds
+version=0.0."$(date +%s)" # current time in seconds
 echo $version > $VERSION_FILE
 
 cd $CF_RELEASE_DIR
