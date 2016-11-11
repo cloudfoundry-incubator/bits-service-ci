@@ -479,12 +479,10 @@ jobs:
   serial_groups: [bits-deployment-webdav]
   plan:
   - aggregate:
-    - get: bits-service-release-tarball
-      passed: [deploy-with-WEBDAV]
-      trigger: true
-    - get: bits-service-system-test-source
-    - get: ci-tasks
-  - task: run-tests
+    - { get: bits-service-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
+    - { get: bits-service-system-test-source }
+    - { get: ci-tasks }
+  - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     config:
@@ -496,18 +494,15 @@ jobs:
 - name: upload-bits-service-release-and-manifest-to-acceptance
   plan:
   - aggregate:
-    - get: s3-bits-service-manifest
-      passed:
-        - run-system-tests-LOCAL
-      trigger: true
+    - { get: s3-bits-service-manifest, passed: [run-system-tests-LOCAL], trigger: true }
     - get: bits-service-release-tarball
       passed: &run-system-tests-passed
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
       trigger: true
-    - get: bits-service-release-version
-    - get: ci-tasks
+    - { get: bits-service-release-version }
+    - { get: ci-tasks }
   - aggregate:
     - task: upload-bits-service-release-to-acceptance
       file: ci-tasks/tasks/scp-to-acceptance.yml
