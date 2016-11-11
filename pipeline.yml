@@ -574,9 +574,10 @@ jobs:
       image: docker:///flintstonecf/ci
       inputs:
         - name: ci-tasks
-        - name: cf-release-version
         - name: git-cf-release-patched
-      outputs: [ name: releases ]
+      outputs:
+        - name: releases
+        - name: cf-release-version
       params:
         VERSION_FILE: cf-release-version/number
         CF_RELEASE_DIR: git-cf-release-patched
