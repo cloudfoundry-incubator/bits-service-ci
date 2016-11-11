@@ -20,16 +20,6 @@ groups:
   - migration-backwards-bosh2
   - migration-bosh2 (webdav)
   - bump-bits-service-release
-- name: Manual interventions
-  jobs:
-  - manually-delete-cf-dea-aws
-  - manually-delete-cf-diego-aws
-  - manually-delete-cf-bosh1
-  - manually-delete-cf-bosh2
-- name: Acceptance box
-  jobs:
-    - upload-bits-service-release-and-manifest-to-acceptance
-    - cf-release-done
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -58,12 +48,20 @@ groups:
   - migration-bosh1 (S3)
   - migration-backwards-bosh2
   - migration-bosh2 (webdav)
+- name: acceptance
+  jobs:
+    - upload-bits-service-release-and-manifest-to-acceptance
+    - cf-release-done
 - name: infrastructure
   jobs:
   - recreate-bosh-lite-1
   - recreate-bosh-lite-acceptance
   - cleanup-bosh-1
   - cleanup-bosh-acceptance
+  - manually-delete-cf-dea-aws
+  - manually-delete-cf-diego-aws
+  - manually-delete-cf-bosh1
+  - manually-delete-cf-bosh2
 
 resources:
 - name: aws-stemcell
