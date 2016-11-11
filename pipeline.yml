@@ -677,7 +677,7 @@ jobs:
     - { get: git-bits-service-ci, trigger: true }
     - { get: cf-dea-aws-deployment-events, passed: [manually-delete-cf-dea-aws], trigger: true}
     - { get: stemcell, resource: aws-stemcell }
-  - task: Update CF deployment manifest
+  - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config: &update-aws-cf-manifest-cf1-config
       params:
@@ -786,7 +786,7 @@ jobs:
     - { get: cf-diego-aws-deployment-events, passed: [manually-delete-cf-diego-aws], trigger: true}
     - { get: stemcell, resource: aws-stemcell }
     - { get: diego-release-tarball }
-  - task: update-cf-manifest
+  - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
     config: &update-aws-cf-manifest-cf2-config
       params:
