@@ -546,32 +546,52 @@ jobs:
       inputs:
         - name: git-cf-release
         - name: ci-tasks
-      outputs: [ name: git-cf-release-patched ]
+      outputs: [ name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae ]
       params:
         GIT_REPO_DIR: git-cf-release/src/capi-release
         PATCH_URL: https://github.com/petergtz/capi-release/commit/2d47bd42bc656006b57c464752c6d593b67ddcae.patch
         INPUT_DIR: git-cf-release
-        OUTPUT_DIR: git-cf-release-patched
+        OUTPUT_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
       run: { path: ci-tasks/scripts/git-apply-patch.sh }
   - task: Show patched blobstore code
     config:
       platform: linux
       image: docker:///flintstonecf/ci
-      inputs: [ name: git-cf-release-patched ]
-      run: { path: cat, args: ["git-cf-release-patched/src/capi-release/jobs/blobstore/templates/blobstore.conf.erb"] }
+      inputs: [ name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae ]
+      run: { path: cat, args: ["git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae/src/capi-release/jobs/blobstore/templates/blobstore.conf.erb"] }
+  - task: "Patch: Add bits-service signing credentials to cc config"
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
+        - name: ci-tasks
+      outputs: [ name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004 ]
+      params:
+        GIT_REPO_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae/src/capi-release/src/cloud_controller_ng
+        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/08565d43d71d522765dd3d1686f4874b6379a004.patch
+        INPUT_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
+        OUTPUT_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
+      run: { path: ci-tasks/scripts/git-apply-patch.sh }
+  - task: Show patched cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs: [ name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004 ]
+      run: { path: cat, args: ["git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec"] }
   - task: Create cf-release tarball
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: ci-tasks
-        - name: git-cf-release-patched
+        - name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
       outputs:
         - name: releases
         - name: cf-release-version
       params:
         VERSION_FILE: cf-release-version/number
-        CF_RELEASE_DIR: git-cf-release-patched
+        CF_RELEASE_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
       run: { path: ci-tasks/scripts/create-cf-release.sh }
   - put: cf-release-tarball
     params: { file: releases/*.tgz }
