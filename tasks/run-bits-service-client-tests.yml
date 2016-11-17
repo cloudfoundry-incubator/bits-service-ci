@@ -8,4 +8,4 @@ inputs:
 - name: ci-tasks
 
 run:
-  path: git-bits-service-ci/scripts/run-bits-service-client-tests.sh
+  path: ci-tasks/scripts/run-bits-service-client-tests.sh
