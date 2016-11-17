@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: ci-tasks
+- name: git-bits-service-client
+
+params:
+  GIT_PRIVATE_KEY:
+  RUBYGEMS_API_KEY:
+
+run:
+  path: ci-tasks/scripts/publish-gem.sh
