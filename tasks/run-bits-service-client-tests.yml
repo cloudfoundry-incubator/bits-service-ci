@@ -5,7 +5,7 @@ image: docker:///flintstonecf/ci
 
 inputs:
 - name: git-bits-service-client
-- name: git-bits-service-ci
+- name: ci-tasks
 
 run:
   path: git-bits-service-ci/scripts/run-bits-service-client-tests.sh
