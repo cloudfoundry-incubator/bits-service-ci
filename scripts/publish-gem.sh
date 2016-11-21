@@ -26,4 +26,10 @@ chmod 0600 $gem_credentials_path
 cd git-bits-service-client
 bundle config --global silence_root_warning 1
 bundle install
+
+git checkout -b ci-tag-version
+git push -u origin HEAD
+
 bundle exec rake release
+
+git push origin --delete ci-tag-version
