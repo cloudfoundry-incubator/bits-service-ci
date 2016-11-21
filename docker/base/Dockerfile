@@ -43,7 +43,7 @@ RUN gem install \
         mime-types:3.0 \
         byebug:8.2.2 \
         json:1.8.3 \
-        ffi:1.9.10
+        ffi:1.9.14
 
 RUN git config --global user.email "flintstone+cibot@cloudfoundry.org" && \
     git config --global user.name "Flintstone CI"
