@@ -20,5 +20,4 @@ networks:
     cloud_properties:
       subnet: subnet-6a65cb0e
       security_groups:
-        - sg-2ca8514b
-        - sg-4fa95028
+        - sg-2813af4e
