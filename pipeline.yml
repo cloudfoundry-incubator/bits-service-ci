@@ -342,14 +342,12 @@ jobs:
   - put: git-bits-service-release
     params: {repository: bumped/git-bits-service-release}
 
-
 - name: run-bits-service-client-tests
   plan:
   - { get: git-bits-service-client, trigger: true }
-  - { get: git-bits-service-ci }
+  - { get: ci-tasks, trigger: true }
   - task: Run tests
-    file: git-bits-service-ci/tasks/run-bits-service-client-tests.yml
-
+    file: ci-tasks/tasks/run-bits-service-client-tests.yml
 
 - name: create-and-upload-release
   plan:
