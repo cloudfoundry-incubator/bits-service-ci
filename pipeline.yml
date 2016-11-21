@@ -352,6 +352,7 @@ jobs:
     params: {repository: bumped/git-bits-service-release}
 
 - name: run-bits-service-client-tests
+  serial: true
   plan:
   - { get: git-bits-service-client, trigger: true }
   - { get: ci-tasks, trigger: true }
@@ -359,6 +360,7 @@ jobs:
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
 
 - name: Publish gem
+  serial: true
   plan:
   - { get: git-bits-service-client, passed: [run-bits-service-client-tests]}
   - { get: bits-service-client-version, trigger: true}
