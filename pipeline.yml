@@ -577,19 +577,39 @@ jobs:
       image: docker:///flintstonecf/ci
       inputs: [ name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004 ]
       run: { path: cat, args: ["git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec"] }
+  - task: "Patch: Bump bits_service_client version to 0.2.1"
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
+        - name: ci-tasks
+      outputs: [ name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe ]
+      params:
+        GIT_REPO_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng
+        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/d9540de690a4354689ffc9ab5ce418b7b428eebe.patch
+        INPUT_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
+        OUTPUT_DIR: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
+      run: { path: ci-tasks/scripts/git-apply-patch.sh }
+  - task: Show patched CC Gemfile.lock
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs: [ name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe ]
+      run: { path: cat, args: ["git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe/src/capi-release/src/cloud_controller_ng/Gemfile.lock"] }
   - task: Create cf-release tarball
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: ci-tasks
-        - name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
+        - name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
       outputs:
         - name: releases
         - name: cf-release-version
       params:
         VERSION_FILE: cf-release-version/number
-        CF_RELEASE_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
+        CF_RELEASE_DIR: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
       run: { path: ci-tasks/scripts/create-cf-release.sh }
   - put: cf-release-tarball
     params: { file: releases/*.tgz }
