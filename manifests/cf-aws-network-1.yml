@@ -2,22 +2,22 @@ networks:
 - name: cf_private
   type: manual
   subnets:
-  - range: 10.10.16.0/24
-    gateway: 10.10.16.1
-    dns: [10.10.0.2]
-    reserved: ["10.10.16.2 - 10.10.16.3"]
-    static: ["10.10.16.100 - 10.10.16.105"]
+  - range: 10.0.16.0/20
+    gateway: 10.0.16.1
+    dns: [10.0.0.2]
+    reserved: ["10.0.16.2 - 10.0.16.3"]
+    static: ["10.0.16.100 - 10.0.16.105"]
     cloud_properties:
-      subnet: subnet-56faf00f
+      subnet: subnet-d838ab80
 
 - name: cf_public
   type: manual
   subnets:
-  - range: 10.10.80.0/24
-    gateway: 10.10.80.1
-    dns: [10.10.0.2]
-    reserved: ["10.10.80.2 - 10.10.80.10"]
+  - range: 10.0.64.0/20
+    gateway: 10.0.64.1
+    dns: [10.0.0.2]
+    reserved: ["10.0.64.2 - 10.0.64.10"]
     cloud_properties:
-      subnet: subnet-6a39ec0e
+      subnet: subnet-5ed34106
       security_groups:
         - sg-2813af4e
