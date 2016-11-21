@@ -624,7 +624,7 @@ jobs:
         MANIFEST_STUBS: >
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/enable-bits.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/local.yml
@@ -910,7 +910,7 @@ jobs:
         MANIFEST_STUBS: >
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/s3.yml
           manifests/bsmt-errands.yml
@@ -947,7 +947,7 @@ jobs:
           manifests/bits-network-bosh-lite.yml
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/enable-bits.yml
           ../git-bits-service-release/templates/s3.yml
           manifests/bsmt-errands.yml
@@ -980,7 +980,7 @@ jobs:
           manifests/bits-network-bosh-lite.yml
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/enable-bits.yml
           ../git-bits-service-release/templates/s3.yml
           manifests/bsmt-errands.yml
@@ -999,7 +999,7 @@ jobs:
         MANIFEST_STUBS: >
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/s3.yml
           manifests/bsmt-errands.yml
@@ -1051,7 +1051,7 @@ jobs:
         MANIFEST_STUBS: >
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
@@ -1091,7 +1091,7 @@ jobs:
           manifests/bits-network-bosh-lite.yml
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/enable-bits.yml
           ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
@@ -1124,7 +1124,7 @@ jobs:
           manifests/bits-network-bosh-lite.yml
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/enable-bits.yml
           ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
@@ -1143,7 +1143,7 @@ jobs:
         MANIFEST_STUBS: >
           manifests/bits-service.yml
           ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          ../git-bits-service-release/templates/bits-service-signing-properties.yml
+          ../git-bits-service-release/templates/bits-service-signing-users.yml
           manifests/bits-network-bosh-lite.yml
           ../git-bits-service-release/templates/webdav-cf.yml
           manifests/bsmt-errands.yml
