@@ -3,6 +3,7 @@ groups:
   jobs:
   - run-unit-and-integration-tests
   - run-bits-service-client-tests
+  - Publish gem
   - create-and-upload-release
   - deploy-with-S3
   - deploy-with-LOCAL
@@ -24,6 +25,7 @@ groups:
   jobs:
   - run-unit-and-integration-tests
   - run-bits-service-client-tests
+  - Publish gem
 - name: bits-service-release
   jobs:
   - create-and-upload-release
@@ -159,6 +161,13 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
     branch: master
     private_key: {{github-private-key}}
+
+- name: bits-service-client-version
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-client.git
+    branch: master
+    paths: ["lib/bits_service_client/version.rb"]
 
 - name: bits-service-deployment-manifest-generation-tools
   type: git
@@ -348,6 +357,18 @@ jobs:
   - { get: ci-tasks, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
+
+- name: Publish gem
+  plan:
+  - { get: git-bits-service-client, passed: [run-bits-service-client-tests]}
+  - { get: bits-service-client-version, trigger: true}
+  - { get: ci-tasks }
+  - task: Publish to rubygems.org
+    file: ci-tasks/tasks/publish-gem.yml
+    config:
+      params:
+        GIT_PRIVATE_KEY: {{github-private-key}}
+        RUBYGEMS_API_KEY: {{rubygems-api-key}}
 
 - name: create-and-upload-release
   plan:
