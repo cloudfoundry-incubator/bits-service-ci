@@ -152,8 +152,9 @@ resources:
 - name: git-bits-service-client
   type: git
   source:
-    uri: https://github.com/cloudfoundry-incubator/bits-service-client.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-client.git
     branch: master
+    private_key: {{github-private-key}}
 
 - name: git-bits-service-release
   type: git
