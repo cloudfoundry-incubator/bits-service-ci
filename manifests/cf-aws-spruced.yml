@@ -410,6 +410,8 @@ networks:
 - name: cf_private
   subnets:
   - cloud_properties:
+      security_groups:
+        - sg-1d43ff7b
       subnet: subnet-e8d446b0
     dns:
     - 10.0.0.2

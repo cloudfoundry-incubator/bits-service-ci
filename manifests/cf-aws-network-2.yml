@@ -9,6 +9,8 @@ networks:
     static: ["10.0.128.100 - 10.0.128.105"]
     cloud_properties:
       subnet: subnet-e7d446bf
+      security_groups:
+        - sg-1d43ff7b
 
 - name: cf_public
   type: manual
