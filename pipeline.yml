@@ -1225,25 +1225,6 @@ jobs:
         GARDEN_LINUX_RELEASE_VERSION: {{garden-linux-release-version}}
         ETCD_RELEASE_VERSION: {{etcd-release-version}}
         CFLINUXFS2_ROOTFS_RELEASE_VERSION: {{cflinuxfs2-rootfs-release-version}}
-  - aggregate:
-    - task: upload-last-bits-service-release
-      file: git-bits-service-ci/tasks/upload-release.yml
-      config:
-        inputs:
-          - name: git-bits-service-ci
-          - name: bits-service-release-tarball
-        params:
-          <<: *bosh1-params
-          RELEASE_FILE: bits-service-release-tarball/*.tgz
-    - task: upload-last-cf-release
-      file: git-bits-service-ci/tasks/upload-release.yml
-      config:
-        inputs:
-          - name: git-bits-service-ci
-          - name: cf-release-tarball
-        params:
-          <<: *bosh1-params
-          RELEASE_FILE: cf-release-tarball/*.tgz
 
 - name: recreate-bosh-lite-acceptance
   serial: true
