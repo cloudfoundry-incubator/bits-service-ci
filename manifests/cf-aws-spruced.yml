@@ -12,7 +12,7 @@ jobs:
   networks:
   - name: cf_private
     static_ips:
-    - 10.0.16.102
+    - 10.0.112.102
   resource_pool: small_z1
   templates:
   - name: nats
@@ -26,13 +26,13 @@ jobs:
   networks:
   - name: cf_private
     static_ips:
-    - 10.0.16.103
+    - 10.0.112.103
   persistent_disk: 102400
   properties:
     etcd_metrics_server:
       nats:
         machines:
-        - 10.0.16.102
+        - 10.0.112.102
         password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
         username: nats
   resource_pool: small_z1
@@ -48,7 +48,7 @@ jobs:
   networks:
   - name: cf_private
     static_ips:
-    - 10.0.16.104
+    - 10.0.112.104
   persistent_disk: 1024
   properties:
     consul:
@@ -121,7 +121,7 @@ jobs:
   networks:
   - name: cf_private
     static_ips:
-    - 10.0.16.105
+    - 10.0.112.105
   persistent_disk: 1024
   resource_pool: small_z1
   templates:
@@ -221,7 +221,7 @@ jobs:
         -----END RSA PRIVATE KEY-----
     router:
       servers:
-      - 10.0.16.101
+      - 10.0.112.101
   resource_pool: small_z2
   templates:
   - name: haproxy
@@ -327,7 +327,7 @@ jobs:
         - <%= ENV.fetch('CF_USER', 'user') %>|<%= ENV.fetch('CF_PASSWORD', 'password')
           %>|scim.write,scim.read,openid,cloud_controller.admin,doppler.firehose,routing.router_groups.read
     uaadb:
-      address: 10.0.16.105
+      address: 10.0.112.105
       databases:
       - name: uaadb
         tag: uaa
@@ -350,7 +350,7 @@ jobs:
   networks:
   - name: cf_private
     static_ips:
-    - 10.0.16.101
+    - 10.0.112.101
   properties:
     dropsonde:
       enabled: true
@@ -404,21 +404,21 @@ metadata:
 name: <%= ENV.fetch('CF_DEPLOYMENT_NAME') %>
 networks:
 - cloud_properties:
-    availability_zone: eu-west-1b
+    availability_zone: eu-west-1a
   name: elastic
   type: vip
 - name: cf_private
   subnets:
   - cloud_properties:
-      subnet: subnet-d838ab80
+      subnet: subnet-e8d446b0
     dns:
     - 10.0.0.2
-    gateway: 10.0.16.1
-    range: 10.0.16.0/20
+    gateway: 10.0.112.1
+    range: 10.0.112.0/20
     reserved:
-    - 10.0.16.2 - 10.0.16.3
+    - 10.0.112.2 - 10.0.112.3
     static:
-    - 10.0.16.100 - 10.0.16.105
+    - 10.0.112.100 - 10.0.112.105
   type: manual
 - name: cf_public
   subnets:
@@ -667,7 +667,7 @@ properties:
     staging_upload_password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
     staging_upload_user: staging_upload_user
   ccdb:
-    address: 10.0.16.105
+    address: 10.0.112.105
     databases:
     - name: <%= ENV.fetch('CF_CCDB_NAME', 'ccdb') %>
       tag: cc
@@ -683,7 +683,7 @@ properties:
       log_level: null
       servers:
         lan:
-        - 10.0.16.104
+        - 10.0.112.104
     agent_cert: |
       -----BEGIN CERTIFICATE-----
       MIIEJjCCAg6gAwIBAgIRAJIdGe7fx391grV1/m9i/2AwDQYJKoZIhvcNAQELBQAw
@@ -855,7 +855,7 @@ properties:
   etcd:
     advertise_urls_dns_suffix: etcd.service.cf.internal
     machines:
-    - 10.0.16.103
+    - 10.0.112.103
     peer_require_ssl: false
     require_ssl: false
   hm9000:
@@ -1008,7 +1008,7 @@ properties:
   loggregator:
     etcd:
       machines:
-      - 10.0.16.103
+      - 10.0.112.103
   loggregator_endpoint:
     shared_secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
   metron_agent:
@@ -1019,7 +1019,7 @@ properties:
     shared_secret: <%= ENV.fetch('CF_PASSWORD', 'password') %>
   nats:
     machines:
-    - 10.0.16.102
+    - 10.0.112.102
     password: <%= ENV.fetch('CF_PASSWORD', 'password') %>
     port: 4222
     user: nats
@@ -1138,7 +1138,7 @@ resource_pools:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
     version: latest
 - cloud_properties:
-    availability_zone: eu-west-1b
+    availability_zone: eu-west-1a
     instance_type: m3.medium
   name: small_z2
   network: cf_public

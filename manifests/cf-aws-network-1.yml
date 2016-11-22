@@ -2,13 +2,13 @@ networks:
 - name: cf_private
   type: manual
   subnets:
-  - range: 10.0.16.0/20
-    gateway: 10.0.16.1
+  - range: 10.0.112.0/20
+    gateway: 10.0.112.1
     dns: [10.0.0.2]
-    reserved: ["10.0.16.2 - 10.0.16.3"]
-    static: ["10.0.16.100 - 10.0.16.105"]
+    reserved: ["10.0.112.2 - 10.0.112.3"]
+    static: ["10.0.112.100 - 10.0.112.105"]
     cloud_properties:
-      subnet: subnet-d838ab80
+      subnet: subnet-e8d446b0
 
 - name: cf_public
   type: manual

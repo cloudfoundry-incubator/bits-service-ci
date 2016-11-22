@@ -14,7 +14,7 @@ resource_pools:
       name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
       version: latest
     cloud_properties:
-      availability_zone: eu-west-1b
+      availability_zone: eu-west-1a
       instance_type: m3.medium
 
   - name: api_z1
@@ -303,4 +303,4 @@ properties:
 networks:
   - name: elastic
     cloud_properties:
-      availability_zone: eu-west-1b
+      availability_zone: eu-west-1a
