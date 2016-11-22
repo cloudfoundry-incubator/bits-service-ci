@@ -1204,13 +1204,7 @@ jobs:
 - name: recreate-bosh-lite-1
   serial: true
   plan:
-  - aggregate:
-    - get: git-bits-service-ci
-    - get: bits-service
-    - get: bits-service-release-tarball
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
-    - get: cf-release-tarball
-      passed: [create-cf-release]
+  - get: git-bits-service-ci
   - task: recreate-bosh-lite
     file: git-bits-service-ci/tasks/recreate-bosh-lite.yml
     config:
