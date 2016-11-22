@@ -23,3 +23,4 @@ networks:
       subnet: subnet-5ed34106
       security_groups:
         - sg-2813af4e
+        - sg-1d43ff7b
