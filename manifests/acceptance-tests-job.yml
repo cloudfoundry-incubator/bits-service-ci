@@ -18,3 +18,4 @@ properties:
     nodes: 5
     skip_ssl_validation: true
     use_http: true
+    include_detect: false
