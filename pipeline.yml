@@ -607,18 +607,46 @@ jobs:
       image: docker:///flintstonecf/ci
       inputs: [ name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004 ]
       run: { path: cat, args: ["git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec"] }
-  - task: "Patch: Bump bits_service_client version to 0.2.1"
+  - task: "Patch: Add bits-service signing credentials to cc worker config"
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
         - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe ]
+      outputs: [ name: git-cf-release-patched-30e43f93bc74b0011f65cc701f23555708ac5fa0 ]
       params:
         GIT_REPO_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng
-        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/d9540de690a4354689ffc9ab5ce418b7b428eebe.patch
+        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/30e43f93bc74b0011f65cc701f23555708ac5fa0.patch
         INPUT_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
+        OUTPUT_DIR: git-cf-release-patched-30e43f93bc74b0011f65cc701f23555708ac5fa0
+      run: { path: ci-tasks/scripts/git-apply-patch.sh }
+  - task: "Patch: Add bits-service signing credentials to cc clock config"
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-cf-release-patched-30e43f93bc74b0011f65cc701f23555708ac5fa0
+        - name: ci-tasks
+      outputs: [ name: git-cf-release-patched-b90d8049a73c3e427aa33fd57143f9aefd20f912 ]
+      params:
+        GIT_REPO_DIR: git-cf-release-patched-30e43f93bc74b0011f65cc701f23555708ac5fa0/src/capi-release/src/cloud_controller_ng
+        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/b90d8049a73c3e427aa33fd57143f9aefd20f912.patch
+        INPUT_DIR: git-cf-release-patched-30e43f93bc74b0011f65cc701f23555708ac5fa0
+        OUTPUT_DIR: git-cf-release-patched-b90d8049a73c3e427aa33fd57143f9aefd20f912
+      run: { path: ci-tasks/scripts/git-apply-patch.sh }
+  - task: "Patch: Bump bits_service_client version to 0.2.1"
+    config:
+      platform: linux
+      image: docker:///flintstonecf/ci
+      inputs:
+        - name: git-cf-release-patched-b90d8049a73c3e427aa33fd57143f9aefd20f912
+        - name: ci-tasks
+      outputs: [ name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe ]
+      params:
+        GIT_REPO_DIR: git-cf-release-patched-b90d8049a73c3e427aa33fd57143f9aefd20f912/src/capi-release/src/cloud_controller_ng
+        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/d9540de690a4354689ffc9ab5ce418b7b428eebe.patch
+        INPUT_DIR: git-cf-release-patched-b90d8049a73c3e427aa33fd57143f9aefd20f912
         OUTPUT_DIR: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
       run: { path: ci-tasks/scripts/git-apply-patch.sh }
   - task: Show patched CC Gemfile.lock
