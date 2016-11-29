@@ -313,24 +313,28 @@ boshlite2-bsmt-preparation-errand-config: &boshlite2-bsmt-preparation-errand-con
     <<: *bosh2-params
     DEPLOYMENT_NAME: cf-warden
     ERRAND_NAME: bsmt_preparation
+    EXTRA_ARGS: --keep-alive
 
 boshlite1-bsmt-preparation-errand-config: &boshlite1-bsmt-preparation-errand-config
   params:
     <<: *bosh1-params
     DEPLOYMENT_NAME: cf-warden
     ERRAND_NAME: bsmt_preparation
+    EXTRA_ARGS: --keep-alive
 
 boshlite2-bsmt-verification-errand-config: &boshlite2-bsmt-verification-errand-config
   params:
     <<: *bosh2-params
     DEPLOYMENT_NAME: cf-warden
     ERRAND_NAME: bsmt_verification
+    EXTRA_ARGS: --keep-alive
 
 boshlite1-bsmt-verification-errand-config: &boshlite1-bsmt-verification-errand-config
   params:
     <<: *bosh1-params
     DEPLOYMENT_NAME: cf-warden
     ERRAND_NAME: bsmt_verification
+    EXTRA_ARGS: --keep-alive
 
 jobs:
 # BITS-SERVICE
