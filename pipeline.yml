@@ -91,10 +91,6 @@ resources:
     <<: *s3-resource
     regexp: bits-service-manifest/manifest-(.*).yml
 
-- name: diego-release-tarball
-  type: bosh-io-release
-  source: { repository: cloudfoundry/diego-release }
-
 - name: cf-release-tarball
   type: s3
   source:
@@ -873,32 +869,40 @@ jobs:
     - { get: cf-release-version, passed: [create-cf-release] }
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true}
+    - { get: ci-tasks, trigger: true}
     - { get: cf-diego-aws-deployment-events, passed: [manually-delete-cf-diego-aws], trigger: true}
     - { get: stemcell, resource: aws-stemcell }
-    - { get: diego-release-tarball }
-  - task: Generate CF deployment manifest with bits-service disabled
-    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-    config: &update-aws-cf-manifest-cf2-config
-      params:
-        IAAS: aws
-        MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml ../git-bits-service-release/templates/s3.yml
-        CF_USER: {{aws-cf2-user}}
-        CF_PASSWORD: {{aws-cf2-password}}
-        CF_DOMAIN: {{aws-cf2-domain}}
-        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
-        CF_DEPLOYMENT_NAME: cf2
-        BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
-        BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
-        AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
-        AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
-        BLOBSTORE_TYPE: s3
-        BOSH_TARGET: {{aws-bosh-target}}
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service disabled
+      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+      config: &update-aws-cf-manifest-cf2-config
+        params:
+          IAAS: aws
+          MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml ../git-bits-service-release/templates/s3.yml
+          CF_USER: {{aws-cf2-user}}
+          CF_PASSWORD: {{aws-cf2-password}}
+          CF_DOMAIN: {{aws-cf2-domain}}
+          CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+          CF_DEPLOYMENT_NAME: cf2
+          BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
+          BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
+          AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
+          AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
+          BLOBSTORE_TYPE: s3
+          BOSH_TARGET: {{aws-bosh-target}}
+    - task: Upload additional Bosh releases
+      config:
+        platform: linux
+        image: docker:///flintstonecf/ci
+        inputs: [ name: ci-tasks ]
+        params: *aws-bosh-params
+        run: { path: ci-tasks/scripts/bosh-upload-additional-releases.sh }
   - put: aws-diego-deployment
     attempts: 2
     params: &params-deployment-cf-release-bits-service-release-diego-release
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
-     releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz", "diego-release-tarball/*.tgz"]
+     releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
   - task: Run CATs
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
