@@ -20,4 +20,4 @@ properties:
     use_http: true
     include_detect: false
     # TODO: remove this skip, once the test is fixed again in the official CF release:
-    skip_regex: transparently proxies both reserved characters and unsafe characters
+    skip_regex: '"transparently proxies both reserved characters and unsafe characters"'
