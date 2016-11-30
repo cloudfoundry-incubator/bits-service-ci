@@ -1,8 +1,8 @@
 #!/bin/bash -ex
 
-# assemble version as follows: <latest_final_release_version>.0.0+dev.<current_time_in_seconds>:
+# assemble version as follows: <latest_final_release_version>.0.0+dev.<date>.<time>.<commit_sha>:
 pushd $CF_RELEASE_DIR/releases
-  version=$(ls cf-* | sort | tail -1 | sed "s/cf\-\(.*\)\.yml/\1/").0.0+dev.$(date +%s)
+  version=$(ls cf-* | sort | tail -1 | sed "s/cf\-\(.*\)\.yml/\1/").0.0+dev.$(date +"%Y-%m-%d.%H-%M-%S").$(git rev-parse HEAD | cut -c1-7)
 popd
 echo $version > $VERSION_FILE
 
