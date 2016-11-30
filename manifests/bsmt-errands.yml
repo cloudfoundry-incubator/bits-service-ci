@@ -14,6 +14,7 @@ jobs:
       persistent_app_space: BSMT-persistent-space
     acceptance_tests:
       cf_push_timeout: 240
+      verbose: true
 - name: bsmt_verification
   instances: 1
   lifecycle: errand
@@ -29,3 +30,4 @@ jobs:
       persistent_app_space: (( grab jobs.bsmt_preparation.properties.bits_service_migration_tests.persistent_app_space ))
     acceptance_tests:
       cf_push_timeout: (( grab jobs.bsmt_preparation.properties.acceptance_tests.cf_push_timeout ))
+      verbose: true
