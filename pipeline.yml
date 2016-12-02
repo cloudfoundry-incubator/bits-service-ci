@@ -631,39 +631,39 @@ jobs:
         INPUT_DIR: git-cf-release-patched-81a15eb02828378a0b57d4e2c31b1b00b439e5e5
         OUTPUT_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
       run: { path: ci-tasks/scripts/git-apply-patch.sh }
-  - task: "Patch: Bump bits_service_client version to 0.2.1"
+  - task: "Patch: Consume bits_service_client from rubygems.org"
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
         - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe ]
+      outputs: [ name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747 ]
       params:
         GIT_REPO_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc/src/capi-release/src/cloud_controller_ng
-        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/d9540de690a4354689ffc9ab5ce418b7b428eebe.patch
+        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/5f53636efd33a21ed8a9ab7e83d465ba6bf47747.patch
         INPUT_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
-        OUTPUT_DIR: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
+        OUTPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
       run: { path: ci-tasks/scripts/git-apply-patch.sh }
   - task: Show patched CC Gemfile.lock
     config:
       platform: linux
       image: docker:///flintstonecf/ci
-      inputs: [ name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe ]
-      run: { path: cat, args: ["git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe/src/capi-release/src/cloud_controller_ng/Gemfile.lock"] }
+      inputs: [ name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747 ]
+      run: { path: cat, args: ["git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747/src/capi-release/src/cloud_controller_ng/Gemfile.lock"] }
   - task: Create cf-release tarball
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: ci-tasks
-        - name: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
+        - name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
       outputs:
         - name: releases
         - name: cf-release-version
       params:
         VERSION_FILE: cf-release-version/number
-        CF_RELEASE_DIR: git-cf-release-patched-d9540de690a4354689ffc9ab5ce418b7b428eebe
+        CF_RELEASE_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
       run: { path: ci-tasks/scripts/create-cf-release.sh }
   - put: cf-release-tarball
     params: { file: releases/*.tgz }
