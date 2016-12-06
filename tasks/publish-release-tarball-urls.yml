@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: ci-tasks
+- name: cf-release-tarball
+- name: bits-service-release-tarball
+
+params:
+  RELEASE_TARBALL_DIRS:
+
+run:
+  path: ci-tasks/scripts/publish-release-tarball-urls.sh

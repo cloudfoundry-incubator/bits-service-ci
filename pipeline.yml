@@ -21,6 +21,7 @@ groups:
   - migration-backwards-bosh2
   - migration-bosh2 (webdav)
   - bump-bits-service-release
+  - Publish release tarball URLs
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -35,7 +36,6 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - upload-bits-service-release-and-manifest-to-acceptance
 - name: cf-release
   jobs:
   - create-cf-release
@@ -43,17 +43,13 @@ groups:
   - enable-BITS-SERVICE-and-run-CATs
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
-  - cf-release-done
+  - Publish release tarball URLs
 - name: migration
   jobs:
   - migration-backwards-bosh1
   - migration-bosh1 (S3)
   - migration-backwards-bosh2
   - migration-bosh2 (webdav)
-- name: acceptance
-  jobs:
-    - upload-bits-service-release-and-manifest-to-acceptance
-    - cf-release-done
 - name: infrastructure
   jobs:
   - recreate-bosh-lite-1
@@ -515,46 +511,6 @@ jobs:
         BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.3.2
         RELEASE_NAME: bits-service-webdav
 
-- name: upload-bits-service-release-and-manifest-to-acceptance
-  plan:
-  - aggregate:
-    - { get: s3-bits-service-manifest, passed: [run-system-tests-LOCAL], trigger: true }
-    - get: bits-service-release-tarball
-      passed: &run-system-tests-passed
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
-      trigger: true
-    - { get: bits-service-release-version }
-    - { get: ci-tasks }
-  - aggregate:
-    - task: upload-bits-service-release-to-acceptance
-      file: ci-tasks/tasks/scp-to-acceptance.yml
-      config:
-        inputs:
-          - name: ci-tasks
-          - name: bits-service-release-tarball
-          - name: bits-service-release-version
-        params:
-          ACCEPTANCE_IP: {{acceptance-ip}}
-          SSH_KEY: {{acceptance-private-key}}
-          FILE: bits-service-release-tarball/*.tgz
-          VERSION_FILE: bits-service-release-version/number
-          RELEASE_NAME: bits-service-release
-    - task: upload-bits-service-manifest-to-acceptance
-      file: ci-tasks/tasks/scp-to-acceptance.yml
-      config:
-        inputs:
-          - name: ci-tasks
-          - name: s3-bits-service-manifest
-          - name: bits-service-release-version
-        params:
-          ACCEPTANCE_IP: {{acceptance-ip}}
-          SSH_KEY: {{acceptance-private-key}}
-          FILE: s3-bits-service-manifest/*.yml
-          VERSION_FILE: bits-service-release-version/number
-          RELEASE_NAME: bits-service-release
-
 # CF-RELEASE
 - name: create-cf-release
   serial: true
@@ -670,68 +626,30 @@ jobs:
   - put: cf-release-version
     params: { file: cf-release-version/number }
 
-- name: cf-release-done
+- name: Publish release tarball URLs
   plan:
   - aggregate:
-    - get: git-cf-release
+    - get: cf-release-tarball
       passed: &cf-release-done-passed
         - enable-BITS-SERVICE-and-run-CATs
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
-    - get: cf-release-tarball
-      passed: *cf-release-done-passed
       trigger: true
-    - get: cf-release-version
-      passed: *cf-release-done-passed
     - get: ci-tasks
       resource: git-bits-service-ci
       passed: *cf-release-done-passed
-    - get: git-bits-service-ci
+    - get: bits-service-release-tarball
       passed: *cf-release-done-passed
-    - get: git-bits-service-release
-      passed: *cf-release-done-passed
-  - task: create-bosh-lite-manifest
-    file: ci-tasks/tasks/update-cf-manifest.yml
+  - task: Publish release tarball URLs
+    file: ci-tasks/tasks/publish-release-tarball-urls.yml
     config:
+      inputs:
+        - name: ci-tasks
+        - name: cf-release-tarball
+        - name: bits-service-release-tarball
       params:
-        MANIFEST_STUBS: >
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/enable-bits.yml
-          manifests/bits-network-bosh-lite.yml
-          ../git-bits-service-release/templates/local.yml
-        BOSH_TARGET: {{bosh-target}}
-  - aggregate:
-    - put: s3-cf-manifest
-      params: { file: manifests/*.yml }
-    - task: upload-cf-release-to-acceptance
-      file: ci-tasks/tasks/scp-to-acceptance.yml
-      config:
-        inputs:
-          - name: ci-tasks
-          - name: cf-release-tarball
-          - name: cf-release-version
-        params:
-          ACCEPTANCE_IP: {{acceptance-ip}}
-          SSH_KEY: {{acceptance-private-key}}
-          FILE: cf-release-tarball/*.tgz
-          VERSION_FILE: cf-release-version/number
-          RELEASE_NAME: cf-release
-    - task: upload-manifest-to-acceptance
-      file: ci-tasks/tasks/scp-to-acceptance.yml
-      config:
-        inputs:
-          - name: ci-tasks
-          - name: manifests
-          - name: cf-release-version
-        params:
-          ACCEPTANCE_IP: {{acceptance-ip}}
-          SSH_KEY: {{acceptance-private-key}}
-          FILE: manifests/*.yml
-          VERSION_FILE: cf-release-version/number
-          RELEASE_NAME: cf-release
+        RELEASE_TARBALL_DIRS: cf-release-tarball bits-service-release-tarball
 
 - name: manually-delete-cf-dea-aws
   serial: true
@@ -756,7 +674,12 @@ jobs:
     - { get: git-cf-release,     passed: [create-cf-release] }
     - { get: cf-release-tarball, passed: [create-cf-release], trigger: true}
     - { get: cf-release-version, passed: [create-cf-release] }
-    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
+    - get: bits-service-release-tarball
+      passed: &run-system-tests-passed
+        - run-system-tests-LOCAL
+        - run-system-tests-S3
+        - run-system-tests-WEBDAV
+      trigger: true
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true }
     - { get: cf-dea-aws-deployment-events, passed: [manually-delete-cf-dea-aws], trigger: true}
@@ -1275,7 +1198,6 @@ jobs:
     - get: git-bits-service-ci
     - get: bits-service
     - get: bits-service-release-tarball
-      passed: [upload-bits-service-release-and-manifest-to-acceptance]
     - get: cf-release-tarball
       passed: [create-cf-release]
   - task: recreate-bosh-lite
