@@ -638,7 +638,7 @@ jobs:
       trigger: true
     - get: ci-tasks
       resource: git-bits-service-ci
-      passed: *cf-release-done-passed
+      trigger: true
     - get: bits-service-release-tarball
       passed: *cf-release-done-passed
   - task: Publish release tarball URLs
