@@ -33,6 +33,7 @@ spruce merge manifests/cf-aws-dynamic-sed.yml \
   ./manifests/bits-service.yml \
   ./manifests/bits-service-signing-users.yml \
   ./manifests/cf-release-minimal-aws-overlay.yml \
+  ./manifests/uaa.yml \
   ./manifests/acceptance-tests-job.yml \
   ../git-bits-service-release/templates/cc-blobstore-properties.yml \
   ./manifests/tweaks.yml \
