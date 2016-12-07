@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+  - name: ci-tasks
+  - name: input-dir
+
+outputs:
+  - name: output-dir
+
+params:
+  INPUT_DIR: input-dir
+  OUTPUT_DIR: output-dir
+
+run:
+  path: ci-tasks/scripts/patch-cc-to-use-bits-service-client-latest-prerelease.sh

@@ -601,25 +601,35 @@ jobs:
         INPUT_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
         OUTPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
       run: { path: ci-tasks/scripts/git-apply-patch.sh }
+  - task: "Patch: Consume latest prerelease of bits_service_client"
+    file: ci-tasks/tasks/patch-cc-to-use-bits-service-client-latest-prerelease.yml
+    config:
+      inputs:
+        - name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
+        - name: ci-tasks
+      output: [ name: git-cf-release-patched-use-bits-service-latest-prerelease ]
+      params:
+        INPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
+        OUTPUT_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
   - task: Show patched CC Gemfile.lock
     config:
       platform: linux
       image: docker:///flintstonecf/ci
-      inputs: [ name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747 ]
-      run: { path: cat, args: ["git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747/src/capi-release/src/cloud_controller_ng/Gemfile.lock"] }
+      inputs: [ name: git-cf-release-patched-use-bits-service-latest-prerelease ]
+      run: { path: cat, args: ["git-cf-release-patched-use-bits-service-latest-prerelease/src/capi-release/src/cloud_controller_ng/Gemfile.lock"] }
   - task: Create cf-release tarball
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: ci-tasks
-        - name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
+        - name: git-cf-release-patched-use-bits-service-latest-prerelease
       outputs:
         - name: releases
         - name: cf-release-version
       params:
         VERSION_FILE: cf-release-version/number
-        CF_RELEASE_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
+        CF_RELEASE_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
       run: { path: ci-tasks/scripts/create-cf-release.sh }
   - put: cf-release-tarball
     params: { file: releases/*.tgz }
