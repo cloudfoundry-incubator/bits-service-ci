@@ -602,8 +602,9 @@ jobs:
         OUTPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
       run: { path: ci-tasks/scripts/git-apply-patch.sh }
   - task: "Patch: Consume latest prerelease of bits_service_client"
-    file: ci-tasks/tasks/patch-cc-to-use-bits-service-client-latest-prerelease.yml
     config:
+      platform: linux
+      image: docker:///flintstonecf/ci
       inputs:
         - name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
         - name: ci-tasks
@@ -612,6 +613,8 @@ jobs:
       params:
         INPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
         OUTPUT_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
+      run:
+        path: ci-tasks/scripts/patch-cc-to-use-bits-service-client-latest-prerelease.sh
   - task: Show patched CC Gemfile.lock
     config:
       platform: linux
