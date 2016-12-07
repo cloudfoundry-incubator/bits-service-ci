@@ -607,7 +607,8 @@ jobs:
       inputs:
         - name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
         - name: ci-tasks
-      output: [ name: git-cf-release-patched-use-bits-service-latest-prerelease ]
+      outputs:
+        - name: git-cf-release-patched-use-bits-service-latest-prerelease
       params:
         INPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
         OUTPUT_DIR: git-cf-release-patched-use-bits-service-latest-prerelease

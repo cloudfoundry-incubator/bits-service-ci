@@ -7,9 +7,6 @@ inputs:
   - name: ci-tasks
   - name: input-dir
 
-outputs:
-  - name: output-dir
-
 params:
   INPUT_DIR: input-dir
   OUTPUT_DIR: output-dir
