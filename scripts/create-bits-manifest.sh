@@ -20,7 +20,7 @@ then
 else
   ./scripts/generate-test-bosh-lite-manifest \
     ./templates/$BLOBSTORE_TYPE.yml \
-    ../ci-deployment-manifest-templates/manifests/bits-release-network-$BLOBSTORE_TYPE.yml
+    ./templates/bits-release-network-$BLOBSTORE_TYPE.yml
 fi
 
 cp deployments/bits-service-release.yml ../manifests/manifest-$VERSION.yml
