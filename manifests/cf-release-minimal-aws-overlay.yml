@@ -128,6 +128,12 @@ properties:
       - (( replace ))
       - {name: "<%= ENV.fetch('CF_CCDB_NAME', 'ccdb') %>", tag: cc, citext: true}
       - {name: uaadb, tag: uaa, citext: true}
+      - {name: diego, tag: diego, citext: false}
+    roles:
+      - (( append ))
+      - name: diego
+        password: <%= ENV.fetch('CF_PASSWORD') %>
+        tag: admin
   nats:
     machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
   etcd:
@@ -291,6 +297,15 @@ properties:
     route_emitter:
       nats:
         machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
+    bbs:
+      sql:
+        db_driver: postgres
+        db_host: (( grab jobs.postgres_z1.networks.cf_private.static_ips[0] ))
+        db_port: 5524
+        db_username: diego
+        db_password: <%= ENV.fetch('CF_PASSWORD') %>
+        db_schema: diego
+      max_open_connections: 500
   dea_next:
     memory_mb: 33996
     ca_cert:
