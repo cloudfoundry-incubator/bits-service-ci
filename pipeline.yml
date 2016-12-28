@@ -519,37 +519,17 @@ jobs:
     - { get: cf-release-version, params: { pre: dev } }
     - { get: git-cf-release, trigger: true }
     - { get: ci-tasks, trigger: true }
-  - task: Patch blobstore to allow signed PUT URLs
+  - task: "Patch: Consume latest prerelease of bits_service_client"
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: git-cf-release
         - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae ]
-      params:
-        GIT_REPO_DIR: git-cf-release/src/capi-release
-        PATCH_URL: https://github.com/petergtz/capi-release/commit/2d47bd42bc656006b57c464752c6d593b67ddcae.patch
-        INPUT_DIR: git-cf-release
-        OUTPUT_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
-      run: { path: ci-tasks/scripts/git-apply-patch.sh }
-  - task: Show patched blobstore code
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs: [ name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae ]
-      run: { path: cat, args: ["git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae/src/capi-release/jobs/blobstore/templates/blobstore.conf.erb"] }
-  - task: "Patch: Consume latest prerelease of bits_service_client"
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
-        - name: ci-tasks
       outputs:
         - name: git-cf-release-patched-use-bits-service-latest-prerelease
       params:
-        INPUT_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
+        INPUT_DIR: git-cf-release
         OUTPUT_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
       run:
         path: ci-tasks/scripts/patch-cc-to-use-bits-service-client-latest-prerelease.sh
