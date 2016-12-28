@@ -539,79 +539,17 @@ jobs:
       image: docker:///flintstonecf/ci
       inputs: [ name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae ]
       run: { path: cat, args: ["git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae/src/capi-release/jobs/blobstore/templates/blobstore.conf.erb"] }
-  - task: "Patch: Add bits-service signing credentials to cc config"
+  - task: "Patch: Consume latest prerelease of bits_service_client"
     config:
       platform: linux
       image: docker:///flintstonecf/ci
       inputs:
         - name: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
         - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004 ]
-      params:
-        GIT_REPO_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae/src/capi-release/src/cloud_controller_ng
-        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/08565d43d71d522765dd3d1686f4874b6379a004.patch
-        INPUT_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
-        OUTPUT_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
-      run: { path: ci-tasks/scripts/git-apply-patch.sh }
-  - task: Show patched cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs: [ name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004 ]
-      run: { path: cat, args: ["git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng/bosh/jobs/cloud_controller_ng/spec"] }
-  - task: "Patch: Add bits-service signing credentials to cc worker config"
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
-        - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-81a15eb02828378a0b57d4e2c31b1b00b439e5e5 ]
-      params:
-        GIT_REPO_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004/src/capi-release/src/cloud_controller_ng
-        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/81a15eb02828378a0b57d4e2c31b1b00b439e5e5.patch
-        INPUT_DIR: git-cf-release-patched-08565d43d71d522765dd3d1686f4874b6379a004
-        OUTPUT_DIR: git-cf-release-patched-81a15eb02828378a0b57d4e2c31b1b00b439e5e5
-      run: { path: ci-tasks/scripts/git-apply-patch.sh }
-  - task: "Patch: Add bits-service signing credentials to cc clock config"
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-cf-release-patched-81a15eb02828378a0b57d4e2c31b1b00b439e5e5
-        - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc ]
-      params:
-        GIT_REPO_DIR: git-cf-release-patched-81a15eb02828378a0b57d4e2c31b1b00b439e5e5/src/capi-release/src/cloud_controller_ng
-        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/d3c4f515202be7a6305c517e305be490a6a53cbc.patch
-        INPUT_DIR: git-cf-release-patched-81a15eb02828378a0b57d4e2c31b1b00b439e5e5
-        OUTPUT_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
-      run: { path: ci-tasks/scripts/git-apply-patch.sh }
-  - task: "Patch: Consume bits_service_client from rubygems.org"
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
-        - name: ci-tasks
-      outputs: [ name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747 ]
-      params:
-        GIT_REPO_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc/src/capi-release/src/cloud_controller_ng
-        PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/5f53636efd33a21ed8a9ab7e83d465ba6bf47747.patch
-        INPUT_DIR: git-cf-release-patched-d3c4f515202be7a6305c517e305be490a6a53cbc
-        OUTPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
-      run: { path: ci-tasks/scripts/git-apply-patch.sh }
-  - task: "Patch: Consume latest prerelease of bits_service_client"
-    config:
-      platform: linux
-      image: docker:///flintstonecf/ci
-      inputs:
-        - name: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
-        - name: ci-tasks
       outputs:
         - name: git-cf-release-patched-use-bits-service-latest-prerelease
       params:
-        INPUT_DIR: git-cf-release-patched-5f53636efd33a21ed8a9ab7e83d465ba6bf47747
+        INPUT_DIR: git-cf-release-patched-2d47bd42bc656006b57c464752c6d593b67ddcae
         OUTPUT_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
       run:
         path: ci-tasks/scripts/patch-cc-to-use-bits-service-client-latest-prerelease.sh
