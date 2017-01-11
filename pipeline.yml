@@ -93,12 +93,6 @@ resources:
     <<: *s3-resource
     regexp: cf-release/cf-(.*).tgz
 
-- name: s3-cf-manifest
-  type: s3
-  source:
-    <<: *s3-resource
-    regexp: cf-manifest/manifest-(.*).yml
-
 - name: s3-cf-aws-manifest
   type: s3
   source:
@@ -128,13 +122,6 @@ resources:
     branch: master
     private_key: {{github-private-key}}
     paths: ["manifests/*"]
-
-- name: git-capi-release
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry/capi-release.git
-    branch: bits-service
-    private_key: {{github-private-key}}
 
 - name: bits-service
   type: git
@@ -721,7 +708,6 @@ jobs:
     - { get: cf-release-version, passed: [create-cf-release], trigger: true }
     - { get: cf-release-tarball, passed: [create-cf-release] }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
-    - { get: cf-release-version, passed: [create-cf-release] }
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true}
     - { get: ci-tasks, trigger: true}
@@ -785,7 +771,6 @@ jobs:
     - { get: cf-release-version, passed: [deploy-and-test-cf-diego-aws] }
     - { get: cf-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-    - { get: cf-release-version, passed: [deploy-and-test-cf-diego-aws] }
     - { get: git-bits-service-release, passed: [deploy-and-test-cf-diego-aws] }
     - { get: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell }
