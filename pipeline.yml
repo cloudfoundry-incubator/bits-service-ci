@@ -601,7 +601,7 @@ jobs:
       trigger: true
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true }
-    - { get: cf-dea-aws-deployment-events, passed: [manually-delete-cf-dea-aws], trigger: true}
+    - { get: cf-dea-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell }
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
@@ -711,7 +711,7 @@ jobs:
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true}
     - { get: ci-tasks, trigger: true}
-    - { get: cf-diego-aws-deployment-events, passed: [manually-delete-cf-diego-aws], trigger: true}
+    - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell }
   - aggregate:
     - task: Generate CF deployment manifest with bits-service disabled
@@ -822,7 +822,7 @@ jobs:
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true }
-    - { get: cf-bosh1-deployment-events, passed: [manually-delete-cf-bosh1], trigger: true }
+    - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
@@ -963,7 +963,7 @@ jobs:
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true }
-    - { get: cf-bosh2-deployment-events, passed: [manually-delete-cf-bosh2], trigger: true }
+    - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
