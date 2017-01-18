@@ -716,21 +716,20 @@ jobs:
   - aggregate:
     - task: Generate CF deployment manifest with bits-service disabled
       file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-      config: &update-aws-cf-manifest-cf2-config
-        params:
-          IAAS: aws
-          MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml ../git-bits-service-release/templates/s3.yml
-          CF_USER: {{aws-cf2-user}}
-          CF_PASSWORD: {{aws-cf2-password}}
-          CF_DOMAIN: {{aws-cf2-domain}}
-          CF_PUBLIC_IP: {{aws-cf2-public-ip}}
-          CF_DEPLOYMENT_NAME: cf2
-          BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
-          BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
-          AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
-          AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
-          BLOBSTORE_TYPE: s3
-          BOSH_TARGET: {{aws-bosh-target}}
+      params: &update-aws-cf-manifest-cf2-config
+        IAAS: aws
+        MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml ../git-bits-service-release/templates/s3.yml
+        CF_USER: {{aws-cf2-user}}
+        CF_PASSWORD: {{aws-cf2-password}}
+        CF_DOMAIN: {{aws-cf2-domain}}
+        CF_PUBLIC_IP: {{aws-cf2-public-ip}}
+        CF_DEPLOYMENT_NAME: cf2
+        BITS_DIRECTORY_KEY: {{cf2-s3-blobstore-bucket-name}}
+        BITS_AWS_REGION: {{cf2-s3-blobstore-region}}
+        AWS_ACCESS_KEY_ID: {{cf2-s3-blobstore-access-key-id}}
+        AWS_SECRET_ACCESS_KEY: {{cf2-s3-blobstore-secret-access-key}}
+        BLOBSTORE_TYPE: s3
+        BOSH_TARGET: {{aws-bosh-target}}
     - task: Upload additional Bosh releases
       config:
         platform: linux
@@ -776,10 +775,9 @@ jobs:
     - { get: stemcell, resource: aws-stemcell }
   - task: Generate CF deployment manifest with biits-service enabled
     file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-    config:
+    params:
       <<: *update-aws-cf-manifest-cf2-config
-      params:
-        MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
+      MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
   - put: aws-diego-deployment
     attempts: 2
     params: *params-deployment-cf-release-bits-service-release
@@ -826,25 +824,24 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config: &update-boshlite1-cf-manifest-config
-      params:
-        IAAS: lite
-        MANIFEST_STUBS: >
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/bits-network-bosh-lite.yml
-          ../git-bits-service-release/templates/s3.yml
-          manifests/bsmt-errands.yml
-        CF_USER: admin
-        CF_PASSWORD: admin
-        CF_DOMAIN: bosh-lite.com
-        BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
-        BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
-        AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
-        AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
-        BLOBSTORE_TYPE: s3
-        BOSH_TARGET: {{bosh-target}}
+    params: &update-boshlite1-cf-manifest-config
+      IAAS: lite
+      MANIFEST_STUBS: >
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/bits-network-bosh-lite.yml
+        ../git-bits-service-release/templates/s3.yml
+        manifests/bsmt-errands.yml
+      CF_USER: admin
+      CF_PASSWORD: admin
+      CF_DOMAIN: bosh-lite.com
+      BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+      BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+      AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+      BLOBSTORE_TYPE: s3
+      BOSH_TARGET: {{bosh-target}}
   - put: boshlite1-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
@@ -862,17 +859,16 @@ jobs:
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh1)
   - task: Generate CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config:
+    params:
       <<: *update-boshlite1-cf-manifest-config
-      params:
-        MANIFEST_STUBS: >
-          manifests/bits-network-bosh-lite.yml
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/enable-bits.yml
-          ../git-bits-service-release/templates/s3.yml
-          manifests/bsmt-errands.yml
+      MANIFEST_STUBS: >
+        manifests/bits-network-bosh-lite.yml
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/enable-bits.yml
+        ../git-bits-service-release/templates/s3.yml
+        manifests/bsmt-errands.yml
   - put: boshlite1-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration verification tests
@@ -895,17 +891,16 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Generate CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config:
+    params:
       <<: *update-boshlite1-cf-manifest-config
-      params:
-        MANIFEST_STUBS: >
-          manifests/bits-network-bosh-lite.yml
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/enable-bits.yml
-          ../git-bits-service-release/templates/s3.yml
-          manifests/bsmt-errands.yml
+      MANIFEST_STUBS: >
+        manifests/bits-network-bosh-lite.yml
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/enable-bits.yml
+        ../git-bits-service-release/templates/s3.yml
+        manifests/bsmt-errands.yml
   - put: boshlite1-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
@@ -915,16 +910,15 @@ jobs:
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config:
+    params:
       <<: *update-boshlite1-cf-manifest-config
-      params:
-        MANIFEST_STUBS: >
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/bits-network-bosh-lite.yml
-          ../git-bits-service-release/templates/s3.yml
-          manifests/bsmt-errands.yml
+      MANIFEST_STUBS: >
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/bits-network-bosh-lite.yml
+        ../git-bits-service-release/templates/s3.yml
+        manifests/bsmt-errands.yml
   - put: boshlite1-deployment
     params: &params-deployment-cf-release
       manifest: manifests/manifest.yml
