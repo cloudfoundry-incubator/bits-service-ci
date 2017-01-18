@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/bash -e
 
 cd $(dirname $0)
 
 target=flintstone
 
-fly login -t ${target} -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password)
+fly -t ${target} login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password)
 
 # use brew install lastpass-cli
 lpass show "Shared-Flintstone"/ci-config --notes > config.yml
@@ -12,8 +12,8 @@ github_ssh_key=$(lpass show "Shared-Flintstone"/Github --notes)
 rubygems_api_key=$(lpass show "Shared-Flintstone"/flintstone@rubygems.org --notes)
 
 fly \
-  set-pipeline \
   -t ${target} \
+  set-pipeline \
   -p bits-service \
   -c pipeline.yml \
   -l config.yml \
@@ -21,3 +21,6 @@ fly \
   -v rubygems-api-key="${rubygems_api_key}"
 
 rm -f config.yml
+
+fly -t ${target} expose-pipeline --pipeline bits-service
+fly -t ${target} expose-pipeline --pipeline docker-images
