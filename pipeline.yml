@@ -959,25 +959,24 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Generate CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config: &update-boshlite2-cf-manifest-config
-      params:
-        IAAS: lite
-        MANIFEST_STUBS: >
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/bits-network-bosh-lite.yml
-          ../git-bits-service-release/templates/webdav-cf.yml
-          manifests/bsmt-errands.yml
-        CF_USER: admin
-        CF_PASSWORD: admin
-        CF_DOMAIN: bosh-lite.com
-        BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
-        BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
-        AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
-        AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
-        BLOBSTORE_TYPE: webdav
-        BOSH_TARGET: {{bosh2-target}}
+    params: &update-boshlite2-cf-manifest-config
+      IAAS: lite
+      MANIFEST_STUBS: >
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/bits-network-bosh-lite.yml
+        ../git-bits-service-release/templates/webdav-cf.yml
+        manifests/bsmt-errands.yml
+      CF_USER: admin
+      CF_PASSWORD: admin
+      CF_DOMAIN: bosh-lite.com
+      BITS_DIRECTORY_KEY: {{cf-migration-s3-blobstore-bucket-name}}
+      BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
+      AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
+      AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
+      BLOBSTORE_TYPE: webdav
+      BOSH_TARGET: {{bosh2-target}}
   - put: boshlite2-deployment
     params: &params-deployment-cf-release-bits-service-release
       manifest: manifests/manifest.yml
@@ -998,17 +997,16 @@ jobs:
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-bosh2)
   - task: Generate CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config:
+    params:
       <<: *update-boshlite2-cf-manifest-config
-      params:
-        MANIFEST_STUBS: >
-          manifests/bits-network-bosh-lite.yml
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/enable-bits.yml
-          ../git-bits-service-release/templates/webdav-cf.yml
-          manifests/bsmt-errands.yml
+      MANIFEST_STUBS: >
+        manifests/bits-network-bosh-lite.yml
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/enable-bits.yml
+        ../git-bits-service-release/templates/webdav-cf.yml
+        manifests/bsmt-errands.yml
   - put: boshlite2-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run migration verification tests
@@ -1031,17 +1029,16 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Generate CF deployment manifest with bits-service enabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config:
+    params:
       <<: *update-boshlite2-cf-manifest-config
-      params:
-        MANIFEST_STUBS: >
-          manifests/bits-network-bosh-lite.yml
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/enable-bits.yml
-          ../git-bits-service-release/templates/webdav-cf.yml
-          manifests/bsmt-errands.yml
+      MANIFEST_STUBS: >
+        manifests/bits-network-bosh-lite.yml
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/enable-bits.yml
+        ../git-bits-service-release/templates/webdav-cf.yml
+        manifests/bsmt-errands.yml
   - put: boshlite2-deployment
     params: *params-deployment-cf-release-bits-service-release
   - task: Run preparation tests
@@ -1051,16 +1048,15 @@ jobs:
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
   - task: Update CF deployment manifest with bits-service disabled
     file: git-bits-service-ci/tasks/update-cf-manifest.yml
-    config:
+    params:
       <<: *update-boshlite2-cf-manifest-config
-      params:
-        MANIFEST_STUBS: >
-          manifests/bits-service.yml
-          ../git-bits-service-release/templates/cc-blobstore-properties.yml
-          manifests/bits-service-signing-users.yml
-          manifests/bits-network-bosh-lite.yml
-          ../git-bits-service-release/templates/webdav-cf.yml
-          manifests/bsmt-errands.yml
+      MANIFEST_STUBS: >
+        manifests/bits-service.yml
+        ../git-bits-service-release/templates/cc-blobstore-properties.yml
+        manifests/bits-service-signing-users.yml
+        manifests/bits-network-bosh-lite.yml
+        ../git-bits-service-release/templates/webdav-cf.yml
+        manifests/bsmt-errands.yml
   - put: boshlite2-deployment
     params: *params-deployment-cf-release
   - task: Run verification tests
