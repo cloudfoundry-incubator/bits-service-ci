@@ -8,16 +8,28 @@
                 margin: 0; padding: 0; height: 100%; overflow: hidden;
             }
 
-            #left
+            #topleft
             {
                 position:absolute; left: 0; bottom: 0; top: 0px;
-                height: 100%;
+                height: 50%;
                 width: 50%;
             }
-            #right
+            #topright
             {
                 position:absolute; right: 0; bottom: 0; top: 0px;
-                height: 100%;
+                height: 50%;
+                width: 50%;
+            }
+            #bottomleft
+            {
+                position:absolute; left: 0; bottom: 0; top: 50%;
+                height: 50%;
+                width: 50%;
+            }
+            #bottomright
+            {
+                position:absolute; right: 0; bottom: 0; top: 50%;
+                height: 50%;
                 width: 50%;
             }
         </style>
@@ -25,20 +37,30 @@
 window.setInterval("reloadIFrame();", 30000);
 
 function reloadIFrame() {
- document.frames["x1"].location.reload();
- document.frames["x2"].location.reload();
+  document.frames["x1"].location.reload();
+  document.frames["x2"].location.reload();
+  document.frames["x3"].location.reload();
+  document.frames["x4"].location.reload();
 }
 </script>
     </head>
     <body>
-        <div id="left">
-            <iframe id="x2" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=bits-service-release"
+        <div id="topleft">
+            <iframe id="x1" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=bits-service"
             frameborder="0" scrolling="no" width="100%" height="100%" align="left"> </iframe>
         </div>
-          <div id="right">
-            <iframe id="x2" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=cf-release"
+        <div id="topright">
+            <iframe id="x2" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=bits-service-client"
               frameborder="0" scrolling="no" width="100%" height="100%" align="right"> </iframe>
-          </div>
+        </div>
+        <div id="bottomleft">
+            <iframe id="x3" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=migration"
+            frameborder="0" scrolling="no" width="100%" height="100%" align="left"> </iframe>
+        </div>
+        <div id="bottomright">
+            <iframe id="x4" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=cf-release"
+              frameborder="0" scrolling="no" width="100%" height="100%" align="right"> </iframe>
+        </div>
 
     </body>
 </html>

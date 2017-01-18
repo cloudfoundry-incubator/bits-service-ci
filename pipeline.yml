@@ -25,10 +25,6 @@ groups:
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
-  - run-bits-service-client-tests
-  - Publish gem
-- name: bits-service-release
-  jobs:
   - create-and-upload-release
   - deploy-with-S3
   - deploy-with-LOCAL
@@ -36,9 +32,15 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
+  - bump-bits-service-release
+- name: bits-service-client
+  jobs:
+  - run-bits-service-client-tests
+  - Publish gem
 - name: cf-release
   jobs:
   - create-cf-release
+  - create-and-upload-release
   - deploy-and-test-cf-dea-aws
   - enable-BITS-SERVICE-and-run-CATs
   - deploy-and-test-cf-diego-aws
