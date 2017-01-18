@@ -1,0 +1,5 @@
+applications:
+- name: bits-service-ci
+  memory: 64M
+  host: bits-service-ci
+  buildpack: staticfile_buildpack
