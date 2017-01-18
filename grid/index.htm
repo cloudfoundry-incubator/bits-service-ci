@@ -8,29 +8,56 @@
                 margin: 0; padding: 0; height: 100%; overflow: hidden;
             }
 
-            #topleft
-            {
-                position:absolute; left: 0; bottom: 0; top: 0px;
+            #bitsservice {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                top: 0px;
                 height: 50%;
-                width: 50%;
+                width: 60%;
+                resize: both;
             }
-            #topright
-            {
-                position:absolute; right: 0; bottom: 0; top: 0px;
-                height: 50%;
-                width: 50%;
+            #bitsserviceclient {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                top: 50%;
+                height: 20%;
+                width: 40%;
+                resize: both;
             }
-            #bottomleft
-            {
-                position:absolute; left: 0; bottom: 0; top: 50%;
+            #migration {
+                position: absolute;
+                left: 60%;
+                bottom: 0;
+                top: 0;
                 height: 50%;
-                width: 50%;
+                width: 40%;
+                resize: both;
             }
-            #bottomright
-            {
-                position:absolute; right: 0; bottom: 0; top: 50%;
+            #cfrelease {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                top: 50%;
                 height: 50%;
-                width: 50%;
+                width: 60%;
+                resize: both;
+            }
+            #title {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                top: 70%;
+                height: 30%;
+                width: 40%;
+                resize: both;
+                background-color: #273747;
+                color: #ecf0f1;
+                font-family: monospace;
+                font-size: 100pt;
+                text-align: center;
+
             }
         </style>
         <script>
@@ -45,21 +72,23 @@ function reloadIFrame() {
 </script>
     </head>
     <body>
-        <div id="topleft">
+        <div id="bitsservice">
             <iframe id="x1" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=bits-service"
-            frameborder="0" scrolling="no" width="100%" height="100%" align="left"> </iframe>
+            frameborder="0" scrolling="yes" width="100%" height="100%" align="left"> </iframe>
         </div>
-        <div id="topright">
+        <div id="bitsserviceclient">
             <iframe id="x2" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=bits-service-client"
-              frameborder="0" scrolling="no" width="100%" height="100%" align="right"> </iframe>
+              frameborder="0" scrolling="yes" width="100%" height="100%" align="right"> </iframe>
         </div>
-        <div id="bottomleft">
+        <div id="migration">
             <iframe id="x3" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=migration"
-            frameborder="0" scrolling="no" width="100%" height="100%" align="left"> </iframe>
+            frameborder="0" scrolling="yes" width="100%" height="100%" align="left"> </iframe>
         </div>
-        <div id="bottomright">
+        <div id="cfrelease">
             <iframe id="x4" src="https://flintstone.ci.cf-app.com/teams/main/pipelines/bits-service?groups=cf-release"
-              frameborder="0" scrolling="no" width="100%" height="100%" align="right"> </iframe>
+              frameborder="0" scrolling="yes" width="100%" height="100%" align="right"> </iframe>
+        </div>
+        <div id="title">Bits-Service
         </div>
 
     </body>
