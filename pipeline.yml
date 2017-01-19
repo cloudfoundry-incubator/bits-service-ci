@@ -95,12 +95,6 @@ resources:
     <<: *s3-resource
     regexp: cf-release/cf-(.*).tgz
 
-- name: s3-cf-aws-manifest
-  type: s3
-  source:
-    <<: *s3-resource
-    regexp: cf-aws-manifest/manifest-(.*).yml
-
 - name: git-bits-service-ci
   type: git
   source:
@@ -681,8 +675,6 @@ jobs:
         DEPLOYMENT_NAME: cf1
         ERRAND_NAME: acceptance_tests
     on_failure: *inform-pipeline-operator-dea-aws-cats
-  - put: s3-cf-aws-manifest
-    params: { file: manifests/*.yml }
 
 - name: manually-delete-cf-diego-aws
   serial: true
