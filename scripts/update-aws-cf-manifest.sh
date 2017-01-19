@@ -8,7 +8,7 @@ sed \
   -e 's/name: cf$/name: <%= ENV\.fetch\('"'"'CF_DEPLOYMENT_NAME\'"'"') %>/g' \
   -e 's/REPLACE_WITH_DIRECTOR_ID/<%= `bosh status --uuid` %>/g' \
   -e 's/REPLACE_WITH_AZ/eu-west-1a/g' \
-  -e 's/PASSWORD/"<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>"/g' \
+  -e 's/REPLACE_WITH_PASSWORD/"<%= ENV.fetch('"'"'CF_PASSWORD'"'"', '"'"'password'"'"') %>"/g' \
   -e 's/REPLACE_WITH_ELASTIC_IP/"<%= ENV.fetch('"'"'CF_PUBLIC_IP'"'"', '"'"'1.2.3.4'"'"') %>"/g' \
   -e 's/REPLACE_WITH_SYSTEM_DOMAIN/<%= ENV.fetch('"'"'CF_DOMAIN'"'"', '"'"'system.domain'"'"') %>/g' \
   -e 's/REPLACE_WITH_BOSH_STEMCELL_VERSION/latest/g' \
