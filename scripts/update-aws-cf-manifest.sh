@@ -21,11 +21,11 @@ sed \
     d
   }' \
   -e '/REPLACE_WITH_UAA_SSL_KEY/ {
-    r ./manifests/uaa_ssl_certificate
+    r ./manifests/uaa_ssl_private_key
     d
   }' \
   -e '/REPLACE_WITH_UAA_SSL_CERT/ {
-    r ./manifests/uaa_ssl_private_key
+    r ./manifests/uaa_ssl_certificate
     d
   }' \
   ../git-cf-release/example_manifests/minimal-aws.yml \
