@@ -16,6 +16,18 @@ sed \
     r ./manifests/ssl-certs
     d
   }' \
+  -e '/REPLACE_WITH_UAA_CA_CERT/ {
+    r ./manifests/uaa_ca_cert
+    d
+  }' \
+  -e '/REPLACE_WITH_UAA_SSL_KEY/ {
+    r ./manifests/uaa_ssl_certificate
+    d
+  }' \
+  -e '/REPLACE_WITH_UAA_SSL_CERT/ {
+    r ./manifests/uaa_ssl_private_key
+    d
+  }' \
   ../git-cf-release/example_manifests/minimal-aws.yml \
 > ./manifests/cf-aws-dynamic-sed.yml
 
