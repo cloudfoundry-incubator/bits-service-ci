@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+printenv
+
 cd $(dirname $0)/../../git-bits-service-ci
 
 bosh -u x -p x target $BOSH_TARGET
