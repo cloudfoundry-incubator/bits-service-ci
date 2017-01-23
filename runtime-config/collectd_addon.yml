@@ -1,0 +1,27 @@
+releases:
+- {name: collectd, version: 7+dev.3}
+
+addons:
+- name: collectd
+  jobs:
+  - name: collectd
+    release: collectd
+  properties:
+    collectd:
+      # space ID (e5a3df78-1e62-4da0-aa4c-b4500ee4edc7) was taken from cf curl /v2/spaces as flintstone@cloudfoundry.org
+      config: |
+        LoadPlugin df
+        LoadPlugin disk
+        LoadPlugin cpu
+        LoadPlugin load
+        LoadPlugin memory
+        LoadPlugin write_metric_mtlumberjack
+        <Plugin write_metric_mtlumberjack>
+           <Logstash>
+               Host "metrics.opvis.bluemix.net"
+               Port "9095"
+               GraphitePrefix "e5a3df78-1e62-4da0-aa4c-b4500ee4edc7.performance"
+               SpaceId "e5a3df78-1e62-4da0-aa4c-b4500ee4edc7"
+               LoggingToken "<Logging token from cURL response>"
+           </Logstash>
+        </Plugin>
