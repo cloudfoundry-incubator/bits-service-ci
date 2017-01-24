@@ -26,6 +26,8 @@ RUN wget https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.
 RUN wget https://github.com/geofffranks/spruce/releases/download/v1.1.2/spruce-linux-amd64 -O /usr/local/bin/spruce && \
     chmod +x /usr/local/bin/spruce
 
+RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/local/bin/jq
+
 ADD ./cache_cf_release_blobs.sh /tmp/cache_cf_release_blobs.sh
 RUN /tmp/cache_cf_release_blobs.sh
 
