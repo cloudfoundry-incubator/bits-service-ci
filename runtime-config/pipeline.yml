@@ -1,0 +1,42 @@
+resources:
+  - name: collectd-boshrelease
+    type: git
+    source:
+      uri: git@github.com:petergtz/collectd-boshrelease.git
+      branch: package-mtlj-plugin
+      private_key: {{github-private-key}}
+
+  - name: ci-tasks
+    type: git
+    source:
+      uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+      branch: master
+      private_key: {{github-private-key}}
+      paths: ["runtime-config/tasks/*"]
+
+  - name: collectd-release-tarball
+    type: s3
+    source:
+      access_key_id: {{s3-blobstore-access-key-id}}
+      secret_access_key: {{s3-blobstore-secret-access-key}}
+      bucket: ci-bits-service-artifacts
+      region_name: eu-west-1
+      private: false
+      regexp: collectd/collectd-(.*).tgz
+
+
+jobs:
+- name: create-collectd-boshrelease-with-mtlj
+  plan:
+  - { get: collectd-boshrelease, trigger: true }
+  - { get: ci-tasks, trigger: true }
+  - task: Build and Upload collectd-boshrelease
+    file: ci-tasks/runtime-config/tasks/bosh-create-release.yml
+    input_mapping:
+      release-repo: collectd-boshrelease
+      ci-tasks: ci-tasks
+    output_mapping:
+      release-tarball: release-tarball
+    params: { RELEASE_NAME: collectd }
+  - put: collectd-release-tarball
+    params: { file: release-tarball/*.tgz }
