@@ -1,0 +1,26 @@
+releases:
+- {name: collectd, version: COLLECTD_VERSION}
+
+addons:
+- name: collectd
+  jobs:
+  - name: collectd
+    release: collectd
+  properties:
+    collectd:
+      config: |
+        LoadPlugin df
+        LoadPlugin disk
+        LoadPlugin cpu
+        LoadPlugin load
+        LoadPlugin memory
+        LoadPlugin write_metric_mtlumberjack
+        <Plugin write_metric_mtlumberjack>
+           <Logstash>
+               Host "metrics.opvis.bluemix.net"
+               Port "9095"
+               GraphitePrefix "SPACE_ID.GROUP_NAME."
+               SpaceId "SPACE_ID"
+               LoggingToken "LOGGING_TOKEN"
+           </Logstash>
+        </Plugin>
