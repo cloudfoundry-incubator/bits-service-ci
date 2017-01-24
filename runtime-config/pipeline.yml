@@ -1,3 +1,8 @@
+resource_types:
+  - name: bosh-config
+    type: docker-image
+    source: { repository: dellemcdojo/bosh-config-resource }
+
 resources:
   - name: collectd-boshrelease
     type: git
@@ -12,7 +17,7 @@ resources:
       uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
       branch: master
       private_key: {{github-private-key}}
-      paths: ["runtime-config/tasks/*"]
+      paths: ["runtime-config/tasks/*", "runtime-config/templates/*"]
 
   - name: collectd-release-tarball
     type: s3
@@ -24,19 +29,43 @@ resources:
       private: false
       regexp: collectd/collectd-(.*).tgz
 
+  - name: bosh-runtime-config
+    type: bosh-config
+    source:
+      target: {{aws-bosh-target}}
+      username: {{aws-bosh-username}}
+      password: {{aws-bosh-password}}
+      type: runtime-config
 
 jobs:
-- name: create-collectd-boshrelease-with-mtlj
+- name: Create and upload collectd-boshrelease with MTLJ Plugin
   plan:
-  - { get: collectd-boshrelease, trigger: true }
   - { get: ci-tasks, trigger: true }
+  - { get: collectd-boshrelease, trigger: true }
   - task: Build and Upload collectd-boshrelease
     file: ci-tasks/runtime-config/tasks/bosh-create-release.yml
     input_mapping:
       release-repo: collectd-boshrelease
       ci-tasks: ci-tasks
-    output_mapping:
-      release-tarball: release-tarball
+    output_mapping: { release-tarball: release-tarball }
     params: { RELEASE_NAME: collectd }
   - put: collectd-release-tarball
     params: { file: release-tarball/*.tgz }
+
+- name: Update bosh runtime-config to use collectd-boshrelease
+  plan:
+  - { get: ci-tasks, trigger: true }
+  - { get: collectd-release-tarball, trigger: true }
+  - task: Generate collectd runtime config file
+    file: ci-tasks/runtime-config/tasks/generate-collectd-runtime-config.yml
+    input_mapping:
+      collectd-version: collectd-release-tarball
+      ci-tasks: ci-tasks
+    output_mapping: { runtime-config: runtime-config }
+    params:
+      BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+      BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+  - put: bosh-runtime-config
+    params:
+      manifest: runtime-config/runtime-config.yml
+      releases: [ collectd-release-tarball/*.tgz ]
