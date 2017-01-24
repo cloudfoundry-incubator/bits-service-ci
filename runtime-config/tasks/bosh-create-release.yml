@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: ci-tasks
+- name: release-repo
+
+params:
+  RELEASE_NAME:
+
+outputs:
+- name: release-tarball
+- name: version
+
+run:
+  path: ci-tasks/runtime-config/tasks/bosh-create-release.sh
