@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: ci-tasks
+- name: collectd-version
+
+params:
+  BLUEMIX_USERNAME:
+  BLUEMIX_PASSWORD:
+
+outputs:
+- name: runtime-config
+
+run:
+  path: ci-tasks/runtime-config/tasks/generate-collectd-runtime-config.sh
