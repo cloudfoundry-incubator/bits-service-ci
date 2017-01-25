@@ -24,3 +24,7 @@ addons:
                LoggingToken "LOGGING_TOKEN"
            </Logstash>
         </Plugin>
+        LoadPlugin statsd
+        <Plugin statsd>
+          Host "127.0.0.1"
+        </Plugin>
