@@ -39,6 +39,7 @@ resources:
 
 jobs:
 - name: Create and upload collectd-boshrelease with MTLJ Plugin
+  serial: true
   plan:
   - { get: ci-tasks, trigger: true }
   - { get: collectd-boshrelease, trigger: true }
@@ -53,6 +54,7 @@ jobs:
     params: { file: release-tarball/*.tgz }
 
 - name: Update bosh runtime-config to use collectd-boshrelease
+  serial: true
   plan:
   - { get: ci-tasks, trigger: true }
   - { get: collectd-release-tarball, trigger: true }
