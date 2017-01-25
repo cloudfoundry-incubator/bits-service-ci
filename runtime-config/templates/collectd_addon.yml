@@ -27,4 +27,12 @@ addons:
         LoadPlugin statsd
         <Plugin statsd>
           Host "127.0.0.1"
+          DeleteCounters true
+          DeleteTimers true
+          DeleteGauges true
+          DeleteSets true
+          TimerPercentile 99.0
+          TimerPercentile 95.0
+          TimerPercentile 90.0
+          TimerCount true
         </Plugin>
