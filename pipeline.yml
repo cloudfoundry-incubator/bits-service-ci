@@ -139,13 +139,6 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 
-- name: bits-service-client-version
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry-incubator/bits-service-client.git
-    branch: master
-    paths: ["lib/bits_service_client/version.rb"]
-
 - name: bits-service-deployment-manifest-generation-tools
   type: git
   source:
@@ -336,7 +329,6 @@ jobs:
   serial: true
   plan:
   - { get: git-bits-service-client, trigger: true }
-  - { get: bits-service-client-version, trigger: true}
   - { get: ci-tasks, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
@@ -344,8 +336,7 @@ jobs:
 - name: Publish gem
   serial: true
   plan:
-  - { get: git-bits-service-client, passed: [run-bits-service-client-tests]}
-  - { get: bits-service-client-version, passed: [run-bits-service-client-tests], trigger: true}
+  - { get: git-bits-service-client, passed: [run-bits-service-client-tests], trigger: true }
   - { get: ci-tasks }
   - task: Publish to rubygems.org
     file: ci-tasks/tasks/publish-gem.yml
