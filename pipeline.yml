@@ -337,7 +337,7 @@ jobs:
   serial: true
   plan:
   - { get: git-bits-service-client, passed: [run-bits-service-client-tests], trigger: true }
-  - { get: ci-tasks }
+  - { get: ci-tasks, trigger: true }
   - task: Publish to rubygems.org
     file: ci-tasks/tasks/publish-gem.yml
     config:
