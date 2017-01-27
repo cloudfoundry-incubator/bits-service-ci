@@ -1,0 +1,10 @@
+resources: []
+
+jobs:
+- name: Deploy
+  serial: true
+  plan: []
+
+- name: Run performance tests
+  serial: true
+  plan: []
