@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: ci-tasks
+
+params:
+  BLUEMIX_USERNAME:
+  BLUEMIX_PASSWORD:
+    
+outputs:
+
+run:
+  path: ci-tasks/scripts/run-performance-tests.sh
