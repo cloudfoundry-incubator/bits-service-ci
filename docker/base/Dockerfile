@@ -28,6 +28,10 @@ RUN wget https://github.com/geofffranks/spruce/releases/download/v1.1.2/spruce-l
 
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/local/bin/jq
 
+RUN wget https://storage.googleapis.com/golang/go1.7.5.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go1.7.5.linux-amd64.tar.gz
+ENV PATH "$PATH:/usr/local/go/bin"
+
 RUN add-apt-repository --yes ppa:masterminds/glide && apt-get update
 RUN apt-get install glide
 
