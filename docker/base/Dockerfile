@@ -28,6 +28,8 @@ RUN wget https://github.com/geofffranks/spruce/releases/download/v1.1.2/spruce-l
 
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/local/bin/jq
 
+RUN curl https://glide.sh/get | sh
+
 ADD ./cache_cf_release_blobs.sh /tmp/cache_cf_release_blobs.sh
 RUN /tmp/cache_cf_release_blobs.sh
 
