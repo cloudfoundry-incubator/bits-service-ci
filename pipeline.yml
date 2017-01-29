@@ -147,14 +147,6 @@ resources:
     private_key: {{github-private-key}}
     paths: ["templates/*", "scripts/*"]
 
-- name: bits-service-system-test-source
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
-    branch: master
-    private_key: {{github-private-key}}
-    paths: ["spec/*"]
-
 - name: git-cf-release
   type: git
   source:
@@ -394,16 +386,18 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-S3], trigger: true }
-    - { get: bits-service-system-test-source }
+    - { get: git-bits-service-release }
     - { get: ci-tasks }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
-    config:
-      params:
-        <<: *bosh1-params
-        BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.1.2
-        RELEASE_NAME: bits-service-s3
+    input_mapping:
+      bits-service-system-test-source: git-bits-service-release
+      ci-tasks: ci-tasks
+    params:
+      <<: *bosh1-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.1.2
+      RELEASE_NAME: bits-service-s3
 
 - name: deploy-with-LOCAL
   serial: true
@@ -436,16 +430,18 @@ jobs:
   - aggregate:
     - { get: s3-bits-service-manifest, passed: [deploy-with-LOCAL], trigger: true }
     - { get: bits-service-release-tarball,  passed: [deploy-with-LOCAL], trigger: true }
-    - { get: bits-service-system-test-source }
+    - { get: git-bits-service-release }
     - { get: ci-tasks }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
-    config:
-      params:
-        <<: *bosh1-params
-        BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.0.2
-        RELEASE_NAME: bits-service-local
+    input_mapping:
+      bits-service-system-test-source: git-bits-service-release
+      ci-tasks: ci-tasks
+    params:
+      <<: *bosh1-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.0.2
+      RELEASE_NAME: bits-service-local
 
 - name: deploy-with-WEBDAV
   serial: true
@@ -474,7 +470,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
-    - { get: bits-service-system-test-source }
+    - { get: git-bits-service-release }
     - { get: ci-tasks }
   - task: Run tests
     attempts: 3
