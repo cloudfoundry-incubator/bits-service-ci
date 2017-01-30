@@ -456,10 +456,9 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
-    config:
-      params:
-        <<: *bosh1-params
-        BLOBSTORE_TYPE: webdav
+    params:
+      <<: *bosh1-params
+      BLOBSTORE_TYPE: webdav
   - put: boshlite1-webdav-deployment
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
@@ -475,11 +474,13 @@ jobs:
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
-    config:
-      params:
-        <<: *bosh1-params
-        BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.3.2
-        RELEASE_NAME: bits-service-webdav
+    input_mapping:
+      bits-service-system-test-source: git-bits-service-release
+      ci-tasks: ci-tasks
+    params:
+      <<: *bosh1-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.3.2
+      RELEASE_NAME: bits-service-webdav
 
 # CF-RELEASE
 - name: create-cf-release
