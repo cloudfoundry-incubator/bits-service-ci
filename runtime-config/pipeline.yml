@@ -29,12 +29,20 @@ resources:
       private: false
       regexp: collectd/collectd-(.*).tgz
 
-  - name: bosh-runtime-config
+  - name: bosh-aws-runtime-config
     type: bosh-config
     source:
       target: {{aws-bosh-target}}
       username: {{aws-bosh-username}}
       password: {{aws-bosh-password}}
+      type: runtime-config
+
+  - name: bosh-softlayer-runtime-config
+    type: bosh-config
+    source:
+      target: {{softlayer-bosh-target}}
+      username: {{softlayer-bosh-username}}
+      password: {{softlayer-bosh-password}}
       type: runtime-config
 
 jobs:
@@ -69,7 +77,10 @@ jobs:
     params:
       BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
       BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-  - put: bosh-runtime-config
-    params:
-      manifest: runtime-config/runtime-config.yml
-      releases: [ collectd-release-tarball/*.tgz ]
+  - aggregate:
+    - put: bosh-aws-runtime-config
+      params: &bosh-runtime-config-params
+        manifest: runtime-config/runtime-config.yml
+        releases: [ collectd-release-tarball/*.tgz ]
+    - put: bosh-softlayer-runtime-config
+      params: *bosh-runtime-config-params

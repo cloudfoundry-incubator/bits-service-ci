@@ -5,6 +5,8 @@ lpass show "Shared-Flintstone"/ci-config --notes > config.yml
 github_ssh_key=$(lpass show "Shared-Flintstone"/Github --notes)
 bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username)
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
+softlayer_bosh_username=$(lpass show "Shared-Flintstone"/"Flintstone BOSH director" --username)
+softlayer_bosh_password=$(lpass show "Shared-Flintstone"/"Flintstone BOSH director" --password)
 
 fly -t flintstone login \
   --username $(lpass show --username "Shared-Flintstone"/"Flintstone Concourse") \
@@ -16,6 +18,9 @@ fly -t flintstone set-pipeline \
   -l config.yml \
   -v github-private-key="${github_ssh_key}" \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
-  -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}"
+  -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
+  -v softlayer-bosh-target="10.155.171.25" \
+  -v softlayer-bosh-username="${softlayer_bosh_username}" \
+  -v softlayer-bosh-password="${softlayer_bosh_password}"
 
 rm -f config.yml
