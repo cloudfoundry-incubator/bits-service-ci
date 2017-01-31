@@ -1,0 +1,14 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+- name: ci-tasks
+
+params:
+
+outputs:
+
+run:
+  path: ci-tasks/scripts/run-performance-tests.sh
