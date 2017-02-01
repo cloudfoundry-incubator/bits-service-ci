@@ -49,4 +49,4 @@ start_collectd
 
 echo "Insert performance test here"
 
-echo "performance-test-run:1|c" | nc -u -w0 127.0.0.1 8125
+echo "performance-test-run:1|c" | nc -u -w1 127.0.0.1 8125

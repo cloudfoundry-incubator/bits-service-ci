@@ -1154,7 +1154,10 @@ jobs:
       attempts: 2
       params: *params-deployment-cf-release-bits-service-release-diego-release
     - task: Run performance tests
-      file: git-bits-service-ci/tasks/run-performance-tests.yml
+      file: ci-tasks/tasks/run-performance-tests.yml
+      params:
+        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
     - task: Create CF deployment manifest with Bits-Service enabled, 1 CC
       file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
       params:
@@ -1164,4 +1167,7 @@ jobs:
       attempts: 2
       params: *params-deployment-cf-release-bits-service-release-diego-release
     - task: Run performance tests
-      file: git-bits-service-ci/tasks/run-performance-tests.yml
+      file: ci-tasks/tasks/run-performance-tests.yml
+      params:
+        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
