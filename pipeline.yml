@@ -1159,10 +1159,14 @@ jobs:
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
     - task: Create CF deployment manifest with Bits-Service enabled, 1 CC
-      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+      file: ci-tasks/tasks/update-aws-cf-manifest.yml
       params:
         <<: *update-aws-cf-manifest-cf2-config
         MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
+      input_mapping:
+        git-bits-service-ci: ci-tasks
+        git-bits-service-release: git-bits-service-release
+        git-cf-release: git-cf-release
     - put: aws-diego-deployment
       attempts: 2
       params: *params-deployment-cf-release-bits-service-release-diego-release
