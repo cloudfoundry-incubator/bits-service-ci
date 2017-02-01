@@ -33,7 +33,10 @@ RUN tar -C /usr/local -xzf go1.7.5.linux-amd64.tar.gz
 ENV PATH "$PATH:/usr/local/go/bin"
 
 RUN add-apt-repository --yes ppa:masterminds/glide && apt-get update
-RUN apt-get install glide
+RUN apt-get -y install glide
+
+RUN wget -O - https://downloads.opvis.bluemix.net:5443/client/IBM_Logmet_repo_install.sh | bash
+RUN apt-get -y install collectd collectd-write-mtlumberjack
 
 ADD ./cache_cf_release_blobs.sh /tmp/cache_cf_release_blobs.sh
 RUN /tmp/cache_cf_release_blobs.sh
