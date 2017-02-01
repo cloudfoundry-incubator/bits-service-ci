@@ -63,6 +63,11 @@ groups:
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
+- name: performance-tests
+  jobs:
+  - Publish release tarball URLs
+  - Run performance tests
+
 
 resources:
 - name: aws-stemcell
@@ -532,6 +537,7 @@ jobs:
         - migration-backwards-bosh1
         - migration-backwards-bosh2
       trigger: true
+    - get: git-cf-release
     - get: ci-tasks
       resource: git-bits-service-ci
       trigger: true
@@ -698,7 +704,7 @@ jobs:
         BLOBSTORE_TYPE: s3
         BOSH_TARGET: {{aws-bosh-target}}
     - task: Upload additional Bosh releases
-      config:
+      config: &upload-additional-bosh-releases-config
         platform: linux
         image: docker:///flintstonecf/ci
         inputs: [ name: ci-tasks ]
@@ -1122,3 +1128,40 @@ jobs:
       BOSH_USERNAME: {{bosh-acceptance-username}}
       BOSH_PASSWORD: {{bosh-acceptance-password}}
       BOSH_TARGET: {{bosh-acceptance-target}}
+
+- name: Run performance tests
+  serial_groups: [cf2-aws-deployment]
+  serial: true
+  plan:
+    - aggregate:
+      - { get: bits-service-release-tarball, passed: [Publish release tarball URLs] }
+      - { get: cf-release-tarball, passed: [Publish release tarball URLs] }
+      - { get: git-cf-release, passed: [Publish release tarball URLs] }
+      - { get: git-bits-service-release }
+      - { get: ci-tasks, trigger: true }
+      - { get: stemcell, resource: aws-stemcell }
+    - aggregate:
+      - task: Create CF deployment manifest with Bits-Service disabled, 1 CC
+        file: ci-tasks/tasks/update-aws-cf-manifest.yml
+        params: *update-aws-cf-manifest-cf2-config
+        input_mapping:
+          git-bits-service-ci: ci-tasks
+          git-bits-service-release: git-bits-service-release
+          git-cf-release: git-cf-release
+      - task: Upload additional Bosh releases
+        config: *upload-additional-bosh-releases-config
+    - put: aws-diego-deployment
+      attempts: 2
+      params: *params-deployment-cf-release-bits-service-release-diego-release
+    - task: Run performance tests
+      file: git-bits-service-ci/tasks/run-performance-tests.yml
+    - task: Create CF deployment manifest with Bits-Service enabled, 1 CC
+      file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
+      params:
+        <<: *update-aws-cf-manifest-cf2-config
+        MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
+    - put: aws-diego-deployment
+      attempts: 2
+      params: *params-deployment-cf-release-bits-service-release-diego-release
+    - task: Run performance tests
+      file: git-bits-service-ci/tasks/run-performance-tests.yml
