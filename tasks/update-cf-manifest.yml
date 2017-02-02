@@ -6,6 +6,15 @@ image: docker:///flintstonecf/ci
 params:
   MANIFEST_STUBS:
   IAAS: lite
+  CF_USER:
+  CF_PASSWORD:
+  CF_DOMAIN:
+  BITS_DIRECTORY_KEY:
+  BITS_AWS_REGION:
+  AWS_ACCESS_KEY_ID:
+  AWS_SECRET_ACCESS_KEY:
+  BLOBSTORE_TYPE:
+  BOSH_TARGET:
 
 inputs:
 - name: git-bits-service-ci
