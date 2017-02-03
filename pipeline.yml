@@ -359,7 +359,7 @@ jobs:
   - aggregate:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
-    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release] }
+    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
@@ -405,7 +405,7 @@ jobs:
   - aggregate:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
-    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release] }
+    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
@@ -448,7 +448,7 @@ jobs:
   - aggregate:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
-    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release] }
+    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
