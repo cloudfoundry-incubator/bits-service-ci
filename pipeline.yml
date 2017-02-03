@@ -944,7 +944,6 @@ jobs:
       BITS_AWS_REGION: {{cf-migration-s3-blobstore-region}}
       AWS_ACCESS_KEY_ID: {{cf-migration-s3-blobstore-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
-      BLOBSTORE_TYPE: webdav
       BOSH_TARGET: {{bosh2-target}}
   - put: boshlite2-deployment
     params: &params-deployment-cf-release-bits-service-release
