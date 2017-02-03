@@ -8,31 +8,5 @@ addons:
     release: collectd
   properties:
     collectd:
-      config: |
-        LoadPlugin df
-        LoadPlugin disk
-        LoadPlugin cpu
-        LoadPlugin load
-        LoadPlugin memory
-        LoadPlugin write_metric_mtlumberjack
-        <Plugin write_metric_mtlumberjack>
-           <Logstash>
-               Host "metrics.opvis.bluemix.net"
-               Port "9095"
-               GraphitePrefix "SPACE_ID.GROUP_NAME."
-               SpaceId "SPACE_ID"
-               LoggingToken "LOGGING_TOKEN"
-           </Logstash>
-        </Plugin>
-        LoadPlugin statsd
-        <Plugin statsd>
-          Host "127.0.0.1"
-          DeleteCounters true
-          DeleteTimers true
-          DeleteGauges true
-          DeleteSets true
-          TimerPercentile 99.0
-          TimerPercentile 95.0
-          TimerPercentile 90.0
-          TimerCount true
-        </Plugin>
+      space_id: SPACE_ID
+      logging_token: LOGGING_TOKEN
