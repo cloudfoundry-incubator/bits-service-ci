@@ -26,6 +26,8 @@ RUN wget https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.
 RUN wget https://github.com/geofffranks/spruce/releases/download/v1.1.2/spruce-linux-amd64 -O /usr/local/bin/spruce && \
     chmod +x /usr/local/bin/spruce
 
+RUN curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=github" | tar -zx && mv cf /usr/local/bin
+
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/local/bin/jq
 
 RUN wget https://storage.googleapis.com/golang/go1.7.5.linux-amd64.tar.gz
