@@ -144,14 +144,6 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 
-- name: bits-service-deployment-manifest-generation-tools
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
-    branch: master
-    private_key: {{github-private-key}}
-    paths: ["templates/*", "scripts/*"]
-
 - name: git-cf-release
   type: git
   source:
@@ -343,7 +335,6 @@ jobs:
     - { get: bits-service-release-version, params: { pre: dev } }
     - { get: git-bits-service-release, trigger: true }
     - { get: ci-tasks, trigger: true }
-    - { get: bits-service-deployment-manifest-generation-tools } # pure "new-version-blocker"
   - put: bits-service-release-version
     params: { file: bits-service-release-version/number }
   - task: Create release
@@ -359,12 +350,17 @@ jobs:
   - aggregate:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
-    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release], trigger: true }
+    - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
+    input_mapping:
+      bits-service-deployment-manifest-generation-tools: git-bits-service-release
+      ci-tasks: ci-tasks
+      ci-deployment-manifest-templates: ci-deployment-manifest-templates
+      bits-service-release-version: bits-service-release-version
     params:
       <<: *bosh1-params
       BITS_DIRECTORY_KEY: {{s3-blobstore-bucket-name}}
@@ -405,12 +401,17 @@ jobs:
   - aggregate:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
-    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release], trigger: true }
+    - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
+    input_mapping:
+      bits-service-deployment-manifest-generation-tools: git-bits-service-release
+      ci-tasks: ci-tasks
+      ci-deployment-manifest-templates: ci-deployment-manifest-templates
+      bits-service-release-version: bits-service-release-version
     params:
       <<: *bosh1-params
       BITS_DIRECTORY_KEY: another-directory
@@ -448,12 +449,17 @@ jobs:
   - aggregate:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
-    - { get: bits-service-deployment-manifest-generation-tools, passed: [create-and-upload-release], trigger: true }
+    - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
+    input_mapping:
+      bits-service-deployment-manifest-generation-tools: git-bits-service-release
+      ci-tasks: ci-tasks
+      ci-deployment-manifest-templates: ci-deployment-manifest-templates
+      bits-service-release-version: bits-service-release-version
     params:
       <<: *bosh1-params
       BLOBSTORE_TYPE: webdav
