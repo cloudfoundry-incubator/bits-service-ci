@@ -1176,6 +1176,7 @@ jobs:
         CF_DOMAIN: {{aws-cf2-domain}}
         CF_ADMIN_USER: {{aws-cf2-user}}
         CF_ADMIN_PASSWORD: {{aws-cf2-password}}
+        PERFORMANCE_TEST_METRICS_PREFIX: bits-service.disabled.CCs.1
     - task: Create CF deployment manifest with Bits-Service enabled, 1 CC
       file: ci-tasks/tasks/update-aws-cf-manifest.yml
       params:
@@ -1199,3 +1200,4 @@ jobs:
         CF_DOMAIN: {{aws-cf2-domain}}
         CF_ADMIN_USER: {{aws-cf2-user}}
         CF_ADMIN_PASSWORD: {{aws-cf2-password}}
+        PERFORMANCE_TEST_METRICS_PREFIX: bits-service.enabled.CCs.1
