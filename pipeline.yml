@@ -250,6 +250,12 @@ resources:
     <<: *deployment-events-source
     file: events/cf-diego-aws/deployment-deleted
 
+- name: after-midnight
+  type: time
+  source:
+    start: 12:00 AM
+    stop: 1:00 AM
+
 bosh1-params: &bosh1-params
   BOSH_TARGET: {{bosh-target}}
   BOSH_USERNAME: {{bosh-username}}
@@ -1139,11 +1145,12 @@ jobs:
   serial: true
   plan:
     - aggregate:
+      - { get: after-midnight, trigger: true }
       - { get: bits-service-release-tarball, passed: [Publish release tarball URLs] }
       - { get: cf-release-tarball, passed: [Publish release tarball URLs] }
       - { get: git-cf-release, passed: [Publish release tarball URLs] }
       - { get: git-bits-service-release }
-      - { get: ci-tasks, trigger: true }
+      - { get: ci-tasks }
       - { get: stemcell, resource: aws-stemcell }
     - aggregate:
       - task: Create CF deployment manifest with Bits-Service disabled, 1 CC
