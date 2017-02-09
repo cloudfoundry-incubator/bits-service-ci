@@ -27,4 +27,3 @@ fly \
 rm -f config.yml
 
 fly -t ${target} expose-pipeline --pipeline bits-service
-fly -t ${target} expose-pipeline --pipeline docker-images
