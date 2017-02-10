@@ -9,10 +9,16 @@ jobs:
   templates:
   - name: bits-service
     release: bits-service
+    consumes:
+      nats: nil
   - name: route_registrar
     release: cf
+    consumes:
+      nats: nil
   - name: consul_agent
     release: cf
+    consumes:
+      nats: nil
   properties:
     consul:
       agent:
