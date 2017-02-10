@@ -33,11 +33,6 @@ sed \
   ../git-cf-release/example_manifests/minimal-aws.yml \
 > ./manifests/cf-aws-dynamic-sed.yml
 
-if grep REPLACE ./manifests/cf-aws-dynamic-sed.yml; then
-  echo "Error: Found an unexpected REPLACE statement in the deployment manifest."
-  exit 1
-fi
-
 # Place double quotes around ERB statements within square brackets
 # to make spruce happy
 # i.e. [<%= ... %>] --> ["<%= ... %>"]
@@ -75,3 +70,8 @@ mv ${TMP} ../manifests/manifest.yml
 
 echo "Content of ../manifests/manifest.yml:"
 cat ../manifests/manifest.yml
+
+if grep REPLACE ../manifests/manifest.yml; then
+  echo "Error: Found an unexpected REPLACE statement in the deployment manifest."
+  exit 1
+fi
