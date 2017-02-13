@@ -114,7 +114,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: master
     private_key: {{github-private-key}}
-    paths: ["scripts/*", "tasks/*"]
+    paths: ["scripts/*", "tasks/*", "manifests/*"]
 
 - name: ci-deployment-manifest-templates
   type: git
