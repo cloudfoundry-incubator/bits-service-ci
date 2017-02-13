@@ -1091,10 +1091,6 @@ jobs:
       BOSH_PASSWORD: {{bosh-acceptance-password}}
       BOSH_DIRECTOR_IP: 192.168.150.4
       VAGRANT_GATEWAY: 192.168.150.1
-      DIEGO_RELEASE_VERSION: {{diego-release-version}}
-      GARDEN_LINUX_RELEASE_VERSION: {{garden-linux-release-version}}
-      ETCD_RELEASE_VERSION: {{etcd-release-version}}
-      CFLINUXFS2_ROOTFS_RELEASE_VERSION: {{cflinuxfs2-rootfs-release-version}}
   - aggregate:
     - task: upload-last-bits-service-release
       file: git-bits-service-ci/tasks/upload-release.yml
