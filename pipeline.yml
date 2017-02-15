@@ -421,7 +421,6 @@ jobs:
       bits-service-release-version: bits-service-release-version
     params:
       <<: *bosh1-params
-      BITS_DIRECTORY_KEY: another-directory
       BLOBSTORE_TYPE: local
   - put: boshlite1-local-deployment
     attempts: 3
