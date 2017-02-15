@@ -47,7 +47,9 @@ EOT
 
 start_collectd
 
-echo "performance-test-run:1|c" | nc -u -w1 127.0.0.1 8125
+# .count is needed because Bluemix Logmet/Grafana does not roll up sparse
+# metrics correctly, when the range is >24h.
+echo "performance-test-run.count:1|c" | nc -u -w1 127.0.0.1 8125
 
 cat <<EOT > $PWD/bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-performance-tests/integration_aws_config.json
 {
