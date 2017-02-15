@@ -619,7 +619,11 @@ jobs:
       BOSH_TARGET: {{aws-bosh-target}}
   - put: aws-dea-deployment
     attempts: 2
-    params: *params-deployment-cf-release-bits-service-release
+    params: &params-deployment-cf-release-bits-service-release
+      manifest: manifests/manifest.yml
+      stemcells: ["stemcell/stemcell.tgz"]
+      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+      no_redact: true
   - task: Run CATs
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -961,11 +965,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
       BOSH_TARGET: {{bosh2-target}}
   - put: boshlite2-deployment
-    params: &params-deployment-cf-release-bits-service-release
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
-      no_redact: true
+    params: *params-deployment-cf-release-bits-service-release
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
