@@ -380,6 +380,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["bits-service-release-tarball/*.tgz"]
+      no_redact: true
 
 - name: run-system-tests-S3
   serial: true
@@ -728,6 +729,7 @@ jobs:
      manifest: manifests/manifest.yml
      stemcells: ["stemcell/stemcell.tgz"]
      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+     no_redact: true
   - task: Run CATs
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
@@ -904,6 +906,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["cf-release-tarball/cf-*.tgz"]
+      no_redact: true
   - task: Run migration verification tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -962,6 +965,7 @@ jobs:
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
+      no_redact: true
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
