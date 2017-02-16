@@ -78,6 +78,10 @@ resources:
   type: bosh-io-stemcell
   source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent }
 
+- name: softlayer-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent }
+
 - name: bits-service-release-tarball
   type: s3
   source: &s3-resource
@@ -177,24 +181,6 @@ resources:
     password: {{bosh-password}}
     deployment: cf-warden
 
-- name: boshlite1-s3-deployment
-  type: bosh-deployment
-  source:
-    <<: *boshlite1-source
-    deployment: bits-service-s3
-
-- name: boshlite1-webdav-deployment
-  type: bosh-deployment
-  source:
-    <<: *boshlite1-source
-    deployment: bits-service-webdav
-
-- name: boshlite1-local-deployment
-  type: bosh-deployment
-  source:
-    <<: *boshlite1-source
-    deployment: bits-service-local
-
 - name: boshlite2-deployment
   type: bosh-deployment
   source:
@@ -202,6 +188,27 @@ resources:
     username: {{bosh2-username}}
     password: {{bosh2-password}}
     deployment: cf-warden
+
+- name: bosh-deployment-bits-service-local
+  type: bosh-deployment
+  source: &sl-bosh-deployment-source
+    target: {{sl-bosh-target}}
+    username: {{sl-bosh-username}}
+    password: {{sl-bosh-password}}
+    deployment: bits-service-local
+
+- name: bosh-deployment-bits-service-webdav
+  type: bosh-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: bits-service-webdav
+
+- name: bosh-deployment-bits-service-s3
+  type: bosh-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: bits-service-s3
+
 
 - name: cf-release-version
   type: semver
@@ -260,6 +267,11 @@ bosh1-params: &bosh1-params
   BOSH_TARGET: {{bosh-target}}
   BOSH_USERNAME: {{bosh-username}}
   BOSH_PASSWORD: {{bosh-password}}
+
+sl-bosh-params: &sl-bosh-params
+  BOSH_TARGET: {{sl-bosh-target}}
+  BOSH_USERNAME: {{sl-bosh-username}}
+  BOSH_PASSWORD: {{sl-bosh-password}}
 
 bosh2-params: &bosh2-params
   BOSH_TARGET: {{bosh2-target}}
@@ -359,7 +371,7 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
-    - { get: stemcell, resource: boshlite-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
@@ -368,15 +380,15 @@ jobs:
       ci-deployment-manifest-templates: ci-deployment-manifest-templates
       bits-service-release-version: bits-service-release-version
     params:
-      <<: *bosh1-params
+      <<: *sl-bosh-params
       BITS_DIRECTORY_KEY: {{s3-blobstore-bucket-name}}
       BITS_AWS_REGION: {{s3-blobstore-region}}
       AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
       BLOBSTORE_TYPE: s3
-      BITS_SERVICE_JOB_IP: 10.155.248.134
+      BITS_SERVICE_JOB_IP: &bits_service_job_ip_s3 10.155.248.134
       BLOBSTORE_JOB_IP: 10.155.248.135
-  - put: boshlite1-s3-deployment
+  - put: bosh-deployment-bits-service-s3
     attempts: 3
     params: &boshlite1-bits-service-deployment-params
       manifest: manifests/manifest.yml
@@ -399,8 +411,8 @@ jobs:
       bits-service-system-test-source: git-bits-service-release
       ci-tasks: ci-tasks
     params:
-      <<: *bosh1-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.1.2
+      <<: *sl-bosh-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_s3
       RELEASE_NAME: bits-service-s3
 
 - name: deploy-with-LOCAL
@@ -413,7 +425,7 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
-    - { get: stemcell, resource: boshlite-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
@@ -422,11 +434,11 @@ jobs:
       ci-deployment-manifest-templates: ci-deployment-manifest-templates
       bits-service-release-version: bits-service-release-version
     params:
-      <<: *bosh1-params
+      <<: *sl-bosh-params
       BLOBSTORE_TYPE: local
-      BITS_SERVICE_JOB_IP: 10.155.248.130
+      BITS_SERVICE_JOB_IP: &bits_service_job_ip_local 10.155.248.130
       BLOBSTORE_JOB_IP: 10.155.248.131
-  - put: boshlite1-local-deployment
+  - put: bosh-deployment-bits-service-local
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
   - put: s3-bits-service-manifest
@@ -448,8 +460,8 @@ jobs:
       bits-service-system-test-source: git-bits-service-release
       ci-tasks: ci-tasks
     params:
-      <<: *bosh1-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.0.2
+      <<: *sl-bosh-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_local
       RELEASE_NAME: bits-service-local
 
 - name: deploy-with-WEBDAV
@@ -462,7 +474,7 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, trigger: true}
     - { get: ci-deployment-manifest-templates, trigger: true}
-    - { get: stemcell, resource: boshlite-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
@@ -471,11 +483,11 @@ jobs:
       ci-deployment-manifest-templates: ci-deployment-manifest-templates
       bits-service-release-version: bits-service-release-version
     params:
-      <<: *bosh1-params
+      <<: *sl-bosh-params
       BLOBSTORE_TYPE: webdav
-      BITS_SERVICE_JOB_IP: 10.155.248.132
+      BITS_SERVICE_JOB_IP: &bits_service_job_ip_webdav 10.155.248.132
       BLOBSTORE_JOB_IP: 10.155.248.133
-  - put: boshlite1-webdav-deployment
+  - put: bosh-deployment-bits-service-webdav
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
 
@@ -494,8 +506,8 @@ jobs:
       bits-service-system-test-source: git-bits-service-release
       ci-tasks: ci-tasks
     params:
-      <<: *bosh1-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: 10.250.3.2
+      <<: *sl-bosh-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
       RELEASE_NAME: bits-service-webdav
 
 # CF-RELEASE
