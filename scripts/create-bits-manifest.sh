@@ -13,15 +13,7 @@ fi
 bosh -u x -p x target $BOSH_TARGET Lite
 bosh login $BOSH_USERNAME $BOSH_PASSWORD
 
-if [ -z "$BLOBSTORE_TYPE" ]
-then
-  >&2 echo "Please provide $BLOBSTORE_TYPE"
-  exit 1
-else
-  ./scripts/generate-test-bosh-lite-manifest \
-    ./templates/$BLOBSTORE_TYPE.yml \
-    ./templates/bits-release-network-$BLOBSTORE_TYPE.yml
-fi
+./scripts/generate-test-standalone-manifest $BLOBSTORE_TYPE
 
 cp deployments/bits-service-release.yml ../manifests/manifest-$VERSION.yml
 cp deployments/bits-service-release.yml ../manifests/manifest.yml

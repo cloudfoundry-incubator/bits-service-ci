@@ -18,6 +18,9 @@ params:
   AWS_SECRET_ACCESS_KEY:
   BLOBSTORE_TYPE:
   VERSION_FILE: ../bits-service-release-version/number
+  BLOBSTORE_JOB_IP:
+  BITS_SERVICE_JOB_IP:
+  BOSH_DIRECTOR_UUID:
 
 outputs:
 - name: manifests

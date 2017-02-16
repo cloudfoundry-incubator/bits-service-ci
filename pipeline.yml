@@ -374,6 +374,8 @@ jobs:
       AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
       BLOBSTORE_TYPE: s3
+      BITS_SERVICE_JOB_IP: 10.155.248.134
+      BLOBSTORE_JOB_IP: 10.155.248.135
   - put: boshlite1-s3-deployment
     attempts: 3
     params: &boshlite1-bits-service-deployment-params
@@ -422,6 +424,8 @@ jobs:
     params:
       <<: *bosh1-params
       BLOBSTORE_TYPE: local
+      BITS_SERVICE_JOB_IP: 10.155.248.130
+      BLOBSTORE_JOB_IP: 10.155.248.131
   - put: boshlite1-local-deployment
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
@@ -469,6 +473,8 @@ jobs:
     params:
       <<: *bosh1-params
       BLOBSTORE_TYPE: webdav
+      BITS_SERVICE_JOB_IP: 10.155.248.132
+      BLOBSTORE_JOB_IP: 10.155.248.133
   - put: boshlite1-webdav-deployment
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
