@@ -13,7 +13,9 @@ fi
 bosh -u x -p x target $BOSH_TARGET Lite
 bosh login $BOSH_USERNAME $BOSH_PASSWORD
 
-./scripts/generate-test-standalone-manifest $BLOBSTORE_TYPE
+export SPRUCE_FILE_BASE_PATH=../ci-tasks/manifests
+
+./scripts/generate-test-standalone-manifest $BLOBSTORE_TYPE ../ci-tasks/manifests/bits-service-webdav-certs.yml
 
 cp deployments/bits-service-release.yml ../manifests/manifest-$VERSION.yml
 cp deployments/bits-service-release.yml ../manifests/manifest.yml

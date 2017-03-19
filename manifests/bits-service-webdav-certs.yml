@@ -1,0 +1,19 @@
+properties:
+  bits-service:
+    buildpacks:
+      webdav_config:
+        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
+    droplets:
+      webdav_config:
+        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
+    packages:
+      webdav_config:
+        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
+    app_stash:
+      webdav_config:
+        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
+  blobstore:
+    tls:
+      cert:  (( file "standalone-blobstore-certs/server.crt"	))
+      private_key:  (( file "standalone-blobstore-certs/server.key"	))
+      ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
