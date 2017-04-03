@@ -500,6 +500,7 @@ jobs:
     - { get: git-bits-service-release }
     - { get: ci-tasks }
   - task: Run tests
+    timeout: 5m
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
