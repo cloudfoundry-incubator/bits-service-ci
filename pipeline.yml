@@ -742,7 +742,9 @@ jobs:
       config: &upload-additional-bosh-releases-config
         platform: linux
         image: docker:///flintstonecf/ci
-        inputs: [ name: ci-tasks ]
+        inputs:
+          - name: ci-tasks
+          - name: cf-release-version
         params: *aws-bosh-params
         run: { path: ci-tasks/scripts/bosh-upload-additional-releases.sh }
   - put: aws-diego-deployment
@@ -1163,6 +1165,7 @@ jobs:
   serial: true
   plan:
     - aggregate:
+      - { get: cf-release-version, passed: [create-cf-release] }
       - { get: after-midnight, trigger: true }
       - { get: bits-service-release-tarball, passed: [Publish release tarball URLs] }
       - { get: cf-release-tarball, passed: [Publish release tarball URLs] }
