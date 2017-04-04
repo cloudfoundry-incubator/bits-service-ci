@@ -1,8 +1,16 @@
 #!/bin/bash -ex
 
-diego_version=$(curl -s https://github.com/cloudfoundry/cf-release/releases | sed -n 's/.*Diego release <a href="https:\/\/github.com\/cloudfoundry\/diego-release\/tree\/v\([0-9\.]*\)">.*/\1/p' | head -1)
-garden_runc_version=$(curl -s https://github.com/cloudfoundry/cf-release/releases | sed -n 's/.*Garden-Runc release <a href="https:\/\/github.com\/cloudfoundry\/garden-runc-release\/tree\/v\([0-9\.]*\)">.*/\1/p' | head -1)
-cflinuxfs2_rootfs_version=$(curl -s https://github.com/cloudfoundry/cf-release/releases | sed -n 's/.*cflinuxfs2-rootfs release <a href="https:\/\/github.com\/cloudfoundry\/cflinuxfs2-rootfs-release\/tree\/v\([0-9\.]*\)">.*/\1/p' | head -1)
+pushd git-cf-release
+  cf_release_sha=$(git rev-parse HEAD)
+popd
+
+echo Fetching compatible releases for cf-release "$cf_release_sha"
+
+pushd ci-tasks
+  diego_version=$(./scripts/diego_cf_compatibility "$cf_release_sha" --diego)
+  garden_runc_version=$(./scripts/diego_cf_compatibility "$cf_release_sha" --garden)
+  cflinuxfs2_rootfs_version=$(./scripts/diego_cf_compatibility "$cf_release_sha" --cflinux)
+popd
 
 bosh -u x -p x target $BOSH_TARGET Lite
 bosh login $BOSH_USERNAME $BOSH_PASSWORD

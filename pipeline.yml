@@ -739,14 +739,8 @@ jobs:
         BLOBSTORE_TYPE: s3
         BOSH_TARGET: {{aws-bosh-target}}
     - task: Upload additional Bosh releases
-      config: &upload-additional-bosh-releases-config
-        platform: linux
-        image: docker:///flintstonecf/ci
-        inputs:
-          - name: ci-tasks
-          - name: cf-release-version
-        params: *aws-bosh-params
-        run: { path: ci-tasks/scripts/bosh-upload-additional-releases.sh }
+      file: git-bits-service-ci/tasks/upload-additional-bosh-releases.yml
+      params: *aws-bosh-params
   - put: aws-diego-deployment
     attempts: 2
     params: &params-deployment-cf-release-bits-service-release-diego-release
@@ -1165,7 +1159,6 @@ jobs:
   serial: true
   plan:
     - aggregate:
-      - { get: cf-release-version, passed: [create-cf-release] }
       - { get: after-midnight, trigger: true }
       - { get: bits-service-release-tarball, passed: [Publish release tarball URLs] }
       - { get: cf-release-tarball, passed: [Publish release tarball URLs] }
@@ -1182,7 +1175,8 @@ jobs:
           git-bits-service-release: git-bits-service-release
           git-cf-release: git-cf-release
       - task: Upload additional Bosh releases
-        config: *upload-additional-bosh-releases-config
+        file: git-bits-service-ci/tasks/upload-additional-bosh-releases.yml
+        params: *aws-bosh-params
     - put: aws-diego-deployment
       attempts: 2
       params: *params-deployment-cf-release-bits-service-release-diego-release

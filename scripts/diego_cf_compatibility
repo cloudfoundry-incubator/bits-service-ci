@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+require_relative 'diego_cf_compatibility'
+require 'open-uri'
+require 'optparse'
+
+info = nil
+
+OptionParser.new do |opts|
+  opts.on('--diego', 'Show latest compatible diego version') do |v|
+    info = 'diego-release-version'
+  end
+
+  opts.on('--garden', 'Show latest compatible garden-runc version') do |v|
+    info = 'garden-runc-release-version'
+  end
+
+  opts.on('--cflinux', 'Show latest compatible cflinuxfs2-rootfs version') do |v|
+    info = 'cflinuxfs2-rootfs-release-version'
+  end
+end.parse!
+
+if 0 == ARGV.size
+  warn "Error - Missing argument: CF_RELEASE_SHA"
+  exit 1
+end
+
+if nil == info
+  warn "Error - Missing option"
+  exit 2
+end
+
+github = open('https://raw.githubusercontent.com/cloudfoundry/diego-cf-compatibility/master/compatibility-v9.csv')
+compatible_releases = Compatibility.from(github).cf_release(ARGV.first)
+
+if compatible_releases.empty?
+  warn 'Error - no compatible releases found'
+  exit 3
+end
+
+puts compatible_releases.map { |release| release[info]}.uniq.sort.last

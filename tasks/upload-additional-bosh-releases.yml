@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image: docker:///flintstonecf/ci
+
+inputs:
+  - name: ci-tasks
+  - name: git-cf-release
+
+params:
+  BOSH_TARGET:
+  BOSH_USERNAME:
+  BOSH_PASSWORD:
+
+run:
+  path: ci-tasks/scripts/bosh-upload-additional-releases.sh
