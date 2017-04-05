@@ -4,7 +4,7 @@ pushd git-cf-release
   cf_release_sha=$(git rev-parse HEAD)
 popd
 
-echo Fetching compatible releases for cf-release "$cf_release_sha"
+echo Determining additional releases compatible with cf-release "$cf_release_sha"
 
 pushd ci-tasks
   diego_version=$(./scripts/diego_cf_compatibility "$cf_release_sha" --diego)

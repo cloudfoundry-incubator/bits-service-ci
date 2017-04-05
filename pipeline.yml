@@ -739,7 +739,7 @@ jobs:
         BLOBSTORE_TYPE: s3
         BOSH_TARGET: {{aws-bosh-target}}
     - task: Upload additional Bosh releases
-      file: git-bits-service-ci/tasks/upload-additional-bosh-releases.yml
+      file: ci-tasks/tasks/bosh-upload-additional-releases.yml
       params: *aws-bosh-params
   - put: aws-diego-deployment
     attempts: 2
@@ -1175,7 +1175,7 @@ jobs:
           git-bits-service-release: git-bits-service-release
           git-cf-release: git-cf-release
       - task: Upload additional Bosh releases
-        file: git-bits-service-ci/tasks/upload-additional-bosh-releases.yml
+        file: ci-tasks/tasks/bosh-upload-additional-releases.yml
         params: *aws-bosh-params
     - put: aws-diego-deployment
       attempts: 2

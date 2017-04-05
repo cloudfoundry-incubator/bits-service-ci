@@ -9,7 +9,11 @@ class Compatibility
     @csv = csv
   end
 
-  def cf_release(sha)
-    @csv.select{|row| row['cf-release-commit-sha'] == sha }
+  def with_cf_release(commit_sha)
+    @csv.select{|row| row['cf-release-commit-sha'] == commit_sha }
+  end
+
+  def latest_cf_release
+    @csv.sort_by{|row| row['date']}.last
   end
 end

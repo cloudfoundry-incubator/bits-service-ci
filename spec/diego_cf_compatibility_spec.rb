@@ -4,7 +4,7 @@ require_relative '../scripts/diego_cf_compatibility'
 
 describe Compatibility do
   subject(:compatibility) { Compatibility.from(Pathname('spec/fixtures/compatibility-v9.csv')) }
-  let(:compatible_releases) { compatibility.cf_release(sha)}
+  let(:compatible_releases) { compatibility.with_cf_release(sha)}
 
   context 'a valid cf-release SHA' do
     let(:sha){'36da4e3716a902de288a07abbba94e4ba200ba46'}
@@ -80,6 +80,26 @@ describe Compatibility do
       compatible_releases.each do |compatible_release|
         expect(compatible_release['cflinuxfs2-rootfs-release-version']).to eq('1.53.0')
       end
+    end
+  end
+
+  context 'a seemingly valid cf-release without an entry' do
+    let(:sha){'d5295bc2fb9e5d84254470c1fa5cd3ea10d80a05'}
+
+    it 'returns the right number of compatible releases' do
+      expect(compatible_releases).to be_empty
+    end
+
+    it 'provides the latest Diego version' do
+      expect(compatibility.latest_cf_release['diego-release-version']).to eq('1.11.0')
+    end
+
+    it 'provides the latest garden-runc-release version' do
+      expect(compatibility.latest_cf_release['garden-runc-release-version']).to eq('1.3.0')
+    end
+
+    it 'provides the latest cflinuxfs2-rootfs-release version' do
+      expect(compatibility.latest_cf_release['cflinuxfs2-rootfs-release-version']).to eq('1.60.0')
     end
   end
 
