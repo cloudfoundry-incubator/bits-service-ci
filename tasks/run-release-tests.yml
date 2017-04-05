@@ -11,7 +11,8 @@ params:
   BOSH_USERNAME:
   BOSH_PASSWORD:
   BOSH_TARGET:
-  DEPLOYMENT_NAME:
+  RELEASE_NAME:
+  BITS_SERVICE_PRIVATE_ENDPOINT_IP:
 
 run:
   path: ci-tasks/scripts/run-release-tests.sh
