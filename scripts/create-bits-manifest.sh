@@ -10,7 +10,7 @@ else
   exit 1
 fi
 
-bosh -u x -p x target $BOSH_TARGET Lite
+bosh -u x -p x target $BOSH_TARGET
 bosh login $BOSH_USERNAME $BOSH_PASSWORD
 
 export SPRUCE_FILE_BASE_PATH=../ci-tasks/manifests
