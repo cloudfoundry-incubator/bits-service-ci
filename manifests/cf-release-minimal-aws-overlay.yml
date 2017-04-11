@@ -42,6 +42,8 @@ resource_pools:
 jobs:
   - name: api_z1
     resource_pool: api_z1
+    templates:
+    - (( delete "statsd_injector"))
 
   - name: ha_proxy_z1
     resource_pool: small_z2
@@ -92,6 +94,8 @@ jobs:
     properties:
       uaadb:
         address: (( grab jobs.postgres_z1.networks.cf_private.static_ips[0] ))
+    templates:
+    - (( delete "statsd_injector"))
 
   - name: router_z1
     networks:
@@ -137,7 +141,14 @@ properties:
   nats:
     machines: (( grab jobs.nats_z1.networks.cf_private.static_ips ))
   etcd:
-    machines: (( grab jobs.etcd_z1.networks.cf_private.static_ips ))
+    ca_cert: (( file "manifests/etcd-certs/etcd-ca.crt" ))
+    server_cert: (( file "manifests/etcd-certs/server.crt" ))
+    server_key: (( file "manifests/etcd-certs/server.key" ))
+    client_cert: (( file "manifests/etcd-certs/client.crt" ))
+    client_key: (( file "manifests/etcd-certs/client.key" ))
+    peer_ca_cert: (( file "manifests/etcd-certs/peer-ca.crt" ))
+    peer_cert: (( file "manifests/etcd-certs/peer.crt" ))
+    peer_key: (( file "manifests/etcd-certs/peer.key" ))
   hm9000:
     ca_cert: |
       -----BEGIN CERTIFICATE-----
@@ -288,7 +299,7 @@ properties:
   loggregator:
     tls:
       ca_cert: (( file "manifests/loggregator-certs/loggregator-ca.crt"	))
-      doppler: 
+      doppler:
         cert: (( file "manifests/loggregator-certs/doppler.crt" ))
         key: (( file "manifests/loggregator-certs/doppler.key" ))
       metron:
@@ -301,7 +312,7 @@ properties:
         cert: (( file "manifests/loggregator-certs/syslogdrainbinder.crt"	))
         key: (( file "manifests/loggregator-certs/syslogdrainbinder.key" ))
     etcd:
-      machines: (( grab jobs.etcd_z1.networks.cf_private.static_ips ))
+      ca_cert: (( file "manifests/etcd-certs/etcd-ca.crt" ))
   consul:
     agent:
       servers:
@@ -339,6 +350,18 @@ properties:
         ca_cert: (( file "manifests/cf-diego-certs/cf-diego-ca.crt" ))
         client_cert: (( file "manifests/diego-certs/tps-certs/client.crt" ))
         client_key: (( file "manifests/diego-certs/tps-certs/client.key" ))
+  doppler:
+    etcd:
+      client_cert: (( file "manifests/etcd-certs/client.crt" ))
+      client_key: (( file "manifests/etcd-certs/client.key" ))
+  traffic_controller:
+    etcd:
+      client_cert: (( file "manifests/etcd-certs/client.crt" ))
+      client_key: (( file "manifests/etcd-certs/client.key" ))
+  syslog_drain_binder:
+    etcd:
+      client_cert: (( file "manifests/etcd-certs/client.crt" ))
+      client_key: (( file "manifests/etcd-certs/client.key" ))
 networks:
   - name: elastic
     cloud_properties:
