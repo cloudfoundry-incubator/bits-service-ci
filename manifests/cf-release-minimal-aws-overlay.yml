@@ -235,9 +235,12 @@ properties:
       OqVUFbm0nNKxu0x0NCD7/EsCYKl9i4VFNWZLLwdmQJl54qbdR+tJ
       -----END RSA PRIVATE KEY-----
     etcd:
-      machines: (( grab jobs.etcd_z1.networks.cf_private.static_ips ))
-      peer_require_ssl: false
-      require_ssl: false
+      machines: [ cf-etcd.service.cf.internal ]
+      peer_require_ssl: true
+      require_ssl: true
+      ca_cert: (( file "manifests/etcd-certs/etcd-ca.crt" ))
+      client_cert: (( file "manifests/etcd-certs/client.crt" ))
+      client_key: (( file "manifests/etcd-certs/client.key" ))
     port: 5155
     server_cert: |
       -----BEGIN CERTIFICATE-----
