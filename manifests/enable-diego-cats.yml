@@ -7,7 +7,7 @@ properties:
     skip_ssl_validation: true
     use_http: true
     backend: diego
-    include_backend_compatibility: true
+    include_backend_compatibility: false
     include_internet_dependent: true
     include_diego_ssh: false
     include_routing: true
