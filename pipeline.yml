@@ -12,10 +12,8 @@ groups:
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
   - create-cf-release
-  - deploy-and-test-cf-dea-aws
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
-  - enable-BITS-SERVICE-and-run-CATs
   - migration-bosh1 (S3)
   - migration-backwards-bosh1
   - migration-backwards-bosh2
@@ -41,8 +39,6 @@ groups:
   jobs:
   - create-cf-release
   - create-and-upload-release
-  - deploy-and-test-cf-dea-aws
-  - enable-BITS-SERVICE-and-run-CATs
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
   - Publish release tarball URLs
@@ -59,7 +55,6 @@ groups:
   - recreate-bosh-lite-acceptance
   - cleanup-bosh-1
   - cleanup-bosh-acceptance
-  - manually-delete-cf-dea-aws
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
@@ -159,18 +154,12 @@ resources:
   source:
     interval: 24h
 
-- name: aws-dea-deployment
+- name: aws-diego-deployment
   type: bosh-deployment
   source: &cf1-deployment-source
     target: {{aws-bosh-target}}
     username: {{aws-bosh-username}}
     password: {{aws-bosh-password}}
-    deployment: cf1
-
-- name: aws-diego-deployment
-  type: bosh-deployment
-  source:
-    <<: *cf1-deployment-source
     deployment: cf2
 
 - name: boshlite1-deployment
@@ -244,12 +233,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-bosh2/deployment-deleted
-
-- name: cf-dea-aws-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/cf-dea-aws/deployment-deleted
 
 - name: cf-diego-aws-deployment-events
   type: semver
@@ -563,7 +546,6 @@ jobs:
   - aggregate:
     - get: cf-release-tarball
       passed: &cf-release-done-passed
-        - enable-BITS-SERVICE-and-run-CATs
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
@@ -582,116 +564,6 @@ jobs:
       bits-service-release-tarball: bits-service-release-tarball
     params:
       RELEASE_TARBALL_DIRS: cf-release-tarball bits-service-release-tarball
-
-- name: manually-delete-cf-dea-aws
-  serial: true
-  plan: &delete-deployment-plan
-  - aggregate:
-    - { get: ci-tasks }
-    - { get: cf-dea-aws-deployment-events, params: { bump: major } }
-  - task: delete-deployment
-    file: ci-tasks/tasks/delete-deployment.yml
-    params:
-      <<: *aws-bosh-params
-      DEPLOYMENT_NAME: cf1
-  - put: cf-dea-aws-deployment-events
-    params: { file: cf-dea-aws-deployment-events/number }
-
-- name: deploy-and-test-cf-dea-aws
-  serial: true
-  serial_groups: [cf1-aws-deployment]
-  plan:
-  - aggregate:
-    - { get: git-cf-release,     passed: [create-cf-release] }
-    - { get: cf-release-tarball, passed: [create-cf-release], trigger: true}
-    - { get: cf-release-version, passed: [create-cf-release] }
-    - get: bits-service-release-tarball
-      passed: &run-system-tests-passed
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
-      trigger: true
-    - { get: git-bits-service-release }
-    - { get: git-bits-service-ci, trigger: true }
-    - { get: cf-dea-aws-deployment-events, trigger: true}
-    - { get: stemcell, resource: aws-stemcell }
-  - task: Generate CF deployment manifest with bits-service disabled
-    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-    params: &update-aws-cf-manifest-cf1-config
-      IAAS: aws
-      MANIFEST_STUBS: >
-        manifests/cf-aws-network-1.yml
-        ../git-bits-service-release/templates/s3.yml
-        manifests/disable-diego-backend.yml
-        manifests/hm9000-job.yml
-      CF_USER: {{aws-cf1-user}}
-      CF_PASSWORD: {{aws-cf1-password}}
-      CF_DOMAIN: {{aws-cf1-domain}}
-      CF_PUBLIC_IP: {{aws-cf1-public-ip}}
-      CF_DEPLOYMENT_NAME: cf1
-      BITS_DIRECTORY_KEY: {{cf1-s3-blobstore-bucket-name}}
-      BITS_AWS_REGION: {{cf1-s3-blobstore-region}}
-      AWS_ACCESS_KEY_ID: {{cf1-s3-blobstore-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{cf1-s3-blobstore-secret-access-key}}
-      BLOBSTORE_TYPE: s3
-      BOSH_TARGET: {{aws-bosh-target}}
-  - put: aws-dea-deployment
-    attempts: 2
-    params: &params-deployment-cf-release-bits-service-release
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["cf-release-tarball/cf-*.tgz", "bits-service-release-tarball/*.tgz"]
-      no_redact: true
-  - task: Run CATs
-    attempts: 3
-    file: git-bits-service-ci/tasks/run-errand.yml
-    params:
-      <<: *aws-bosh-params
-      ERRAND_NAME: acceptance_tests
-      DEPLOYMENT_NAME: cf1
-    on_failure: &inform-pipeline-operator-dea-aws-cats
-      task: inform-pipeline-operator
-      file: git-bits-service-ci/tasks/echo.yml
-      params:
-        MESSAGE: |
-            Consider doing a fresh deployment by manually running job
-            [manually-delete-cf-dea-aws]
-            (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-dea-aws)
-
-- name: enable-BITS-SERVICE-and-run-CATs
-  serial: true
-  serial_groups: [cf1-aws-deployment]
-  plan:
-  - aggregate:
-    - { get: git-cf-release, passed: [deploy-and-test-cf-dea-aws] }
-    - { get: cf-release-tarball, passed: [deploy-and-test-cf-dea-aws], trigger: true}
-    - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-dea-aws], trigger: true}
-    - { get: cf-release-version, passed: [deploy-and-test-cf-dea-aws] }
-    - { get: git-bits-service-release, passed: [deploy-and-test-cf-dea-aws] }
-    - { get: git-bits-service-ci, passed: [deploy-and-test-cf-dea-aws] }
-    - { get: stemcell, resource: aws-stemcell }
-  - task: Generate CF deployment manifest with bits-service enabled
-    file: git-bits-service-ci/tasks/update-aws-cf-manifest.yml
-    params:
-      <<: *update-aws-cf-manifest-cf1-config
-      MANIFEST_STUBS: >
-        manifests/cf-aws-network-1.yml
-        manifests/enable-bits.yml
-        manifests/bits-network-aws.yml
-        ../git-bits-service-release/templates/s3.yml
-        manifests/disable-diego-backend.yml
-        manifests/hm9000-job.yml
-  - put: aws-dea-deployment
-    attempts: 2
-    params: *params-deployment-cf-release-bits-service-release
-  - task: Run CATs
-    file: git-bits-service-ci/tasks/run-errand.yml
-    attempts: 3
-    params:
-      <<: *aws-bosh-params
-      DEPLOYMENT_NAME: cf1
-      ERRAND_NAME: acceptance_tests
-    on_failure: *inform-pipeline-operator-dea-aws-cats
 
 - name: manually-delete-cf-diego-aws
   serial: true
@@ -715,7 +587,12 @@ jobs:
     - { get: git-cf-release, passed: [create-cf-release] }
     - { get: cf-release-version, passed: [create-cf-release], trigger: true }
     - { get: cf-release-tarball, passed: [create-cf-release] }
-    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
+    - get: bits-service-release-tarball
+      passed: &run-system-tests-passed
+        - run-system-tests-LOCAL
+        - run-system-tests-S3
+        - run-system-tests-WEBDAV
+      trigger: true
     - { get: git-bits-service-release }
     - { get: git-bits-service-ci, trigger: true}
     - { get: ci-tasks, trigger: true}
@@ -783,7 +660,7 @@ jobs:
       MANIFEST_STUBS: manifests/cf-aws-network-2.yml manifests/enable-diego-cats.yml manifests/enable-bits.yml manifests/bits-network-aws.yml ../git-bits-service-release/templates/s3.yml
   - put: aws-diego-deployment
     attempts: 2
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run CATs
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
@@ -844,7 +721,7 @@ jobs:
       BLOBSTORE_TYPE: s3
       BOSH_TARGET: {{bosh-target}}
   - put: boshlite1-deployment
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -870,7 +747,7 @@ jobs:
         ../git-bits-service-release/templates/s3.yml
         manifests/bsmt-errands.yml
   - put: boshlite1-deployment
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run migration verification tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -902,7 +779,7 @@ jobs:
         ../git-bits-service-release/templates/s3.yml
         manifests/bsmt-errands.yml
   - put: boshlite1-deployment
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -979,7 +856,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: {{cf-migration-s3-blobstore-secret-access-key}}
       BOSH_TARGET: {{bosh2-target}}
   - put: boshlite2-deployment
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run migration preparation tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -1005,7 +882,7 @@ jobs:
         ../git-bits-service-release/templates/webdav-cf.yml
         manifests/bsmt-errands.yml
   - put: boshlite2-deployment
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run migration verification tests
     attempts: 3
     file: git-bits-service-ci/tasks/run-errand.yml
@@ -1037,7 +914,7 @@ jobs:
         ../git-bits-service-release/templates/webdav-cf.yml
         manifests/bsmt-errands.yml
   - put: boshlite2-deployment
-    params: *params-deployment-cf-release-bits-service-release
+    params: *params-deployment-cf-release-bits-service-release-diego-release
   - task: Run preparation tests
     file: git-bits-service-ci/tasks/run-errand.yml
     attempts: 3
