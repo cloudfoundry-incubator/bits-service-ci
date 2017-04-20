@@ -52,33 +52,6 @@ jobs:
         servers:
           - (( grab jobs.router_z1.networks.cf_private.static_ips[0] ))
 
-  - name: runner_z1
-    instances: 3
-    networks:
-    - name: cf_private
-    properties:
-      consul:
-        agent:
-          services:
-            dea:
-              check:
-                interval: 5m
-                name: dns_health_check
-                script: /var/vcap/jobs/dea_next/bin/dns_health_check
-                status: passing
-      dea_next:
-        zone: z1
-    resource_pool: runner_z1
-    templates:
-    - name: consul_agent
-      release: cf
-    - name: dea_next
-      release: cf
-    - name: dea_logging_agent
-      release: cf
-    - name: metron_agent
-      release: cf
-
   - name: bits_service_z1
     networks:
     - (( replace ))
