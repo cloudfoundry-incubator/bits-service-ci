@@ -11,6 +11,6 @@ properties:
     include_internet_dependent: true
     include_diego_ssh: false
     include_routing: true
-    include_v3: false
+    include_v3: true
     include_security_groups: true
     skip_diego_unsupported_tests: true
