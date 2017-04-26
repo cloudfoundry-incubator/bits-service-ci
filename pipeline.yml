@@ -556,6 +556,7 @@ jobs:
       trigger: true
     - get: bits-service-release-tarball
       passed: *cf-release-done-passed
+      trigger: true
   - task: Publish release tarball URLs
     file: ci-tasks/tasks/publish-release-tarball-urls.yml
     input_mapping:
