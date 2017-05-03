@@ -54,6 +54,8 @@ groups:
   - recreate-bosh-lite-2
   - recreate-bosh-lite-acceptance
   - cleanup-bosh-1
+  - cleanup-bosh-2
+  - cleanup-bosh-aws
   - cleanup-bosh-acceptance
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
@@ -1018,6 +1020,26 @@ jobs:
   - task: cleanup-bosh
     file: git-bits-service-ci/tasks/bosh-cleanup.yml
     params: *bosh1-params
+
+- name: cleanup-bosh-2
+  serial: true
+  plan:
+  - get: git-bits-service-ci
+  - get: nightly-timer
+    trigger: true
+  - task: cleanup-bosh
+    file: git-bits-service-ci/tasks/bosh-cleanup.yml
+    params: *bosh2-params
+
+- name: cleanup-bosh-aws
+  serial: true
+  plan:
+  - get: git-bits-service-ci
+  - get: nightly-timer
+    trigger: true
+  - task: cleanup-bosh
+    file: git-bits-service-ci/tasks/bosh-cleanup.yml
+    params: *aws-bosh-params
 
 - name: cleanup-bosh-acceptance
   serial: true
