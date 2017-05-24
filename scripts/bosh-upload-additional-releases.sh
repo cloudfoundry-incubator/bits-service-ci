@@ -17,4 +17,4 @@ bosh login $BOSH_USERNAME $BOSH_PASSWORD
 
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/diego-release?v=$diego_version
 bosh upload release https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=$garden_runc_version
-bosh upload release https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-rootfs-release?v=$cflinuxfs2_rootfs_version
+bosh upload release https://bosh.io/d/github.com/cloudfoundry/cflinuxfs2-release?v=$cflinuxfs2_rootfs_version
