@@ -15,7 +15,7 @@ OptionParser.new do |opts|
   end
 
   opts.on('--cflinux', 'Show latest compatible cflinuxfs2-rootfs version') do |v|
-    compatible_release = 'cflinuxfs2-rootfs-release-version'
+    compatible_release = 'cflinuxfs2-release-version'
   end
 end.parse!
 
@@ -29,7 +29,7 @@ if nil == compatible_release
   exit 2
 end
 
-github = open('https://raw.githubusercontent.com/cloudfoundry/diego-cf-compatibility/master/compatibility-v9.csv')
+github = open('https://raw.githubusercontent.com/cloudfoundry/diego-cf-compatibility/master/compatibility-v10.csv')
 compatibility = Compatibility.from(github)
 
 compatible_releases = compatibility.with_cf_release(ARGV.first)
