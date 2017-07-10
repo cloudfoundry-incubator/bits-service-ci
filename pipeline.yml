@@ -357,6 +357,7 @@ jobs:
     - { get: ci-tasks, trigger: true }
     - { get: ci-deployment-manifest-templates, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
+    - { get: cf-release-tarball }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
@@ -371,14 +372,15 @@ jobs:
       AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
       AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
       BLOBSTORE_TYPE: s3
-      BITS_SERVICE_JOB_IP: &bits_service_job_ip_s3 10.155.248.134
-      BLOBSTORE_JOB_IP: 10.155.248.135
+      BITS_SERVICE_JOB_IP: &bits_service_job_ip_s3 10.175.96.246
+      BLOBSTORE_JOB_IP: 10.175.96.247
   - put: bosh-deployment-bits-service-s3
     attempts: 3
+    # TODO (nosu/pego): rename reference appropriately. This is not boshlite1 anymore, but SL
     params: &boshlite1-bits-service-deployment-params
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["bits-service-release-tarball/*.tgz"]
+      releases: ["bits-service-release-tarball/*.tgz", "cf-release-tarball/*.tgz"]
       no_redact: true
 
 - name: run-system-tests-S3
@@ -421,8 +423,8 @@ jobs:
     params:
       <<: *sl-bosh-params
       BLOBSTORE_TYPE: local
-      BITS_SERVICE_JOB_IP: &bits_service_job_ip_local 10.155.248.130
-      BLOBSTORE_JOB_IP: 10.155.248.131
+      BITS_SERVICE_JOB_IP: &bits_service_job_ip_local 10.175.96.242
+      BLOBSTORE_JOB_IP: 10.175.96.243
   - put: bosh-deployment-bits-service-local
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
@@ -470,8 +472,8 @@ jobs:
     params:
       <<: *sl-bosh-params
       BLOBSTORE_TYPE: webdav
-      BITS_SERVICE_JOB_IP: &bits_service_job_ip_webdav 10.155.248.132
-      BLOBSTORE_JOB_IP: 10.155.248.133
+      BITS_SERVICE_JOB_IP: &bits_service_job_ip_webdav 10.175.96.244
+      BLOBSTORE_JOB_IP: 10.175.96.245
   - put: bosh-deployment-bits-service-webdav
     attempts: 3
     params: *boshlite1-bits-service-deployment-params
