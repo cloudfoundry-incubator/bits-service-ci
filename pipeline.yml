@@ -354,8 +354,8 @@ jobs:
     - { get: bits-service-release-tarball, trigger: true }
     - { get: bits-service-release-version }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
-    - { get: ci-tasks, trigger: true}
-    - { get: ci-deployment-manifest-templates, trigger: true}
+    - { get: ci-tasks, trigger: true }
+    - { get: ci-deployment-manifest-templates, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
