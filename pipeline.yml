@@ -427,7 +427,11 @@ jobs:
       BLOBSTORE_JOB_IP: 10.175.96.243
   - put: bosh-deployment-bits-service-local
     attempts: 3
-    params: *boshlite1-bits-service-deployment-params
+    params: &sl-bits-service-deployment-params-without-cf-tarball
+      manifest: manifests/manifest.yml
+      stemcells: ["stemcell/stemcell.tgz"]
+      releases: ["bits-service-release-tarball/*.tgz"]
+      no_redact: true
   - put: s3-bits-service-manifest
     params: { file: manifests/manifest-*.yml }
 
@@ -476,7 +480,7 @@ jobs:
       BLOBSTORE_JOB_IP: 10.175.96.245
   - put: bosh-deployment-bits-service-webdav
     attempts: 3
-    params: *boshlite1-bits-service-deployment-params
+    params: *sl-bits-service-deployment-params-without-cf-tarball
 
 - name: run-system-tests-WEBDAV
   serial: true
