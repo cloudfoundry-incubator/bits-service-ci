@@ -357,7 +357,6 @@ jobs:
     - { get: ci-tasks, trigger: true }
     - { get: ci-deployment-manifest-templates, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
-    - { get: cf-release-tarball }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
@@ -376,11 +375,10 @@ jobs:
       BLOBSTORE_JOB_IP: 10.175.96.247
   - put: bosh-deployment-bits-service-s3
     attempts: 3
-    # TODO (nosu/pego): rename reference appropriately. This is not boshlite1 anymore, but SL
-    params: &boshlite1-bits-service-deployment-params
+    params: &sl-bits-service-deployment-params
       manifest: manifests/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["bits-service-release-tarball/*.tgz", "cf-release-tarball/*.tgz"]
+      releases: ["bits-service-release-tarball/*.tgz"]
       no_redact: true
 
 - name: run-system-tests-S3
@@ -427,11 +425,7 @@ jobs:
       BLOBSTORE_JOB_IP: 10.175.96.243
   - put: bosh-deployment-bits-service-local
     attempts: 3
-    params: &sl-bits-service-deployment-params-without-cf-tarball
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["bits-service-release-tarball/*.tgz"]
-      no_redact: true
+    params: *sl-bits-service-deployment-params
   - put: s3-bits-service-manifest
     params: { file: manifests/manifest-*.yml }
 
@@ -480,7 +474,7 @@ jobs:
       BLOBSTORE_JOB_IP: 10.175.96.245
   - put: bosh-deployment-bits-service-webdav
     attempts: 3
-    params: *sl-bits-service-deployment-params-without-cf-tarball
+    params: *sl-bits-service-deployment-params
 
 - name: run-system-tests-WEBDAV
   serial: true
