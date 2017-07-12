@@ -29,7 +29,7 @@ if nil == compatible_release
   exit 2
 end
 
-github = open('https://raw.githubusercontent.com/cloudfoundry/diego-cf-compatibility/master/compatibility-v10.csv')
+github = open('https://raw.githubusercontent.com/cloudfoundry/diego-cf-compatibility/master/compatibility-v11.csv')
 compatibility = Compatibility.from(github)
 
 compatible_releases = compatibility.with_cf_release(ARGV.first)
