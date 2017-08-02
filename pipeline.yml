@@ -60,6 +60,9 @@ groups:
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
+  - delete-deployment-bits-service-local
+  - delete-deployment-bits-service-s3
+  - delete-deployment-bits-service-webdav
 - name: performance-tests
   jobs:
   - Publish release tarball URLs
@@ -673,6 +676,34 @@ jobs:
       ERRAND_NAME: acceptance_tests
     on_failure: *inform-pipeline-operator-diego-aws-cats
 
+# delete standalone bits-service deployment
+- name: delete-deployment-bits-service-local
+  plan:
+    - get: ci-tasks
+    - task: delete-deployment
+      file: ci-tasks/tasks/delete-deployment.yml
+      params:
+        <<: *sl-bosh-params
+        DEPLOYMENT_NAME: bits-service-local
+
+
+- name: delete-deployment-bits-service-webdav
+  plan:
+    - get: ci-tasks
+    - task: delete-deployment
+      file: ci-tasks/tasks/delete-deployment.yml
+      params:
+        <<: *sl-bosh-params
+        DEPLOYMENT_NAME: bits-service-webdav
+
+- name: delete-deployment-bits-service-s3
+  plan:
+    - get: ci-tasks
+    - task: delete-deployment
+      file: ci-tasks/tasks/delete-deployment.yml
+      params:
+        <<: *sl-bosh-params
+        DEPLOYMENT_NAME: bits-service-s3
 # Migration
 
 - name: manually-delete-cf-bosh1
