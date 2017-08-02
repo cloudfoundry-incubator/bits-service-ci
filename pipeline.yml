@@ -77,7 +77,7 @@ resources:
 
 - name: softlayer-stemcell
   type: bosh-io-stemcell
-  source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent , version_family: "3312.12.latest"}
+  source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent }
 
 - name: bits-service-release-tarball
   type: s3
