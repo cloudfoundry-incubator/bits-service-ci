@@ -19,6 +19,9 @@ jobs:
     release: cf
     consumes:
       nats: nil
+      consul_client: nil
+      consul_common: nil
+      consul_server: nil
   properties:
     consul:
       agent:
