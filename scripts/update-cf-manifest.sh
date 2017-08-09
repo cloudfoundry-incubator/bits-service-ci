@@ -14,7 +14,8 @@ fi
 echo "Content of ./manifests/cf-${IAAS}.yml:"
 cat ./manifests/cf-${IAAS}.yml
 
-spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest.yml
+# spruce merge ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ${MANIFEST_STUBS} > ../manifests/manifest.yml
+spruce merge --go-patch ./manifests/cf-${IAAS}.yml ./manifests/tweaks.yml ./manifests/consul_cert.yml  ${MANIFEST_STUBS} > ../manifests/manifest.yml
 
 # Apply ERB templates
 TMP=../manifests/manifest.yml.tmp
