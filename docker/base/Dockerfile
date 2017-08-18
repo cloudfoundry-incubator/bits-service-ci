@@ -58,3 +58,6 @@ RUN gem install \
 
 RUN git config --global user.email "flintstone+cibot@cloudfoundry.org" && \
     git config --global user.name "Flintstone CI"
+
+RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.28-linux-amd64 -O /usr/local/bin/bosh2 && \
+    chmod +x /usr/local/bin/bosh2
