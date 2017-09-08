@@ -1,0 +1,18 @@
+---
+- type: replace
+  path: /instance_groups/name=router/networks/-
+  value:
+    name: elastic
+    static_ips:
+    - ((cf_public_ip))
+
+- type: remove
+  path: /instance_groups/name=router/networks/name=((network_name))
+
+- type: replace
+  path: /instance_groups/name=router/networks/-
+  value:
+    name: ((public_network_name))
+    default:
+    - gateway
+    - dns

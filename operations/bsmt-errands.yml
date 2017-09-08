@@ -1,0 +1,49 @@
+---
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: bsmt_preparation
+    lifecycle: errand
+    instances: 1
+    azs: [z1]
+    vm_type: minimal
+    stemcell: default
+    networks:
+      - name: default
+    jobs:
+    - name: bits-service-migration-tests
+      release: bits-service
+      properties: &bsmt-properties
+        bits_service_migration_tests: &bsmt-config
+          test_suite: preparation
+          persistent_app_org: BSMT-persistent-org
+          persistent_app_space: BSMT-persistent-space
+        acceptance_tests: &bsmt-acceptance-tests-config
+          api: api.((system_domain))
+          apps_domain: ((system_domain))
+          admin_user: admin
+          admin_password: ((cf_admin_password))
+          skip_ssl_validation: true
+          verbose: true
+          cf_push_timeout: 240
+          default_timeout: 75
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: bsmt_verification
+    lifecycle: errand
+    instances: 1
+    azs: [z1]
+    vm_type: minimal
+    stemcell: default
+    networks:
+      - name: default
+    jobs:
+    - name: bits-service-migration-tests
+      release: bits-service
+      properties:
+        bits_service_migration_tests:
+          <<: *bsmt-config
+          test_suite: verification
+        acceptance_tests: *bsmt-acceptance-tests-config

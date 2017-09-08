@@ -1,0 +1,27 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: ci-tasks
+- name: cf-deployment
+- name: deployment-vars
+- name: bits-service-release-version
+
+outputs:
+- name: manifests
+- name: updated
+
+params:
+  BOSH_TARGET:
+  DEPLOYMENT_NAME:
+  ENVIRONMENT_NAME:
+  IAAS:
+  BLOBSTORE_TYPE:
+  OPERATIONS:
+  VARIABLES:
+  CF_DOMAIN: bosh-lite.com
+
+run:
+  path: ci-tasks/scripts/bosh-interpolate.sh

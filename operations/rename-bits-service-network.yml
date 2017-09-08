@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=bits-service/networks/name=default/name
+  value: ((network_name))
