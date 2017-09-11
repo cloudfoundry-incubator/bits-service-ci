@@ -18,7 +18,8 @@ case "${IAAS}" in
   iaas='-o cf-deployment/operations/bosh-lite.yml'
   ;;
 'aws')
-  iaas=
+  iaas='-o cf-deployment/operations/aws.yml
+    -o cf-deployment/operations/change-logging-port-for-aws-elb.yml'
   ;;
 *)
   echo "Unknown IAAS: ${IAAS}"
@@ -38,8 +39,6 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   -v stemcell_version="latest" \
   -o cf-deployment/operations/experimental/bits-service.yml \
   -o cf-deployment/operations/experimental/bits-service-"${BLOBSTORE_TYPE}".yml \
-  -o ci-tasks/operations/bits-service-release-version.yml \
-  -v bits-service-release-version=$(cat bits-service-release-version/number) \
   ${OPERATIONS} \
   ${VARIABLES} \
   > manifests/manifest.yml

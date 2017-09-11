@@ -7,7 +7,6 @@ inputs:
 - name: ci-tasks
 - name: cf-deployment
 - name: deployment-vars
-- name: bits-service-release-version
 
 outputs:
 - name: manifests

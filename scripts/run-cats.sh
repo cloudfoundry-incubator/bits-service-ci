@@ -3,7 +3,7 @@
 set -e -x
 
 mkdir -p gopath/src/github.com/cloudfoundry
-cp -r $PWD/acceptance-tests gopath/src/github.com/cloudfoundry/cf-acceptance-tests
+cp -r acceptance-tests gopath/src/github.com/cloudfoundry/cf-acceptance-tests
 
 cf_admin_password=$( \
   bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars.yml \
@@ -38,7 +38,7 @@ cat > config.json <<EOF
   "include_tasks": true,
   "include_v3": false,
   "include_zipkin": false,
-  "backend": diego,
+  "backend": "diego",
   "include_diego_ssh": false,
   "skip_diego_unsupported_tests": true
 }

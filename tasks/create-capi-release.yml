@@ -5,13 +5,14 @@ image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
 
 inputs:
   - name: ci-tasks
+  - name: capi-release
+
+outputs:
+  - name: releases
+  - name: capi-release-version
 
 params:
-  ACCEPTANCE_IP:
-  SSH_KEY:
-  FILE:
   VERSION_FILE:
-  RELEASE_NAME:
 
 run:
-  path: ci-tasks/scripts/scp-to-acceptance.sh
+  path: ci-tasks/scripts/create-capi-release.sh

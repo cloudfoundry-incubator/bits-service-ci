@@ -1,5 +1,0 @@
-- type: replace
-  path: /releases/name=bits-service
-  value:
-    name: bits-service
-    version: ((bits-service-release-version))

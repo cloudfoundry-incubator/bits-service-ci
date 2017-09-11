@@ -11,7 +11,7 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - create-cf-release
+  - create-capi-release
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
   - migration-bosh1 (S3)
@@ -35,9 +35,9 @@ groups:
   jobs:
   - run-bits-service-client-tests
   - Publish gem
-- name: cf-release
+- name: capi-release
   jobs:
-  - create-cf-release
+  - create-capi-release
   - create-and-upload-release
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
@@ -93,17 +93,17 @@ resources:
     regexp: bits-service-release/bits-service-(.*).tgz
     private: false
 
-- name: cf-release-tarball
+- name: capi-release-tarball
   type: s3
   source:
     <<: *s3-resource
-    regexp: cf-release/cf-(.*).tgz
+    regexp: capi-release/capi-(.*).tgz
 
 - name: git-bits-service-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: master
+    branch: wip-release-patch
     private_key: {{github-private-key}}
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
 
@@ -133,6 +133,7 @@ resources:
   source:
     uri: https://github.com/cloudfoundry-incubator/bits-service.git
     branch: master
+    path: ["lib/*", "spec/*", "vendor/*", "app.rb", "config.rb", "Gemfile.lock"]
 
 - name: git-bits-service-client
   type: git
@@ -148,10 +149,10 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 
-- name: git-cf-release
+- name: git-capi-release
   type: git
   source:
-    uri: https://github.com/cloudfoundry/cf-release.git
+    uri: https://github.com/cloudfoundry/capi-release.git
     branch: master
 
 - name: git-cf-acceptance-tests
@@ -209,15 +210,15 @@ resources:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-s3
 
-- name: cf-release-version
+- name: capi-release-version
   type: semver
   source:
     driver: git
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
-    file: version/cf-release/version
+    file: version/capi-release/version
     private_key: {{github-private-key}}
-    initial_version: 230.0.0-dev.1
+    initial_version: 1.41.0-dev.1
 
 - name: bits-service-release-version
   type: semver
@@ -350,7 +351,7 @@ jobs:
     params: { file: bits-service-release-version/number }
   - task: Create release
     file: ci-tasks/tasks/create-bits-release.yml
-    params: { VERSION_FILE: ../bits-service-release-version/number }
+    params: { VERSION_FILE: bits-service-release-version/number }
   - put: bits-service-release-tarball
     params: { file: releases/*.tgz }
 
@@ -360,7 +361,6 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
@@ -391,7 +391,6 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-S3], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-S3] }
     - { get: git-bits-service-release, passed: [deploy-with-S3] }
     - { get: ci-tasks, resource: git-bits-service-ci }
   - task: Run tests
@@ -410,7 +409,6 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell }
@@ -432,7 +430,6 @@ jobs:
   serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
-    - { get: bits-service-release-version, passed: [deploy-with-LOCAL] }
     - { get: bits-service-release-tarball, passed: [deploy-with-LOCAL], trigger: true }
     - { get: git-bits-service-release, passed: [deploy-with-LOCAL]}
     - { get: ci-tasks, resource: git-bits-service-ci }
@@ -452,7 +449,6 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell }
@@ -475,7 +471,6 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-WEBDAV] }
     - { get: git-bits-service-release, passed: [deploy-with-WEBDAV] }
     - { get: ci-tasks, resource: git-bits-service-ci }
   - task: Run tests
@@ -489,70 +484,46 @@ jobs:
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
       RELEASE_NAME: bits-service-webdav
 
-# CF-RELEASE
-- name: create-cf-release
+# CAPI-RELEASE
+- name: create-capi-release
   serial: true
   plan:
   - aggregate:
-    - { get: cf-release-version, params: { pre: dev } }
-    - { get: git-cf-release, trigger: true }
+    - { get: capi-release-version, params: { pre: dev } }
+    - { get: git-capi-release, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
   - task: "Patch: Consume latest prerelease of bits_service_client"
-    config:
-      platform: linux
-      image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
-      inputs:
-        - name: git-cf-release
-        - name: ci-tasks
-      outputs:
-        - name: git-cf-release-patched-use-bits-service-latest-prerelease
-      params:
-        INPUT_DIR: git-cf-release
-        OUTPUT_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
-      run:
-        path: ci-tasks/scripts/patch-cc-to-use-bits-service-client-latest-prerelease.sh
+    file: ci-tasks/tasks/patch-cc-to-use-bits-service-client-latest-prerelease.yml
+    input_mapping:
+      capi-release: git-capi-release
   - task: Show patched CC Gemfile.lock
-    config:
-      platform: linux
-      image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
-      inputs: [ name: git-cf-release-patched-use-bits-service-latest-prerelease ]
-      run: { path: cat, args: ["git-cf-release-patched-use-bits-service-latest-prerelease/src/capi-release/src/cloud_controller_ng/Gemfile.lock"] }
-  - task: Create cf-release tarball
-    config:
-      platform: linux
-      image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
-      inputs:
-        - name: ci-tasks
-        - name: git-cf-release-patched-use-bits-service-latest-prerelease
-      outputs:
-        - name: releases
-        - name: cf-release-version
-      params:
-        VERSION_FILE: cf-release-version/number
-        CF_RELEASE_DIR: git-cf-release-patched-use-bits-service-latest-prerelease
-      run: { path: ci-tasks/scripts/create-cf-release.sh }
-  - put: cf-release-tarball
+    file: ci-tasks/tasks/show-patched-cc.yml
+  - task: Create capi-release tarball
+    file: ci-tasks/tasks/create-capi-release.yml
+    input_mapping:
+      capi-release: patched-capi-release
+    params:
+      VERSION_FILE: capi-release-version/number
+  - put: capi-release-tarball
     params: { file: releases/*.tgz }
-  - put: cf-release-version
-    params: { file: cf-release-version/number }
+  - put: capi-release-version
+    params: { file: capi-release-version/number }
 
 - name: Publish release tarball URLs
   plan:
   - aggregate:
-    - get: cf-release-tarball
-      passed: &cf-release-done-passed
+    - get: capi-release-tarball
+      passed: &migration-tests-passed
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
       trigger: true
-    - { get: git-cf-release }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: bits-service-release-tarball, passed: *cf-release-done-passed, trigger: true }
-    - { get: bits-service-release-version, passed: *cf-release-done-passed }
+    - { get: bits-service-release-tarball, passed: *migration-tests-passed, trigger: true }
   - task: Publish release tarball URLs
     file: ci-tasks/tasks/publish-release-tarball-urls.yml
     params:
-      RELEASE_TARBALL_DIRS: cf-release-tarball bits-service-release-tarball
+      RELEASE_TARBALL_DIRS: capi-release-tarball bits-service-release-tarball
 
 - name: manually-delete-cf-diego-aws
   serial: true
@@ -570,19 +541,16 @@ jobs:
 
 - name: deploy-and-test-cf-diego-aws
   serial: true
-  serial_groups: [cf2-aws-deployment]
+  serial_groups: [cf-aws-deployment]
   plan:
   - aggregate:
-    # TODO: remove cf-release dependency in upstream jobs
-    - { get: git-cf-release, passed: [create-cf-release] }
-    - { get: cf-release-tarball, passed: [create-cf-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release] }
     - get: bits-service-release-tarball
       passed: &run-system-tests-passed
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
       trigger: true
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -604,11 +572,8 @@ jobs:
       IAAS: aws
       CF_DOMAIN: {{aws-cf1-domain}}
       OPERATIONS: >
-        -o cf-deployment/operations/rename-network.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
-        -o ci-tasks/operations/rename-bits-service-network.yml
-        -o ci-tasks/operations/set-public-ip.yml
         -o ci-tasks/operations/disable-bits-service.yml
       VARIABLES: >
         -v aws_region={{cf-migration-s3-blobstore-region}}
@@ -618,9 +583,6 @@ jobs:
         -v buildpack_directory_key={{cf-migration-s3-blobstore-bucket-name}}
         -v droplet_directory_key={{cf-migration-s3-blobstore-bucket-name}}
         -v app_package_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v cf_public_ip={{aws-cf1-public-ip}}
-        -v network_name="cf_private"
-        -v public_network_name="cf_public"
   - aggregate:
     - put: git-deployment-vars
       params:
@@ -630,7 +592,7 @@ jobs:
       params: &params-aws-deployment-bits-service-disabled
         manifest: cf-with-bits-service-disabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
-        releases: ["bits-service-release-tarball/*.tgz"]
+        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
   - task: Run CATs
     file: ci-tasks/tasks/run-cats.yml
@@ -654,16 +616,13 @@ jobs:
 
 - name: enable-BITS-SERVICE-diego-and-run-CATs
   serial: true
-  serial_groups: [cf2-aws-deployment]
+  serial_groups: [cf-aws-deployment]
   plan:
   - aggregate:
-    # TODO: remove cf-release dependency in upstream jobs
-    - { get: git-cf-release, passed: [deploy-and-test-cf-diego-aws] }
-    - { get: cf-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: capi-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests }
@@ -677,11 +636,8 @@ jobs:
     params: &bosh-interpolate-aws-bits-service-enabled
       <<: *bosh-interpolate-aws-bits-service-disabled
       OPERATIONS: >
-        -o cf-deployment/operations/rename-network.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
-        -o ci-tasks/operations/rename-bits-service-network.yml
-        -o ci-tasks/operations/set-public-ip.yml
   - put: git-deployment-vars
     params:
       repository: updated/deployment-vars
@@ -766,11 +722,8 @@ jobs:
   serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
-    # TODO: remove cf-release dependency in upstream jobs
-    - { get: git-cf-release, passed: [create-cf-release] }
-    - { get: cf-release-tarball, passed: [create-cf-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release] }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -808,7 +761,7 @@ jobs:
     params: &params-deployment-bits-service-disabled
       manifest: cf-with-bits-service-disabled/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["bits-service-release-tarball/*.tgz"]
+      releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
       no_redact: true
   - task: Run migration preparation tests
     attempts: 3
@@ -852,13 +805,10 @@ jobs:
   serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
-    # TODO: remove cf-release dependency in upstream jobs
-    - { get: git-cf-release, passed: [migration-bosh1 (S3)] }
-    - { get: cf-release-tarball, passed: [migration-bosh1 (S3)] }
+    - { get: capi-release-tarball, passed: [migration-bosh1 (S3)] }
     - { get: bits-service-release-tarball, passed: [migration-bosh1 (S3)], trigger: true}
-    - { get: bits-service-release-version, passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
   - task: Generate CF deployment manifest with bits-service enabled
@@ -931,11 +881,8 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    # TODO: remove cf-release dependency in upstream jobs
-    - { get: git-cf-release, passed: [create-cf-release] }
-    - { get: cf-release-tarball, passed: [create-cf-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release] }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -1001,13 +948,10 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    # TODO: remove cf-release dependency in upstream jobs
-    - { get: git-cf-release, passed: [migration-bosh2 (webdav)] }
-    - { get: cf-release-tarball, passed: [migration-bosh2 (webdav)] }
+    - { get: capi-release-tarball, passed: [migration-bosh2 (webdav)] }
     - { get: bits-service-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
-    - { get: bits-service-release-version, passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
   - task: Generate CF deployment manifest with bits-service enabled
@@ -1083,8 +1027,8 @@ jobs:
     - get: git-bits-service-ci
     - get: bits-service
     - get: bits-service-release-tarball
-    - get: cf-release-tarball
-      passed: [create-cf-release]
+    - get: capi-release-tarball
+      passed: [create-capi-release]
   - task: recreate-bosh-lite
     file: git-bits-service-ci/tasks/recreate-bosh-lite.yml
     params:
@@ -1095,7 +1039,7 @@ jobs:
       BOSH_DIRECTOR_IP: 192.168.150.4
       VAGRANT_GATEWAY: 192.168.150.1
   - aggregate:
-    - task: upload-last-bits-service-release
+    - task: upload-latest-bits-service-release
       file: git-bits-service-ci/tasks/upload-release.yml
       input_mapping:
         releases: bits-service-release-tarball
@@ -1104,15 +1048,15 @@ jobs:
         BOSH_USERNAME: {{bosh-acceptance-username}}
         BOSH_PASSWORD: {{bosh-acceptance-password}}
         RELEASE_FILE: bits-service-release-tarball/*.tgz
-    - task: upload-last-cf-release
+    - task: upload-latest-capi-release
       file: git-bits-service-ci/tasks/upload-release.yml
       input_mapping:
-        releases: cf-release-tarball
+        releases: capi-release-tarball
       params:
         BOSH_TARGET: {{bosh-acceptance-target}}
         BOSH_USERNAME: {{bosh-acceptance-username}}
         BOSH_PASSWORD: {{bosh-acceptance-password}}
-        RELEASE_FILE: cf-release-tarball/*.tgz
+        RELEASE_FILE: capi-release-tarball/*.tgz
 
 - name: cleanup-bosh-1
   serial: true
@@ -1158,13 +1102,13 @@ jobs:
       BOSH_TARGET: {{bosh-acceptance-target}}
 
 - name: Run performance tests
-  serial_groups: [cf2-aws-deployment]
+  serial_groups: [cf-aws-deployment]
   serial: true
   plan:
     - aggregate:
       - { get: after-midnight, trigger: true }
       - { get: bits-service-release-tarball, passed: [Publish release tarball URLs] }
-      - { get: bits-service-release-version, passed: [Publish release tarball URLs] }
+      - { get: capi-release-tarball, passed: [Publish release tarball URLs] }
       - { get: stemcell, resource: aws-stemcell }
       - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
       - { get: git-cf-deployment, trigger: true }
@@ -1190,7 +1134,7 @@ jobs:
     #   params:
     #     BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
     #     BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-    #     CF_DOMAIN: {{aws-cf2-domain}}
+    #     CF_DOMAIN: {{aws-cf1-domain}}
     #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.disabled.CCs.1
     #     LOOP_COUNT: 5
     - task: Create CF deployment manifest with Bits-Service enabled, 1 CC
@@ -1212,6 +1156,6 @@ jobs:
     #   params:
     #     BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
     #     BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-    #     CF_DOMAIN: {{aws-cf2-domain}}
+    #     CF_DOMAIN: {{aws-cf1-domain}}
     #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.enabled.CCs.1
     #     LOOP_COUNT: 5
