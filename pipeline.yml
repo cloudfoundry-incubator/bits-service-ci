@@ -70,6 +70,12 @@ groups:
   - Publish release tarball URLs
   - Run performance tests
 
+resource_types:
+- name: bosh2-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
 resources:
 - name: aws-stemcell
   type: bosh-io-stemcell
@@ -191,12 +197,15 @@ resources:
     deployment: cf
 
 - name: bosh-deployment-bits-service-local
-  type: bosh-deployment
+  type: bosh2-deployment
   source: &sl-bosh-deployment-source
     target: {{sl-bosh-target}}
     username: {{sl-bosh-username}}
     password: {{sl-bosh-password}}
+    client: {{sl-bosh-username}}
+    client_secret: {{sl-bosh-password}}
     deployment: bits-service-local
+    ca_cert: {{sl-bosh-ca-cert}}
 
 - name: bosh-deployment-bits-service-webdav
   type: bosh-deployment

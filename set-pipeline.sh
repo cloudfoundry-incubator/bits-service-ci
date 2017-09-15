@@ -22,8 +22,10 @@ fly \
   -v github-private-key="${github_ssh_key}" \
   -v rubygems-api-key="${rubygems_api_key}" \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
-  -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}"
-
+  -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
+  -v sl-bosh-ca-cert="$(bosh int ~/workspace/bits-service-private-config/environments/softlayer/director/vars.yml --path /director_ssl/ca)" \
+  -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)"
+  
 rm -f config.yml
 
 fly -t ${target} expose-pipeline --pipeline bits-service
