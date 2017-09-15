@@ -208,13 +208,13 @@ resources:
     ca_cert: {{sl-bosh-ca-cert}}
 
 - name: bosh-deployment-bits-service-webdav
-  type: bosh-deployment
+  type: bosh2-deployment
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-webdav
 
 - name: bosh-deployment-bits-service-s3
-  type: bosh-deployment
+  type: bosh2-deployment
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-s3
