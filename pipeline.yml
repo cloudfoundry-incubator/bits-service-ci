@@ -266,6 +266,15 @@ resources:
     start: 12:00 AM
     stop: 1:00 AM
 
+- name: bits-service-github-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bits-service-release
+    access_token: {{github-access-token}}
+    release: false
+    pre_release: true
+
 bosh1-params: &bosh1-params
   BOSH_TARGET: {{bosh-target}}
   BOSH_USERNAME: {{bosh-username}}
@@ -363,6 +372,11 @@ jobs:
     params: { VERSION_FILE: bits-service-release-version/number }
   - put: bits-service-release-tarball
     params: { file: releases/*.tgz }
+  - put: git-bits-service-release
+    params:
+      repository: git-bits-service-release
+      tag: bits-service-release-version/version
+      only_tag: true
 
 - name: deploy-with-S3
   serial: true
@@ -370,6 +384,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
+    - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
@@ -400,6 +415,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-S3], trigger: true }
+    - { get: bits-service-release-version, passed: [deploy-with-S3] }
     - { get: git-bits-service-release, passed: [deploy-with-S3] }
     - { get: ci-tasks, resource: git-bits-service-ci }
   - task: Run tests
@@ -418,6 +434,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
+    - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell }
@@ -440,6 +457,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-LOCAL], trigger: true }
+    - { get: bits-service-release-version, passed: [deploy-with-LOCAL] }
     - { get: git-bits-service-release, passed: [deploy-with-LOCAL]}
     - { get: ci-tasks, resource: git-bits-service-ci }
   - task: Run tests
@@ -458,6 +476,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
+    - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell }
@@ -480,6 +499,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
+    - { get: bits-service-release-version, passed: [deploy-with-WEBDAV] }
     - { get: git-bits-service-release, passed: [deploy-with-WEBDAV] }
     - { get: ci-tasks, resource: git-bits-service-ci }
   - task: Run tests
@@ -529,10 +549,17 @@ jobs:
       trigger: true
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: bits-service-release-tarball, passed: *migration-tests-passed, trigger: true }
-  - task: Publish release tarball URLs
-    file: ci-tasks/tasks/publish-release-tarball-urls.yml
-    params:
-      RELEASE_TARBALL_DIRS: capi-release-tarball bits-service-release-tarball
+    - { get: bits-service-release-version, passed: *migration-tests-passed }
+  - aggregate:
+    - task: Publish release tarball URLs
+      file: ci-tasks/tasks/publish-release-tarball-urls.yml
+      params:
+        RELEASE_TARBALL_DIRS: capi-release-tarball bits-service-release-tarball
+    - put: bits-service-github-release
+      params:
+        name: bits-service-release-version/version
+        tag: bits-service-release-version/version
+        globs: [ "bits-service-release-tarball/*.tgz" ]
 
 - name: manually-delete-cf-diego-aws
   serial: true
@@ -560,6 +587,7 @@ jobs:
         - run-system-tests-S3
         - run-system-tests-WEBDAV
       trigger: true
+    - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -630,6 +658,7 @@ jobs:
   - aggregate:
     - { get: capi-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: bits-service-release-version, passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, trigger: true }
@@ -732,7 +761,8 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release] }
-    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
+    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
+    - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -816,6 +846,7 @@ jobs:
   - aggregate:
     - { get: capi-release-tarball, passed: [migration-bosh1 (S3)] }
     - { get: bits-service-release-tarball, passed: [migration-bosh1 (S3)], trigger: true}
+    - { get: bits-service-release-version, passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, passed: [migration-bosh1 (S3)], trigger: true }
@@ -892,6 +923,7 @@ jobs:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release] }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
+    - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -959,6 +991,7 @@ jobs:
   - aggregate:
     - { get: capi-release-tarball, passed: [migration-bosh2 (webdav)] }
     - { get: bits-service-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: bits-service-release-version, passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, passed: [migration-bosh2 (webdav)], trigger: true }
