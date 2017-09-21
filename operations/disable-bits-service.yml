@@ -6,5 +6,5 @@
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/bits_service/enabled
   value: false
 - type: replace
-  path: /instance_groups/name=cc-clock/jobs/name=cloud_controller_clock/properties/cc/bits_service/enabled
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service/enabled
   value: false
