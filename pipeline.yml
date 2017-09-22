@@ -136,7 +136,6 @@ resources:
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
     branch: master
     private_key: {{github-private-key}}
-    paths: ["environments/*"]
 
 - name: bits-service
   type: git
