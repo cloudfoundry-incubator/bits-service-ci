@@ -21,6 +21,9 @@ case "${IAAS}" in
   iaas='-o cf-deployment/operations/aws.yml
     -o cf-deployment/operations/change-logging-port-for-aws-elb.yml'
   ;;
+'softlayer')
+  # TODO: change stemcell name?
+  ;;
 *)
   echo "Unknown IAAS: ${IAAS}"
   exit 1

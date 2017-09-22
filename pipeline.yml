@@ -8,9 +8,11 @@ groups:
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
+  - deploy-with-s3-cf-softlayer
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
+  - run-system-tests-CF-Softlayer-S3
   - create-capi-release
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
@@ -27,9 +29,11 @@ groups:
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
+  - deploy-with-s3-cf-softlayer
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
+  - run-system-tests-CF-Softlayer-S3
   - bump-bits-service-release
 - name: bits-service-client
   jobs:
@@ -218,6 +222,12 @@ resources:
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-s3
+
+- name: softlayer-cf-deployment
+  type: bosh2-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: cf
 
 - name: capi-release-version
   type: semver
@@ -513,6 +523,77 @@ jobs:
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
       RELEASE_NAME: bits-service-webdav
 
+- name: deploy-with-s3-cf-softlayer
+  serial: true
+  serial_groups: [cf-softlayer-deployment-s3]
+  plan:
+  - aggregate:
+    - { get: capi-release-tarball, passed: [create-capi-release] }
+    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
+    - { get: bits-service-release-version, passed: [create-and-upload-release] }
+    - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
+    - { get: stemcell, resource: softlayer-stemcell }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: git-cf-deployment, trigger: true }
+    - { get: git-deployment-vars }
+  - task: Generate CF deployment manifest with bits-service enabled
+    file: ci-tasks/tasks/bosh-interpolate.yml
+    input_mapping:
+      cf-deployment: git-cf-deployment
+      deployment-vars: git-deployment-vars
+    output_mapping:
+      manifests: cf-with-bits-service-enabled
+    params: &bosh-interpolate-softlayer-bits-service-enabled
+      BOSH_TARGET: {{sl-bosh-target}}
+      DEPLOYMENT_NAME: cf
+      ENVIRONMENT_NAME: softlayer
+      BLOBSTORE_TYPE: s3
+      IAAS: softlayer
+      CF_DOMAIN: {{sl-cf1-domain}}
+      OPERATIONS: >
+        -o cf-deployment/operations/scale-to-one-az.yml
+      VARIABLES: >
+        -v aws_region={{s3-blobstore-region}}
+        -v blobstore_access_key_id={{s3-blobstore-access-key-id}}
+        -v blobstore_secret_access_key={{s3-blobstore-secret-access-key}}
+        -v resource_directory_key={{s3-blobstore-bucket-name}}
+        -v buildpack_directory_key={{s3-blobstore-bucket-name}}
+        -v droplet_directory_key={{s3-blobstore-bucket-name}}
+        -v app_package_directory_key={{s3-blobstore-bucket-name}}
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        repository: updated/deployment-vars
+    - put: softlayer-cf-deployment
+      attempts: 2
+      params:
+        manifest: cf-with-bits-service-enabled/manifest.yml
+        stemcells: ["stemcell/stemcell.tgz"]
+        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
+        no_redact: true
+
+- name: run-system-tests-CF-Softlayer-S3
+  serial: true
+  serial_groups: [cf-softlayer-deployment-s3]
+  plan:
+  - aggregate:
+    - { get: bits-service-release-tarball, passed: [deploy-with-s3-cf-softlayer], trigger: true }
+    - { get: bits-service-release-version, passed: [deploy-with-s3-cf-softlayer] }
+    - { get: git-bits-service-release, passed: [deploy-with-s3-cf-softlayer] }
+    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: deployment-vars, resource: git-deployment-vars }
+  - task: Run tests
+    timeout: 5m
+    attempts: 3
+    file: ci-tasks/tasks/run-system-tests.yml
+    input_mapping:
+      bits-service-system-test-source: git-bits-service-release
+    params:
+      <<: *sl-bosh-params
+      DEPLOYMENT_NAME: cf
+      ENVIRONMENT_NAME: softlayer
+      CF_DOMAIN: {{sl-cf1-domain}}
+
 # CAPI-RELEASE
 - name: create-capi-release
   serial: true
@@ -586,6 +667,7 @@ jobs:
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
+        - run-system-tests-CF-Softlayer-S3
       trigger: true
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
