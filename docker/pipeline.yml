@@ -15,10 +15,17 @@ resources:
     username: {{dockerhub-username}}
     password: {{dockerhub-password}}
 
+- name: cf-cli-release
+  type: github-release
+  source:
+    owner: cloudfoundry
+    repository: cli
+
 jobs:
 - name: create-base-image
   plan:
-  - get: git-bits-service-ci-base
-    trigger: true
+  - aggregate:
+    - { get: git-bits-service-ci-base, trigger: true }
+    - { get: cf-cli-release, trigger: true }
   - put: flintstone-ci-image
     params: { build: git-bits-service-ci-base/docker/base }
