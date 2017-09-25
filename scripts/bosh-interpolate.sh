@@ -18,8 +18,7 @@ case "${IAAS}" in
   iaas='-o cf-deployment/operations/bosh-lite.yml'
   ;;
 'aws')
-  iaas='-o cf-deployment/operations/aws.yml
-    -o cf-deployment/operations/change-logging-port-for-aws-elb.yml'
+  iaas='-o cf-deployment/operations/aws.yml'
   ;;
 'softlayer')
   # TODO: change stemcell name?
