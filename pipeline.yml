@@ -80,7 +80,18 @@ resource_types:
   source:
     repository: cloudfoundry/bosh-deployment-resource
 
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
 resources:
+- name: slack
+  type: slack-notification
+  source:
+    url: {{slack-webhook}}
+
 - name: aws-stemcell
   type: bosh-io-stemcell
   source: { name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent }
@@ -328,6 +339,13 @@ boshlite1-bsmt-verification-errand-params: &boshlite1-bsmt-verification-errand-p
   ERRAND_NAME: bsmt_verification
   EXTRA_ARGS: --keep-alive
 
+notify: &notify
+  put: slack
+  params:
+    text: |
+      <!here> The Concourse pipeline broke. See:
+      $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
 jobs:
 # BITS-SERVICE
 - name: run-unit-and-integration-tests
@@ -337,6 +355,7 @@ jobs:
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-service-tests.yml
+  on_failure: *notify
 
 - name: bump-bits-service-release
   plan:
@@ -348,6 +367,7 @@ jobs:
     file: ci-tasks/tasks/bump-release.yml
   - put: git-bits-service-release
     params: {repository: bumped/git-bits-service-release}
+  on_failure: *notify
 
 - name: run-bits-service-client-tests
   serial: true
@@ -356,6 +376,7 @@ jobs:
   - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
+  on_failure: *notify
 
 - name: Publish gem
   serial: true
@@ -367,6 +388,7 @@ jobs:
     params:
       GIT_PRIVATE_KEY: {{github-private-key}}
       RUBYGEMS_API_KEY: {{rubygems-api-key}}
+  on_failure: *notify
 
 - name: create-and-upload-release
   plan:
@@ -386,6 +408,7 @@ jobs:
       repository: git-bits-service-release
       tag: bits-service-release-version/version
       only_tag: true
+  on_failure: *notify
 
 - name: deploy-with-S3
   serial: true
@@ -417,6 +440,7 @@ jobs:
       stemcells: ["stemcell/stemcell.tgz"]
       releases: ["bits-service-release-tarball/*.tgz"]
       no_redact: true
+  on_failure: *notify
 
 - name: run-system-tests-S3
   serial: true
@@ -436,6 +460,7 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_s3
       RELEASE_NAME: bits-service-s3
+  on_failure: *notify
 
 - name: deploy-with-LOCAL
   serial: true
@@ -459,6 +484,7 @@ jobs:
   - put: bosh-deployment-bits-service-local
     attempts: 3
     params: *sl-bits-service-deployment-params
+  on_failure: *notify
 
 - name: run-system-tests-LOCAL
   serial: true
@@ -478,6 +504,7 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_local
       RELEASE_NAME: bits-service-local
+  on_failure: *notify
 
 - name: deploy-with-WEBDAV
   serial: true
@@ -501,6 +528,7 @@ jobs:
   - put: bosh-deployment-bits-service-webdav
     attempts: 3
     params: *sl-bits-service-deployment-params
+  on_failure: *notify
 
 - name: run-system-tests-WEBDAV
   serial: true
@@ -521,6 +549,7 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
       RELEASE_NAME: bits-service-webdav
+  on_failure: *notify
 
 - name: deploy-with-s3-cf-softlayer
   serial: true
@@ -570,6 +599,7 @@ jobs:
         stemcells: ["stemcell/stemcell.tgz"]
         releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
+  on_failure: *notify
 
 - name: run-system-tests-CF-Softlayer-S3
   serial: true
@@ -592,6 +622,7 @@ jobs:
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: softlayer
       CF_DOMAIN: {{sl-cf1-domain}}
+  on_failure: *notify
 
 # CAPI-RELEASE
 - name: create-capi-release
@@ -617,6 +648,7 @@ jobs:
     params: { file: releases/*.tgz }
   - put: capi-release-version
     params: { file: capi-release-version/number }
+  on_failure: *notify
 
 - name: Publish release tarball URLs
   plan:
@@ -640,6 +672,7 @@ jobs:
         name: bits-service-release-version/version
         tag: bits-service-release-version/version
         globs: [ "bits-service-release-tarball/*.tgz" ]
+  on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
   serial: true
@@ -654,6 +687,7 @@ jobs:
       DEPLOYMENT_NAME: cf
   - put: cf-diego-aws-deployment-events
     params: { file: cf-diego-aws-deployment-events/number }
+  on_failure: *notify
 
 - name: deploy-and-test-cf-diego-aws
   serial: true
@@ -731,6 +765,7 @@ jobs:
             Consider doing a fresh deployment by manually running job
             [manually-delete-cf-diego-aws]
             (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
+  on_failure: *notify
 
 - name: enable-BITS-SERVICE-diego-and-run-CATs
   serial: true
@@ -777,6 +812,7 @@ jobs:
       ENVIRONMENT_NAME: aws
       CF_DOMAIN: {{aws-cf1-domain}}
     on_failure: *inform-pipeline-operator-diego-aws-cats
+  on_failure: *notify
 
 # delete standalone bits-service deployment
 - name: delete-deployment-bits-service-local
@@ -787,6 +823,7 @@ jobs:
       params:
         <<: *sl-bosh-params
         DEPLOYMENT_NAME: bits-service-local
+  on_failure: *notify
 
 
 - name: delete-deployment-bits-service-webdav
@@ -797,6 +834,7 @@ jobs:
       params:
         <<: *sl-bosh-params
         DEPLOYMENT_NAME: bits-service-webdav
+  on_failure: *notify
 
 - name: delete-deployment-bits-service-s3
   plan:
@@ -806,6 +844,7 @@ jobs:
       params:
         <<: *sl-bosh-params
         DEPLOYMENT_NAME: bits-service-s3
+  on_failure: *notify
 
 # Migration
 - name: manually-delete-cf-bosh1
@@ -822,6 +861,7 @@ jobs:
       DEPLOYMENT_NAME: cf
   - put: cf-bosh1-deployment-events
     params: { file: cf-bosh1-deployment-events/number }
+  on_failure: *notify
 
 - name: update-cloud-config-bosh1
   plan:
@@ -835,6 +875,7 @@ jobs:
     params:
       <<: *bosh1-params
       MANIFEST: bosh-lite/cloud-config.yml
+  on_failure: *notify
 
 - name: migration-bosh1 (S3)
   serial: true
@@ -919,6 +960,7 @@ jobs:
     file: ci-tasks/tasks/run-errand.yml
     params: *boshlite1-bsmt-verification-errand-params
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
+  on_failure: *notify
 
 - name: migration-backwards-bosh1
   serial: true
@@ -968,6 +1010,7 @@ jobs:
     file: ci-tasks/tasks/run-errand.yml
     params: *boshlite1-bsmt-verification-errand-params
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
+  on_failure: *notify
 
 - name: manually-delete-cf-bosh2
   serial: true
@@ -982,6 +1025,7 @@ jobs:
       DEPLOYMENT_NAME: cf
   - put: cf-bosh2-deployment-events
     params: { file: cf-bosh2-deployment-events/number }
+  on_failure: *notify
 
 - name: update-cloud-config-bosh2
   plan:
@@ -995,6 +1039,7 @@ jobs:
     params:
       <<: *bosh2-params
       MANIFEST: bosh-lite/cloud-config.yml
+  on_failure: *notify
 
 # no-migration tests for webdav with cf-deployment
 - name: migration-bosh2 (webdav)
@@ -1064,6 +1109,7 @@ jobs:
     file: ci-tasks/tasks/run-errand.yml
     params: *boshlite2-bsmt-verification-errand-params
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
+  on_failure: *notify
 
 - name: migration-backwards-bosh2
   serial: true
@@ -1113,6 +1159,7 @@ jobs:
     attempts: 3
     params: *boshlite2-bsmt-verification-errand-params
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
+  on_failure: *notify
 
 # Infrastructure
 - name: recreate-bosh-lite-1
@@ -1128,6 +1175,7 @@ jobs:
       BOSH_PASSWORD: {{bosh-password}}
       BOSH_DIRECTOR_IP: 192.168.50.4
       VAGRANT_GATEWAY: 192.168.50.1
+  on_failure: *notify
 
 - name: recreate-bosh-lite-2
   serial: true
@@ -1142,6 +1190,7 @@ jobs:
       BOSH_PASSWORD: {{bosh2-password}}
       BOSH_DIRECTOR_IP: 192.168.100.4
       VAGRANT_GATEWAY: 192.168.100.1
+  on_failure: *notify
 
 - name: recreate-bosh-lite-acceptance
   serial: true
@@ -1180,6 +1229,7 @@ jobs:
         BOSH_USERNAME: {{bosh-acceptance-username}}
         BOSH_PASSWORD: {{bosh-acceptance-password}}
         RELEASE_FILE: capi-release-tarball/*.tgz
+  on_failure: *notify
 
 - name: cleanup-bosh-1
   serial: true
@@ -1190,6 +1240,7 @@ jobs:
   - task: cleanup-bosh
     file: git-bits-service-ci/tasks/bosh-cleanup.yml
     params: *bosh1-params
+  on_failure: *notify
 
 - name: cleanup-bosh-2
   serial: true
@@ -1200,6 +1251,7 @@ jobs:
   - task: cleanup-bosh
     file: git-bits-service-ci/tasks/bosh-cleanup.yml
     params: *bosh2-params
+  on_failure: *notify
 
 - name: cleanup-bosh-aws
   serial: true
@@ -1210,6 +1262,7 @@ jobs:
   - task: cleanup-bosh
     file: git-bits-service-ci/tasks/bosh-cleanup.yml
     params: *aws-bosh-params
+  on_failure: *notify
 
 - name: cleanup-bosh-acceptance
   serial: true
@@ -1223,6 +1276,7 @@ jobs:
       BOSH_USERNAME: {{bosh-acceptance-username}}
       BOSH_PASSWORD: {{bosh-acceptance-password}}
       BOSH_TARGET: {{bosh-acceptance-target}}
+  on_failure: *notify
 
 - name: Run performance tests
   serial_groups: [cf-aws-deployment]
@@ -1282,3 +1336,4 @@ jobs:
     #     CF_DOMAIN: {{aws-cf1-domain}}
     #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.enabled.CCs.1
     #     LOOP_COUNT: 5
+  on_failure: *notify

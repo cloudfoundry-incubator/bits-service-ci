@@ -13,6 +13,7 @@ github_access_token=$(lpass show "Shared-Flintstone/Github Access Token" --passw
 rubygems_api_key=$(lpass show "Shared-Flintstone"/flintstone@rubygems.org --notes)
 bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username)
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
+slack_webhook=$(lpass show "Shared-Flintstone"/"Flintstone Slack Webhook" --password)
 
 fly \
   -t ${target} \
@@ -26,7 +27,8 @@ fly \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
   -v sl-bosh-ca-cert="$(bosh int ~/workspace/bits-service-private-config/environments/softlayer/director/vars.yml --path /director_ssl/ca)" \
-  -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)"
+  -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)" \
+  -v slack-webhook="${slack_webhook}"
 
 rm -f config.yml
 
