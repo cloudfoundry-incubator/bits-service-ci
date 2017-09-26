@@ -1,0 +1,13 @@
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: ci
+$INPUTS
+
+outputs:
+  - name: points-of-contact
+
+run:
+  path: ci/scripts/aggregate-committers-for-notification.sh
