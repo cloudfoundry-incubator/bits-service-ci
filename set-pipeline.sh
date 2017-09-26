@@ -15,11 +15,13 @@ bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Fo
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
 slack_webhook=$(lpass show "Shared-Flintstone"/"Flintstone Slack Webhook" --password)
 
+overbook -c pipeline.yml -t ci-tasks/tasks/generated/aggregate-committers-for-notification -r ci=ci-tasks > pipeline-overbooked.yml
+
 fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c pipeline.yml \
+  -c pipeline-overbooked.yml \
   -l config.yml \
   -v github-private-key="${github_ssh_key}" \
   -v github-access-token="${github_access_token}" \
@@ -30,6 +32,7 @@ fly \
   -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)" \
   -v slack-webhook="${slack_webhook}"
 
+rm -f pipeline-overbooked.yml
 rm -f config.yml
 
 fly -t ${target} expose-pipeline --pipeline bits-service

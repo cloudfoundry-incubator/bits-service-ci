@@ -343,8 +343,9 @@ notify: &notify
   put: slack
   params:
     text: |
-      <!here> The Concourse pipeline broke. See:
+      $TEXT_FILE_CONTENT The Concourse pipeline broke. See:
       $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    text_file: points-of-contact/slack-users-single-line
 
 jobs:
 # BITS-SERVICE
