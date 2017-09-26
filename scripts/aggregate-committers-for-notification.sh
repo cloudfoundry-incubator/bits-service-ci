@@ -29,4 +29,5 @@ awk '{print "<@" $0 ">"}' points-of-contact/committers > points-of-contact/slack
 sed -e s/@[a-z][a-z].ibm.com//g -i points-of-contact/slack-users
 
 # Make slack users available in a single line:
-tr '\n' ' ' < points-of-contact/slack-users > points-of-contact/slack-users-one-line && cat points-of-contact/slack-users-single-line
+tr '\n' ' ' < points-of-contact/slack-users > points-of-contact/slack-users-single-line
+cat points-of-contact/slack-users-single-line
