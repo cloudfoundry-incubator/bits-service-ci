@@ -22,11 +22,16 @@ for input in input*; do
     popd
 done
 
-# TODO remove flintstone user from this list
-
-# generate slack-users by using email address without @xx.ibm.com and nest within <@...>:
-awk '{print "<@" $0 ">"}' points-of-contact/committers > points-of-contact/slack-users
-sed -e s/@[a-z][a-z].ibm.com//g -i points-of-contact/slack-users
+# generate slack users from committer email addresses
+cp points-of-contact/committers points-of-contact/slack-users
+sed -e '/pego@de.ibm.com\|peter.gtz@gmail.com\|norman.sutorius@de.ibm.com\|Steffen.Uhlig@de.ibm.com\|EGURNOV@de.ibm.com/!d' -i points-of-contact/slack-users
+sed -e s/pego@de.ibm.com/pego/gI -i points-of-contact/slack-users
+sed -e s/peter.gtz@gmail.com/pego/gI -i points-of-contact/slack-users
+sed -e s/norman.sutorius@de.ibm.com/norman/gI -i points-of-contact/slack-users
+sed -e s/Steffen.Uhlig@de.ibm.com/suhlig/gI -i points-of-contact/slack-users
+sed -e s/EGURNOV@de.ibm.com/egurnov/gI -i points-of-contact/slack-users
+awk '{print "<@" $0 ">"}' points-of-contact/committers > points-of-contact/slack-users-with-at
+mv points-of-contact/slack-users-with-at points-of-contact/slack-users
 
 # Make slack users available in a single line:
 tr '\n' ' ' < points-of-contact/slack-users > points-of-contact/slack-users-single-line
