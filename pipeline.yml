@@ -356,6 +356,7 @@ jobs:
     - { get: bits-service, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
   - task: Run tests
+    attempts: 3
     file: ci-tasks/tasks/run-service-tests.yml
   on_failure: *notify
 
