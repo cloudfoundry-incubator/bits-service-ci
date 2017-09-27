@@ -8,11 +8,10 @@ groups:
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
-  - deploy-with-s3-cf-softlayer
+  - deploy-and-test-with-s3-cf-softlayer
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - run-system-tests-CF-Softlayer-S3
   - create-capi-release
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
@@ -29,11 +28,10 @@ groups:
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
-  - deploy-with-s3-cf-softlayer
+  - deploy-and-test-with-s3-cf-softlayer
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - run-system-tests-CF-Softlayer-S3
   - bump-bits-service-release
 - name: bits-service-client
   jobs:
@@ -554,7 +552,7 @@ jobs:
       RELEASE_NAME: bits-service-webdav
   on_failure: *notify
 
-- name: deploy-with-s3-cf-softlayer
+- name: deploy-and-test-with-s3-cf-softlayer
   serial: true
   serial_groups: [cf-softlayer-deployment-s3]
   plan:
@@ -602,24 +600,13 @@ jobs:
         stemcells: ["stemcell/stemcell.tgz"]
         releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
-  on_failure: *notify
-
-- name: run-system-tests-CF-Softlayer-S3
-  serial: true
-  serial_groups: [cf-softlayer-deployment-s3]
-  plan:
-  - aggregate:
-    - { get: bits-service-release-tarball, passed: [deploy-with-s3-cf-softlayer], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-s3-cf-softlayer] }
-    - { get: git-bits-service-release, passed: [deploy-with-s3-cf-softlayer] }
-    - { get: ci-tasks, resource: git-bits-service-ci }
-    - { get: deployment-vars, resource: git-deployment-vars }
   - task: Run tests
     timeout: 5m
     attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
     input_mapping:
       bits-service-system-test-source: git-bits-service-release
+      deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
       DEPLOYMENT_NAME: cf
@@ -703,7 +690,7 @@ jobs:
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
-        - run-system-tests-CF-Softlayer-S3
+        - deploy-and-test-with-s3-cf-softlayer
       trigger: true
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
