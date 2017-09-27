@@ -8,7 +8,8 @@ bosh download manifest $DEPLOYMENT_NAME $BITS_SERVICE_MANIFEST
 
 export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
   bosh vms ${DEPLOYMENT_NAME} \
-  | grep bits-service \
+  # TODO: grep for bits-service again, once bits-service is not co-located on api anymore
+  | grep api \
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
 
