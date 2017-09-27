@@ -6,9 +6,9 @@ bosh -u x -p x target $BOSH_TARGET
 bosh login $BOSH_USERNAME $BOSH_PASSWORD
 bosh download manifest $DEPLOYMENT_NAME $BITS_SERVICE_MANIFEST
 
+  # TODO: `grep bits-service` again, once bits-service is not co-located on api anymore
 export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
   bosh vms ${DEPLOYMENT_NAME} \
-  # TODO: grep for bits-service again, once bits-service is not co-located on api anymore
   | grep api \
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
