@@ -30,7 +30,7 @@ sed -e s/peter.gtz@gmail.com/pego/gI -i points-of-contact/slack-users
 sed -e s/norman.sutorius@de.ibm.com/norman/gI -i points-of-contact/slack-users
 sed -e s/Steffen.Uhlig@de.ibm.com/suhlig/gI -i points-of-contact/slack-users
 sed -e s/EGURNOV@de.ibm.com/egurnov/gI -i points-of-contact/slack-users
-awk '{print "<@" $0 ">"}' points-of-contact/committers > points-of-contact/slack-users-with-at
+awk '{print "<@" $0 ">"}' points-of-contact/slack-users > points-of-contact/slack-users-with-at
 mv points-of-contact/slack-users-with-at points-of-contact/slack-users
 
 # Make slack users available in a single line:
