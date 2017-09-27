@@ -147,6 +147,7 @@ resources:
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
     branch: master
     private_key: {{github-private-key}}
+    disable_ci_skip: true
 
 - name: bits-service
   type: git
