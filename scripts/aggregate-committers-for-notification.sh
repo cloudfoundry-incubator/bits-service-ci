@@ -1,5 +1,6 @@
 #! /bin/bash -ex
 
+touch points-of-contact/committers
 for input in input*; do
     pushd $input
         if [ ! -e .git ]; then
