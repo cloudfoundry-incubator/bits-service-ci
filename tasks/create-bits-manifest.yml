@@ -23,6 +23,7 @@ params:
 
 outputs:
 - name: manifests
+- name: updated
 
 run:
   path: ci-tasks/scripts/create-bits-manifest.sh
