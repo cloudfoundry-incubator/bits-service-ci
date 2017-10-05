@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 mkdir -p "deployment-vars/environments/${ENVIRONMENT_NAME}"
-deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars.yml)
+deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml)
 director_uuid=$(bosh -t "${BOSH_TARGET}" status --uuid)
 
 # TODO: (ae, pego) Get rid of '-o'??

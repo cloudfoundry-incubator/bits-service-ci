@@ -19,6 +19,7 @@ params:
   BLOBSTORE_JOB_IP:
   BITS_SERVICE_JOB_IP:
   BOSH_DIRECTOR_UUID:
+  ENVIRONMENT_NAME: unconfigured
 
 outputs:
 - name: manifests

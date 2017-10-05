@@ -6,7 +6,7 @@ mkdir -p gopath/src/github.com/cloudfoundry
 cp -r acceptance-tests gopath/src/github.com/cloudfoundry/cf-acceptance-tests
 
 cf_admin_password=$( \
-  bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars.yml \
+  bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml \
   --path /cf_admin_password
 )
 cat > config.json <<EOF

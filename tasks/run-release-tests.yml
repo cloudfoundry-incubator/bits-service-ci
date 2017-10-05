@@ -14,6 +14,7 @@ params:
   BOSH_TARGET:
   RELEASE_NAME:
   BITS_SERVICE_PRIVATE_ENDPOINT_IP:
+  DEPLOYMENT_NAME: unconfigured
 
 run:
   path: ci-tasks/scripts/run-release-tests.sh
