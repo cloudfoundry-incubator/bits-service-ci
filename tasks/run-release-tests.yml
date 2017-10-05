@@ -9,12 +9,13 @@ inputs:
 - name: deployment-vars
 
 params:
-  BOSH_USERNAME:
-  BOSH_PASSWORD:
-  BOSH_TARGET:
-  RELEASE_NAME:
-  BITS_SERVICE_PRIVATE_ENDPOINT_IP:
+  BOSH_USERNAME: unconfigured
+  BOSH_PASSWORD: unconfigured
+  BOSH_TARGET: unconfigured
+  RELEASE_NAME: unconfigured
+  BITS_SERVICE_PRIVATE_ENDPOINT_IP: unconfigured
   DEPLOYMENT_NAME: unconfigured
+  ENVIRONMENT_NAME: unconfigured
 
 run:
   path: ci-tasks/scripts/run-release-tests.sh
