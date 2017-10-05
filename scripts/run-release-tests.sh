@@ -9,8 +9,8 @@ bosh login $BOSH_USERNAME $BOSH_PASSWORD
 bosh download manifest $RELEASE_NAME $BITS_SERVICE_MANIFEST
 
 bosh2 int ../deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml \
-    --path /default_ca/certificate > /tmp/ca-cert
-export BITS_SERVICE_CA_CERT=/tmp/ca-cert
+    --path /default_ca/certificate > /usr/local/share/ca-certificates/bits-service-ca.crt
+update-ca-certificates --verbose
 
 bundle install
 bundle exec rake spec
