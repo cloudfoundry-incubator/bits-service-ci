@@ -303,6 +303,7 @@ sl-bosh-params: &sl-bosh-params
   BOSH_TARGET: {{sl-bosh-target}}
   BOSH_USERNAME: {{sl-bosh-username}}
   BOSH_PASSWORD: {{sl-bosh-password}}
+  ENVIRONMENT_NAME: softlayer
 
 bosh2-params: &bosh2-params
   BOSH_TARGET: {{bosh2-target}}
@@ -452,11 +453,13 @@ jobs:
     - { get: bits-service-release-version, passed: [deploy-with-S3] }
     - { get: git-bits-service-release, passed: [deploy-with-S3] }
     - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: git-deployment-vars }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: git-bits-service-release
+      deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_s3
@@ -496,11 +499,13 @@ jobs:
     - { get: bits-service-release-version, passed: [deploy-with-LOCAL] }
     - { get: git-bits-service-release, passed: [deploy-with-LOCAL]}
     - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: git-deployment-vars }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: git-bits-service-release
+      deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_local
@@ -540,12 +545,14 @@ jobs:
     - { get: bits-service-release-version, passed: [deploy-with-WEBDAV] }
     - { get: git-bits-service-release, passed: [deploy-with-WEBDAV] }
     - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: git-deployment-vars }
   - task: Run tests
     timeout: 5m
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: git-bits-service-release
+      deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
