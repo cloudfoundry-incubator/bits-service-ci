@@ -422,10 +422,12 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
+    - { get: git-deployment-vars }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
       bits-service-deployment-manifest-generation-tools: git-bits-service-release
+      bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
       BITS_DIRECTORY_KEY: {{s3-blobstore-bucket-name}}
@@ -435,13 +437,18 @@ jobs:
       BLOBSTORE_TYPE: s3
       BITS_SERVICE_JOB_IP: &bits_service_job_ip_s3 10.175.96.246
       BLOBSTORE_JOB_IP: 10.175.96.247
-  - put: bosh-deployment-bits-service-s3
-    attempts: 3
-    params: &sl-bits-service-deployment-params
-      manifest: manifests/manifest.yml
-      stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["bits-service-release-tarball/*.tgz"]
-      no_redact: true
+      DEPLOYMENT_NAME: bits-service-s3
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        repository: updated/bits-service-private-config
+    - put: bosh-deployment-bits-service-s3
+      attempts: 3
+      params: &sl-bits-service-deployment-params
+        manifest: manifests/manifest.yml
+        stemcells: ["stemcell/stemcell.tgz"]
+        releases: ["bits-service-release-tarball/*.tgz"]
+        no_redact: true
   on_failure: *notify
 
 - name: run-system-tests-S3
@@ -464,6 +471,7 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_s3
       RELEASE_NAME: bits-service-s3
+      DEPLOYMENT_NAME: bits-service-s3
   on_failure: *notify
 
 - name: deploy-with-LOCAL
@@ -476,18 +484,25 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell }
+    - { get: git-deployment-vars }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
       bits-service-deployment-manifest-generation-tools: git-bits-service-release
+      bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
       BLOBSTORE_TYPE: local
       BITS_SERVICE_JOB_IP: &bits_service_job_ip_local 10.175.96.242
       BLOBSTORE_JOB_IP: 10.175.96.243
-  - put: bosh-deployment-bits-service-local
-    attempts: 3
-    params: *sl-bits-service-deployment-params
+      DEPLOYMENT_NAME: bits-service-local
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        repository: updated/bits-service-private-config
+    - put: bosh-deployment-bits-service-local
+      attempts: 3
+      params: *sl-bits-service-deployment-params
   on_failure: *notify
 
 - name: run-system-tests-LOCAL
@@ -510,6 +525,7 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_local
       RELEASE_NAME: bits-service-local
+      DEPLOYMENT_NAME: bits-service-local
   on_failure: *notify
 
 - name: deploy-with-WEBDAV
@@ -522,18 +538,25 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell }
+    - { get: git-deployment-vars }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
       bits-service-deployment-manifest-generation-tools: git-bits-service-release
+      bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
       BLOBSTORE_TYPE: webdav
       BITS_SERVICE_JOB_IP: &bits_service_job_ip_webdav 10.175.96.244
       BLOBSTORE_JOB_IP: 10.175.96.245
-  - put: bosh-deployment-bits-service-webdav
-    attempts: 3
-    params: *sl-bits-service-deployment-params
+      DEPLOYMENT_NAME: bits-service-webdav
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        repository: updated/bits-service-private-config
+    - put: bosh-deployment-bits-service-webdav
+      attempts: 3
+      params: *sl-bits-service-deployment-params
   on_failure: *notify
 
 - name: run-system-tests-WEBDAV
@@ -557,6 +580,7 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
       RELEASE_NAME: bits-service-webdav
+      DEPLOYMENT_NAME: bits-service-webdav
   on_failure: *notify
 
 - name: deploy-and-test-with-s3-cf-softlayer
