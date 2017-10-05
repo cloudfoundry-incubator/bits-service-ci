@@ -14,4 +14,4 @@ cat ../manifests/manifest.yml
 REPO_DIR=bits-service-private-config \
 FILENAME=environments/softlayer/deployment-vars-${DEPLOYMENT_NAME}.yml \
 COMMIT_MESSAGE="Update ${ENVIRONMENT_NAME} deployment vars for ${DEPLOYMENT_NAME}" \
-./ci-tasks/scripts/commit-file-if-changed.sh
+../ci-tasks/scripts/commit-file-if-changed.sh
