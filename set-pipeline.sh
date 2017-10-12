@@ -15,10 +15,11 @@ bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Fo
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
 slack_webhook=$(lpass show "Shared-Flintstone"/"Flintstone Slack Webhook" --password)
 
-# install overbook
+echo 'Installing overbook...'
 export GOPATH=/tmp/go-overbook
 mkdir -p $GOPATH/src $GOPATH/pkg $GOPATH/bin
 go get github.com/petergtz/overbook/cmd/overbook
+echo 'done'
 
 $GOPATH/bin/overbook -c pipeline.yml -t ci-tasks/tasks/generated/aggregate-committers-for-notification -r ci=ci-tasks > pipeline-overbooked.yml
 
