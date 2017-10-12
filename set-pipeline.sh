@@ -18,7 +18,7 @@ slack_webhook=$(lpass show "Shared-Flintstone"/"Flintstone Slack Webhook" --pass
 echo 'Installing overbook...'
 export GOPATH=/tmp/go-overbook
 mkdir -p $GOPATH/src $GOPATH/pkg $GOPATH/bin
-go get github.com/petergtz/overbook/cmd/overbook
+go get -u github.com/petergtz/overbook/cmd/overbook
 echo 'done'
 
 $GOPATH/bin/overbook -c pipeline.yml -t ci-tasks/tasks/generated/aggregate-committers-for-notification -r ci=ci-tasks > pipeline-overbooked.yml
