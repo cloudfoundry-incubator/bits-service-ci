@@ -659,10 +659,18 @@ jobs:
       capi-release: git-capi-release
   - task: Show patched CC Gemfile.lock
     file: ci-tasks/tasks/show-patched-cc.yml
+  - task: 'Patch: Add bits-service ca_cert property in CC'
+    file: ci-tasks/tasks/git-apply-patch-to-submodule.yml
+    input_mapping: { git_repo: patched-capi-release }
+    output_mapping: { patched_repo: patched-capi-release-ca-cert }
+    params:
+      PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/ace935ce277833765206c6ced54b3d27eda75f40.diff
+      SUBMODULE: git_repo/src/cloud_controller_ng
+
   - task: Create capi-release tarball
     file: ci-tasks/tasks/create-capi-release.yml
     input_mapping:
-      capi-release: patched-capi-release
+      capi-release: patched-capi-release-ca-cert
     params:
       VERSION_FILE: capi-release-version/number
   - put: capi-release-tarball
