@@ -14,7 +14,7 @@ export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
 )
 
 bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml \
-    --path /default_ca/certificate > /usr/local/share/ca-certificates/bits-service-ca.crt
+    --path /bits_service_ssl/ca > /usr/local/share/ca-certificates/bits-service-ca.crt
 update-ca-certificates --verbose
 
 export CC_API="api.${CF_DOMAIN}"
