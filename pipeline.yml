@@ -664,7 +664,7 @@ jobs:
     input_mapping: { git_repo: patched-capi-release }
     output_mapping: { patched_repo: patched-capi-release-ca-cert }
     params:
-      PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/ace935ce277833765206c6ced54b3d27eda75f40.diff
+      PATCH_URL: https://github.com/petergtz/cloud_controller_ng/commit/0c1cb316a72557df0a8aa07dadccd5ceb9683fcc.diff
       SUBMODULE: git_repo/src/cloud_controller_ng
 
   - task: Create capi-release tarball
