@@ -13,9 +13,8 @@ export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
 
-bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml \
-    --path /bits_service_ssl/ca > /usr/local/share/ca-certificates/bits-service-ca.crt
-update-ca-certificates --verbose
+bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml --path /bits_service_ssl/ca > /tmp/bits-service-ca.crt
+export BITS_SERVICE_CA_CERT=/tmp/bits-service-ca.crt
 
 export CC_API="api.${CF_DOMAIN}"
 export CC_PASSWORD=$(
