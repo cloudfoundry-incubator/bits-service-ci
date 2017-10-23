@@ -38,6 +38,7 @@ cat > config.json <<EOF
   "include_tasks": true,
   "include_v3": false,
   "include_zipkin": false,
+  "include_credhub": false,
   "backend": "diego",
   "include_diego_ssh": false,
   "skip_diego_unsupported_tests": true
