@@ -588,7 +588,7 @@ jobs:
   serial_groups: [cf-softlayer-deployment-s3]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
@@ -653,6 +653,7 @@ jobs:
     - { get: capi-release-version, params: { pre: dev } }
     - { get: git-capi-release, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: git-bits-service-client, passed: [Publish gem], trigger: true }
   - task: "Patch: Consume latest prerelease of bits_service_client"
     file: ci-tasks/tasks/patch-cc-to-use-bits-service-client-latest-prerelease.yml
     input_mapping:
@@ -723,7 +724,7 @@ jobs:
   serial_groups: [cf-aws-deployment]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - get: bits-service-release-tarball
       passed: &run-system-tests-passed
         - run-system-tests-LOCAL
@@ -911,7 +912,7 @@ jobs:
   serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-bosh1-deployment-events, trigger: true }
@@ -996,7 +997,7 @@ jobs:
   serial_groups: [cf-bosh1-deployment]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [migration-bosh1 (S3)] }
+    - { get: capi-release-tarball, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: bits-service-release-tarball, passed: [migration-bosh1 (S3)], trigger: true}
     - { get: bits-service-release-version, passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
@@ -1076,7 +1077,7 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release] }
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-bosh2-deployment-events, trigger: true }
@@ -1145,7 +1146,7 @@ jobs:
   serial_groups: [cf-bosh2-deployment]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [migration-bosh2 (webdav)] }
+    - { get: capi-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: bits-service-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: bits-service-release-version, passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
