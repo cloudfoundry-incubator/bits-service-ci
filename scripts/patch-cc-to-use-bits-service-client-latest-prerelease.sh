@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 prerelease_version=$(\
-  gem search bits_service_client --pre --no-verbose \
+  gem search bits_service_client --all --pre --no-verbose \
   | sed 's/bits_service_client (\([^,]*\).*/\1/' \
 )
 sed \

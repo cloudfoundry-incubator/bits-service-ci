@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-latest_rubygems_version=$(gem search bits_service_client --pre --no-verbose | sed 's/bits_service_client (\([^,]*\).*/\1/')
+latest_rubygems_version=$(gem search bits_service_client --all --pre --no-verbose | sed 's/bits_service_client (\([^,]*\).*/\1/')
 new_version=$(grep VERSION git-bits-service-client/lib/bits_service_client/version.rb | sed 's/.*VERSION = //' | sed "s/'//g")
 if [ "$latest_rubygems_version" == "$new_version" ]; then
   echo "rubygems version ($latest_rubygems_version) is the same as the one in the git repo ($new_version). Exiting."
