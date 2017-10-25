@@ -539,7 +539,7 @@ jobs:
     - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: bits-service-release-version, passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests }
