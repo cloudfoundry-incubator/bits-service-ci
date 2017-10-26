@@ -21,6 +21,7 @@ groups:
   - migration-backwards-bosh2
   - bump-bits-service-release
   - Publish release tarball URLs
+  - create-and-upload-final-release
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -175,7 +176,6 @@ resources:
     repository: bits-service-release
     access_token: {{github-access-token}}
     release: true
-    pre_release: false
     drafts: true
 
 - name: git-capi-release
@@ -425,9 +425,9 @@ jobs:
 - name: create-and-upload-final-release
   plan:
   - aggregate:
-    - { get: bits-service-release-version, params: { bump: minor } }
-    - { get: git-bits-service-final-release }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: bits-service-release-version, passed: [ enable-BITS-SERVICE-diego-and-run-CATs, migration-backwards-bosh1, migration-backwards-bosh2 ], params: { bump: minor } }
+    - { get: git-bits-service-release }
+    - { get: ci-tasks, resource: git-bits-service-ci }
   - put: bits-service-release-version
     params: { file: bits-service-release-version/number }
   - task: Create release
