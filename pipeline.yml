@@ -168,6 +168,16 @@ resources:
     branch: master
     private_key: {{github-private-key}}
 
+- name: bits-service-github-final-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bits-service-release
+    access_token: {{github-access-token}}
+    release: true
+    pre_release: false
+    drafts: true
+
 - name: git-capi-release
   type: git
   source:
@@ -410,6 +420,26 @@ jobs:
       repository: git-bits-service-release
       tag: bits-service-release-version/version
       only_tag: true
+  on_failure: *notify
+
+- name: create-and-upload-final-release
+  plan:
+  - aggregate:
+    - { get: bits-service-release-version, params: { bump: minor } }
+    - { get: git-bits-service-final-release }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - put: bits-service-release-version
+    params: { file: bits-service-release-version/number }
+  - task: Create release
+    file: ci-tasks/tasks/create-bits-release.yml
+    params: { VERSION_FILE: bits-service-release-version/number }
+  - put: bits-service-github-final-release
+    params:
+      repository: git-bits-service-release
+      tag: bits-service-release-version/version
+      only_tag: true
+      globs:
+        - releases/*.tgz
   on_failure: *notify
 
 - name: deploy-with-S3
