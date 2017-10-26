@@ -1,299 +1,3 @@
-groups:
-- name: all
-  jobs:
-  - run-unit-and-integration-tests
-  - run-bits-service-client-tests
-  - Publish gem
-  - create-and-upload-release
-  - deploy-with-S3
-  - deploy-with-LOCAL
-  - deploy-with-WEBDAV
-  - deploy-and-test-with-s3-cf-softlayer
-  - run-system-tests-S3
-  - run-system-tests-LOCAL
-  - run-system-tests-WEBDAV
-  - create-capi-release
-  - deploy-and-test-cf-diego-aws
-  - enable-BITS-SERVICE-diego-and-run-CATs
-  - migration-bosh1 (S3)
-  - migration-bosh2 (webdav)
-  - migration-backwards-bosh1
-  - migration-backwards-bosh2
-  - bump-bits-service-release
-  - Publish release tarball URLs
-- name: bits-service
-  jobs:
-  - run-unit-and-integration-tests
-  - create-and-upload-release
-  - deploy-with-S3
-  - deploy-with-LOCAL
-  - deploy-with-WEBDAV
-  - deploy-and-test-with-s3-cf-softlayer
-  - run-system-tests-S3
-  - run-system-tests-LOCAL
-  - run-system-tests-WEBDAV
-  - bump-bits-service-release
-- name: bits-service-client
-  jobs:
-  - run-bits-service-client-tests
-  - Publish gem
-- name: capi-release
-  jobs:
-  - create-capi-release
-  - create-and-upload-release
-  - deploy-and-test-cf-diego-aws
-  - enable-BITS-SERVICE-diego-and-run-CATs
-  - Publish release tarball URLs
-- name: migration
-  jobs:
-  - migration-backwards-bosh1
-  - migration-bosh1 (S3)
-  - migration-backwards-bosh2
-  - migration-bosh2 (webdav)
-- name: infrastructure
-  jobs:
-  - recreate-bosh-lite-1
-  - recreate-bosh-lite-2
-  - recreate-bosh-lite-acceptance
-  - cleanup-bosh-1
-  - cleanup-bosh-2
-  - cleanup-bosh-aws
-  - cleanup-bosh-acceptance
-  - manually-delete-cf-diego-aws
-  - manually-delete-cf-bosh1
-  - manually-delete-cf-bosh2
-  - delete-deployment-bits-service-local
-  - delete-deployment-bits-service-s3
-  - delete-deployment-bits-service-webdav
-  - update-cloud-config-bosh1
-  - update-cloud-config-bosh2
-- name: performance-tests
-  jobs:
-  - Publish release tarball URLs
-  - Run performance tests
-
-resource_types:
-- name: bosh2-deployment
-  type: docker-image
-  source:
-    repository: cloudfoundry/bosh-deployment-resource
-
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: latest
-
-resources:
-- name: slack
-  type: slack-notification
-  source:
-    url: {{slack-webhook}}
-
-- name: aws-stemcell
-  type: bosh-io-stemcell
-  source: { name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent }
-
-- name: boshlite-stemcell
-  type: bosh-io-stemcell
-  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
-
-- name: softlayer-stemcell
-  type: bosh-io-stemcell
-  source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent }
-
-- name: bits-service-release-tarball
-  type: s3
-  source: &s3-resource
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
-    bucket: ci-bits-service-artifacts
-    region_name: eu-west-1
-    regexp: bits-service-release/bits-service-(.*).tgz
-    private: false
-
-- name: capi-release-tarball
-  type: s3
-  source:
-    <<: *s3-resource
-    regexp: capi-release/capi-(.*).tgz
-
-- name: git-bits-service-ci
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: master
-    private_key: {{github-private-key}}
-    paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
-
-- name: git-cf-deployment-cloud-config
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/cf-deployment.git
-    branch: develop
-    paths: ["bosh-lite/cloud-config.yml"]
-
-- name: git-cf-deployment
-  type: git
-  source:
-    uri: https://github.com/idev4u/cf-deployment.git
-    branch: develop
-
-- name: git-deployment-vars
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry/bits-service-private-config.git
-    branch: master
-    private_key: {{github-private-key}}
-    disable_ci_skip: true
-
-- name: bits-service
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry-incubator/bits-service.git
-    branch: master
-    path: ["lib/*", "spec/*", "vendor/*", "app.rb", "config.rb", "Gemfile.lock"]
-
-- name: git-bits-service-client
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-client.git
-    branch: master
-    private_key: {{github-private-key}}
-
-- name: git-bits-service-release
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
-    branch: master
-    private_key: {{github-private-key}}
-
-- name: git-capi-release
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/capi-release.git
-    branch: master
-
-- name: git-cf-acceptance-tests
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
-    branch: master
-
-- name: nightly-timer
-  type: time
-  source:
-    interval: 24h
-
-- name: aws-diego-deployment
-  type: bosh-deployment
-  source:
-    target: {{aws-bosh-target}}
-    username: {{aws-bosh-username}}
-    password: {{aws-bosh-password}}
-    deployment: cf
-
-- name: boshlite1-deployment
-  type: bosh-deployment
-  source:
-    target: {{bosh-target}}
-    username: {{bosh-username}}
-    password: {{bosh-password}}
-    deployment: cf
-
-- name: boshlite2-deployment
-  type: bosh-deployment
-  source:
-    target: {{bosh2-target}}
-    username: {{bosh2-username}}
-    password: {{bosh2-password}}
-    deployment: cf
-
-- name: bosh-deployment-bits-service-local
-  type: bosh2-deployment
-  source: &sl-bosh-deployment-source
-    target: {{sl-bosh-target}}
-    username: {{sl-bosh-username}}
-    password: {{sl-bosh-password}}
-    client: {{sl-bosh-username}}
-    client_secret: {{sl-bosh-password}}
-    deployment: bits-service-local
-    ca_cert: {{sl-bosh-ca-cert}}
-
-- name: bosh-deployment-bits-service-webdav
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
-    deployment: bits-service-webdav
-
-- name: bosh-deployment-bits-service-s3
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
-    deployment: bits-service-s3
-
-- name: softlayer-cf-deployment
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
-    deployment: cf
-
-- name: capi-release-version
-  type: semver
-  source:
-    driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    file: version/capi-release/version
-    private_key: {{github-private-key}}
-    initial_version: 1.41.0-dev.1
-
-- name: bits-service-release-version
-  type: semver
-  source:
-    driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    file: version/bits-service-release/version
-    private_key: {{github-private-key}}
-    initial_version: 0.0.0-dev.2
-
-- name: cf-bosh1-deployment-events
-  type: semver
-  source: &deployment-events-source
-    driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: events
-    file: events/cf-bosh1/deployment-deleted
-    private_key: {{github-private-key}}
-
-- name: cf-bosh2-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/cf-bosh2/deployment-deleted
-
-- name: cf-diego-aws-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/cf-diego-aws/deployment-deleted
-
-- name: after-midnight
-  type: time
-  source:
-    start: 12:00 AM
-    stop: 1:00 AM
-
-- name: bits-service-github-release
-  type: github-release
-  source:
-    owner: cloudfoundry-incubator
-    repository: bits-service-release
-    access_token: {{github-access-token}}
-    release: false
-    pre_release: true
-
 bosh1-params: &bosh1-params
   BOSH_TARGET: {{bosh-target}}
   BOSH_USERNAME: {{bosh-username}}
@@ -399,10 +103,10 @@ jobs:
     - { get: git-bits-service-release, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
   - put: bits-service-release-version
-    params: { file: bits-service-release-version/number }
+    params: { file: bits-service-release-version/version }
   - task: Create release
     file: ci-tasks/tasks/create-bits-release.yml
-    params: { VERSION_FILE: bits-service-release-version/number }
+    params: { VERSION_FILE: bits-service-release-version/version }
   - put: bits-service-release-tarball
     params: { file: releases/*.tgz }
   - put: git-bits-service-release
@@ -680,7 +384,7 @@ jobs:
     params: { file: capi-release-version/number }
   on_failure: *notify
 
-- name: Publish release tarball URLs
+- name: Publish Dev Release
   plan:
   - aggregate:
     - get: capi-release-tarball
@@ -702,6 +406,35 @@ jobs:
         name: bits-service-release-version/version
         tag: bits-service-release-version/version
         globs: [ "bits-service-release-tarball/*.tgz" ]
+  on_failure: *notify
+
+- name: Publish Final Release
+  plan:
+  - aggregate:
+    - get: bits-service-release-tarball
+      passed: *migration-tests-passed
+    - get: bits-service-release-version
+      passed:
+        - enable-BITS-SERVICE-diego-and-run-CATs
+        - migration-backwards-bosh1
+        - migration-backwards-bosh2
+      params: { bump: minor }
+    - get: ci-tasks
+      resource: git-bits-service-ci
+  - task: promote release
+    file: ci-tasks/tasks/promote-bits-service-final-release.yml
+    params:
+      VERSION_FILE: bits-service-release-version/number
+      TARBALL_DIR: bits-service-release-tarball
+  - aggregate:
+    - put: bits-service-github-final-release
+      params:
+        name: bits-service-release-version/version
+        tag: bits-service-release-version/version
+        only_tag: true
+        globs: [ "releases/*.tgz" ]
+    - put: bits-service-release-version
+      params: { file: bits-service-release-version/number }
   on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
@@ -854,7 +587,6 @@ jobs:
         <<: *sl-bosh-params
         DEPLOYMENT_NAME: bits-service-local
   on_failure: *notify
-
 
 - name: delete-deployment-bits-service-webdav
   plan:
@@ -1314,8 +1046,8 @@ jobs:
   plan:
     - aggregate:
       - { get: after-midnight, trigger: true }
-      - { get: bits-service-release-tarball, passed: [Publish release tarball URLs] }
-      - { get: capi-release-tarball, passed: [Publish release tarball URLs] }
+      - { get: bits-service-release-tarball, passed: [Publish Dev Release] }
+      - { get: capi-release-tarball, passed: [Publish Dev Release] }
       - { get: stemcell, resource: aws-stemcell }
       - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
       - { get: git-cf-deployment, trigger: true }
@@ -1367,3 +1099,308 @@ jobs:
     #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.enabled.CCs.1
     #     LOOP_COUNT: 5
   on_failure: *notify
+groups:
+- name: all
+  jobs:
+  - run-unit-and-integration-tests
+  - run-bits-service-client-tests
+  - Publish gem
+  - create-and-upload-release
+  - deploy-with-S3
+  - deploy-with-LOCAL
+  - deploy-with-WEBDAV
+  - deploy-and-test-with-s3-cf-softlayer
+  - run-system-tests-S3
+  - run-system-tests-LOCAL
+  - run-system-tests-WEBDAV
+  - create-capi-release
+  - deploy-and-test-cf-diego-aws
+  - enable-BITS-SERVICE-diego-and-run-CATs
+  - migration-bosh1 (S3)
+  - migration-bosh2 (webdav)
+  - migration-backwards-bosh1
+  - migration-backwards-bosh2
+  - bump-bits-service-release
+  - Publish Dev Release
+  - Publish Final Release
+- name: bits-service
+  jobs:
+  - run-unit-and-integration-tests
+  - create-and-upload-release
+  - deploy-with-S3
+  - deploy-with-LOCAL
+  - deploy-with-WEBDAV
+  - deploy-and-test-with-s3-cf-softlayer
+  - run-system-tests-S3
+  - run-system-tests-LOCAL
+  - run-system-tests-WEBDAV
+  - bump-bits-service-release
+- name: bits-service-client
+  jobs:
+  - run-bits-service-client-tests
+  - Publish gem
+- name: capi-release
+  jobs:
+  - create-capi-release
+  - create-and-upload-release
+  - deploy-and-test-cf-diego-aws
+  - enable-BITS-SERVICE-diego-and-run-CATs
+  - Publish Dev Release
+- name: migration
+  jobs:
+  - migration-backwards-bosh1
+  - migration-bosh1 (S3)
+  - migration-backwards-bosh2
+  - migration-bosh2 (webdav)
+- name: infrastructure
+  jobs:
+  - recreate-bosh-lite-1
+  - recreate-bosh-lite-2
+  - recreate-bosh-lite-acceptance
+  - cleanup-bosh-1
+  - cleanup-bosh-2
+  - cleanup-bosh-aws
+  - cleanup-bosh-acceptance
+  - manually-delete-cf-diego-aws
+  - manually-delete-cf-bosh1
+  - manually-delete-cf-bosh2
+  - delete-deployment-bits-service-local
+  - delete-deployment-bits-service-s3
+  - delete-deployment-bits-service-webdav
+  - update-cloud-config-bosh1
+  - update-cloud-config-bosh2
+- name: performance-tests
+  jobs:
+  - Publish Dev Release
+  - Run performance tests
+
+resource_types:
+- name: bosh2-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+
+resources:
+- name: slack
+  type: slack-notification
+  source:
+    url: {{slack-webhook}}
+
+- name: aws-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent }
+
+- name: boshlite-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
+
+- name: softlayer-stemcell
+  type: bosh-io-stemcell
+  source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent }
+
+- name: bits-service-release-tarball
+  type: s3
+  source: &s3-resource
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    region_name: eu-west-1
+    regexp: bits-service-release/bits-service-(.*).tgz
+    private: false
+
+- name: capi-release-tarball
+  type: s3
+  source:
+    <<: *s3-resource
+    regexp: capi-release/capi-(.*).tgz
+
+- name: git-bits-service-ci
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: master
+    private_key: {{github-private-key}}
+    paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
+
+- name: git-cf-deployment-cloud-config
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-deployment.git
+    branch: develop
+    paths: ["bosh-lite/cloud-config.yml"]
+
+- name: git-cf-deployment
+  type: git
+  source:
+    uri: https://github.com/idev4u/cf-deployment.git
+    branch: develop
+
+- name: git-deployment-vars
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    branch: master
+    private_key: {{github-private-key}}
+    disable_ci_skip: true
+
+- name: bits-service
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service.git
+    branch: master
+    path: ["lib/*", "spec/*", "vendor/*", "app.rb", "config.rb", "Gemfile.lock"]
+
+- name: git-bits-service-client
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-client.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: git-bits-service-release
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: bits-service-github-final-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bits-service-release
+    access_token: {{github-access-token}}
+    release: true
+    drafts: true
+
+- name: git-capi-release
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/capi-release.git
+    branch: master
+
+- name: git-cf-acceptance-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
+    branch: master
+
+- name: nightly-timer
+  type: time
+  source:
+    interval: 24h
+
+- name: aws-diego-deployment
+  type: bosh-deployment
+  source:
+    target: {{aws-bosh-target}}
+    username: {{aws-bosh-username}}
+    password: {{aws-bosh-password}}
+    deployment: cf
+
+- name: boshlite1-deployment
+  type: bosh-deployment
+  source:
+    target: {{bosh-target}}
+    username: {{bosh-username}}
+    password: {{bosh-password}}
+    deployment: cf
+
+- name: boshlite2-deployment
+  type: bosh-deployment
+  source:
+    target: {{bosh2-target}}
+    username: {{bosh2-username}}
+    password: {{bosh2-password}}
+    deployment: cf
+
+- name: bosh-deployment-bits-service-local
+  type: bosh2-deployment
+  source: &sl-bosh-deployment-source
+    target: {{sl-bosh-target}}
+    username: {{sl-bosh-username}}
+    password: {{sl-bosh-password}}
+    client: {{sl-bosh-username}}
+    client_secret: {{sl-bosh-password}}
+    deployment: bits-service-local
+    ca_cert: {{sl-bosh-ca-cert}}
+
+- name: bosh-deployment-bits-service-webdav
+  type: bosh2-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: bits-service-webdav
+
+- name: bosh-deployment-bits-service-s3
+  type: bosh2-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: bits-service-s3
+
+- name: softlayer-cf-deployment
+  type: bosh2-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: cf
+
+- name: capi-release-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    file: version/capi-release/version
+    private_key: {{github-private-key}}
+    initial_version: 1.41.0-dev.1
+
+- name: bits-service-release-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    file: version/bits-service-release/version
+    private_key: {{github-private-key}}
+    initial_version: 0.0.0-dev.2
+
+- name: cf-bosh1-deployment-events
+  type: semver
+  source: &deployment-events-source
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: events
+    file: events/cf-bosh1/deployment-deleted
+    private_key: {{github-private-key}}
+
+- name: cf-bosh2-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events/cf-bosh2/deployment-deleted
+
+- name: cf-diego-aws-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events/cf-diego-aws/deployment-deleted
+
+- name: after-midnight
+  type: time
+  source:
+    start: 12:00 AM
+    stop: 1:00 AM
+
+- name: bits-service-github-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bits-service-release
+    access_token: {{github-access-token}}
+    release: false
+    pre_release: true
