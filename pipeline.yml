@@ -428,8 +428,6 @@ jobs:
     - { get: bits-service-release-version, passed: [ enable-BITS-SERVICE-diego-and-run-CATs, migration-backwards-bosh1, migration-backwards-bosh2 ], params: { bump: minor } }
     - { get: git-bits-service-release }
     - { get: ci-tasks, resource: git-bits-service-ci }
-  - put: bits-service-release-version
-    params: { file: bits-service-release-version/number }
   - task: Create release
     file: ci-tasks/tasks/create-bits-release.yml
     params: { VERSION_FILE: bits-service-release-version/number }
@@ -439,6 +437,8 @@ jobs:
       tag: bits-service-release-version/version
       only_tag: true
       globs: [ "releases/*.tgz" ]
+  - put: bits-service-release-version
+    params: { file: bits-service-release-version/number }
   on_failure: *notify
 
 - name: deploy-with-S3
