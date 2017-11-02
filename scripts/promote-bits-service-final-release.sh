@@ -11,4 +11,4 @@ then
   printf "ls $TARBALL_DIR/*.tgz"
 fi
 
-cp $TARBALL_DIR/bits-service-*.tgz ../releases/bits-service-$version.tgz
+cp -v $TARBALL_DIR/bits-service-*.tgz releases/bits-service-${version}.tgz
