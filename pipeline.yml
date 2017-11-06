@@ -467,11 +467,11 @@ jobs:
       trigger: true
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
-    - { get: stemcell, resource: aws-stemcell }
+    - { get: stemcell, resource: aws-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
-    - { get: git-cf-acceptance-tests }
+    - { get: git-cf-acceptance-tests, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -538,11 +538,11 @@ jobs:
     - { get: capi-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: bits-service-release-version, passed: [deploy-and-test-cf-diego-aws] }
-    - { get: stemcell, resource: aws-stemcell }
+    - { get: stemcell, resource: aws-stemcell, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
-    - { get: git-cf-deployment, trigger: true }
+    - { get: git-cf-deployment, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-deployment-vars }
-    - { get: git-cf-acceptance-tests }
+    - { get: git-cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
