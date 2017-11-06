@@ -1238,7 +1238,7 @@ resources:
 - name: git-cf-deployment
   type: git
   source:
-    uri: https://github.com/idev4u/cf-deployment.git
+    uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: develop
 
 - name: git-deployment-vars
