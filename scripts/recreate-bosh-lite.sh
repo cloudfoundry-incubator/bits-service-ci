@@ -30,9 +30,9 @@ function create_vagrant_vm {
 
 function setup_boshlite {
   echo "-- Logging in to the new director"
-  ssh $SSH_CONNECTION_STRING "bosh --user admin --password admin target https://$BOSH_DIRECTOR_IP:25555 && bosh login admin admin"
+  ssh $SSH_CONNECTION_STRING "bosh1 --user admin --password admin target https://$BOSH_DIRECTOR_IP:25555 && bosh1 login admin admin"
   echo "-- Changing default user"
-  ssh $SSH_CONNECTION_STRING "bosh create user $BOSH_USERNAME $BOSH_PASSWORD"
+  ssh $SSH_CONNECTION_STRING "bosh1 create user $BOSH_USERNAME $BOSH_PASSWORD"
 }
 
 function set_networking {
