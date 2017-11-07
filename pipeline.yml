@@ -942,9 +942,10 @@ jobs:
 - name: recreate-bosh-lite-2
   serial: true
   plan:
-  - get: git-bits-service-ci
+  - get: ci-tasks
+    resource: git-bits-service-ci
   - task: recreate-bosh-lite
-    file: git-bits-service-ci/tasks/recreate-bosh-lite.yml
+    file: ci-tasks/tasks/recreate-bosh-lite.yml
     params:
       SSH_CONNECTION_STRING: root@10.155.171.22
       SSH_KEY: {{github-private-key}}
