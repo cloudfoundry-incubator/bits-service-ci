@@ -996,44 +996,48 @@ jobs:
 - name: cleanup-bosh-1
   serial: true
   plan:
-  - get: git-bits-service-ci
+  - get: ci-tasks
+    resource: git-bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
-    file: git-bits-service-ci/tasks/bosh-cleanup.yml
+    file: ci-tasks/tasks/bosh-cleanup.yml
     params: *bosh1-params
   on_failure: *notify
 
 - name: cleanup-bosh-2
   serial: true
   plan:
-  - get: git-bits-service-ci
+  - get: ci-tasks
+    resource: git-bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
-    file: git-bits-service-ci/tasks/bosh-cleanup.yml
+    file: ci-tasks/tasks/bosh-cleanup.yml
     params: *bosh2-params
   on_failure: *notify
 
 - name: cleanup-bosh-aws
   serial: true
   plan:
-  - get: git-bits-service-ci
+  - get: ci-tasks
+    resource: git-bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
-    file: git-bits-service-ci/tasks/bosh-cleanup.yml
+    file: ci-tasks/tasks/bosh-cleanup.yml
     params: *aws-bosh-params
   on_failure: *notify
 
 - name: cleanup-bosh-acceptance
   serial: true
   plan:
-  - get: git-bits-service-ci
+  - get: ci-tasks
+    resource: git-bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
-    file: git-bits-service-ci/tasks/bosh-cleanup.yml
+    file: ci-tasks/tasks/bosh-cleanup.yml
     params:
       BOSH_USERNAME: {{bosh-acceptance-username}}
       BOSH_PASSWORD: {{bosh-acceptance-password}}
