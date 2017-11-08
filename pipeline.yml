@@ -952,8 +952,8 @@ jobs:
       SSH_KEY: {{github-private-key}}
       BOSH_USERNAME: {{bosh2-username}}
       BOSH_PASSWORD: {{bosh2-password}}
-      BOSH_DIRECTOR_IP: 192.168.100.4
-      VAGRANT_GATEWAY: 192.168.100.1
+      BOSH_DIRECTOR_IP: 192.168.50.4
+      VAGRANT_GATEWAY: 192.168.50.1
   on_failure: *notify
 
 - name: recreate-bosh-lite-acceptance
