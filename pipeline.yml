@@ -1129,6 +1129,8 @@ groups:
   - bump-bits-service-release
   - Publish Dev Release
   - Publish Final Release
+  - update-cloud-config-bosh1
+  - update-cloud-config-bosh2
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -1173,8 +1175,6 @@ groups:
   - delete-deployment-bits-service-local
   - delete-deployment-bits-service-s3
   - delete-deployment-bits-service-webdav
-  - update-cloud-config-bosh1
-  - update-cloud-config-bosh2
 - name: performance-tests
   jobs:
   - Publish Dev Release
