@@ -636,7 +636,7 @@ jobs:
       manifests: git-cf-deployment-cloud-config
     params:
       <<: *bosh1-params
-      MANIFEST: bosh-lite/cloud-config.yml
+      MANIFEST: *bosh-lite-cloud-config-path
   on_failure: *notify
 
 - name: migration-bosh1 (S3)
@@ -800,7 +800,7 @@ jobs:
       manifests: git-cf-deployment-cloud-config
     params:
       <<: *bosh2-params
-      MANIFEST: iaas-support/bosh-lite/cloud-config.yml
+      MANIFEST: *bosh-lite-cloud-config-path
   on_failure: *notify
 
 # no-migration tests for webdav with cf-deployment
@@ -1239,7 +1239,8 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: develop
-    paths: ["iaas-support/bosh-lite/cloud-config.yml"]
+    paths:
+      - &bosh-lite-cloud-config-path iaas-support/bosh-lite/cloud-config.yml
 
 - name: git-cf-deployment
   type: git
