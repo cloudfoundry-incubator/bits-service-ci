@@ -9,7 +9,8 @@ inputs:
 - name: bits-service-release-version
 
 params:
-  VERSION_FILE:
+  VERSION_FILE: not-configured
+  PRIVATE_YML_CONTENT: not-configured
 
 outputs:
 - name: releases
