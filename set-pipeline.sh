@@ -14,7 +14,7 @@ rubygems_api_key=$(lpass show "Shared-Flintstone"/flintstone@rubygems.org --note
 bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username)
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
 slack_webhook=$(lpass show "Shared-Flintstone"/"Flintstone Slack Webhook" --password)
-
+private_yml=$(lpass show "Shared-Flintstone/private.yml" --notes)
 
 echo 'Installing overbook...'
 set +e
@@ -38,7 +38,8 @@ fly \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
   -v sl-bosh-ca-cert="$(bosh int ~/workspace/bits-service-private-config/environments/softlayer/director/vars.yml --path /director_ssl/ca)" \
   -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)" \
-  -v slack-webhook="${slack_webhook}"
+  -v slack-webhook="${slack_webhook}" \
+  -v private-yml="${private_yml}"
 
 rm -f pipeline-overbooked.yml
 rm -f config.yml
