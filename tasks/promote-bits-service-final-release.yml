@@ -12,7 +12,8 @@ params:
   PRIVATE_YML_CONTENT: not-configured
 
 outputs:
-- name: release
+- name: release-git-repo-final
+- name: release-tarball
 
 run:
   path: ci-tasks/scripts/promote-bits-service-final-release.sh
