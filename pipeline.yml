@@ -423,18 +423,18 @@ jobs:
       resource: git-bits-service-ci
   - task: promote release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
-    params:
-      VERSION_FILE: bits-service-release-version/number
-      TARBALL_DIR: bits-service-release-tarball
+    input_mapping:
+      release-version: bits-service-release-version/version
+      release-git-repo: git-bits-service-release
   - aggregate:
     - put: bits-service-github-final-release
       params:
         name: bits-service-release-version/version
         tag: bits-service-release-version/version
         only_tag: true
-        globs: [ "releases/*.tgz" ]
+        globs: [ "release/*.tgz" ]
     - put: bits-service-release-version
-      params: { file: bits-service-release-version/number }
+      params: { file: bits-service-release-version/version }
   on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
@@ -1230,7 +1230,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: master
+    branch: wip-finalize-release
     private_key: {{github-private-key}}
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
 
