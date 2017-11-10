@@ -1,14 +1,10 @@
 #!/bin/bash -ex
 
-version=$(cat release-tarball/version)
+version=$(cat release-version/version)
 
-# cp -v release-tarball/bits-service-*.tgz releases/bits-service-${version}.tgz
+# cd release-git-repo
+# bosh2 -n sync-blobs --parallel 10
+bosh2 create-release --final --name bits-service --tarball release/bits-service-$version.tgz --version $version --dir=release-git-repo/
 
-cd release-git-repo
-bosh finalize-release ../release-tarball/*.tgz --version $version
-git add .
+git add .final_builds/ releases/
 git commit -am "Final release $version"
-
-bosh create-release releases/bits-service/bits-service-$version.yml
-
-cp release-git-repo bumped
