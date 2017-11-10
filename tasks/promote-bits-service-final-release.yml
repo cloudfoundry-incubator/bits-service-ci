@@ -8,6 +8,9 @@ inputs:
 - name: release-version
 - name: release-git-repo
 
+params:
+  PRIVATE_YML_CONTENT: not-configured
+
 outputs:
 - name: release
 

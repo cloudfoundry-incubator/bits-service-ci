@@ -413,6 +413,7 @@ jobs:
   - aggregate:
     - get: bits-service-release-tarball
       passed: *migration-tests-passed
+    - get: git-bits-service-release
     - get: bits-service-release-version
       passed:
         - enable-BITS-SERVICE-diego-and-run-CATs
@@ -424,8 +425,10 @@ jobs:
   - task: promote release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
-      release-version: bits-service-release-version/version
+      release-version: bits-service-release-version
       release-git-repo: git-bits-service-release
+    params:
+      PRIVATE_YML_CONTENT: {{private-yml}}
   - aggregate:
     - put: bits-service-github-final-release
       params:
