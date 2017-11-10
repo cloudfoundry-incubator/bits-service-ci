@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 version=$(cat release-version/version)
-echo $PRIVATE_YML_CONTENT > release-git-repo/config/private.yml
+echo "$PRIVATE_YML_CONTENT" > release-git-repo/config/private.yml
 
 cd release-git-repo
 # bosh2 -n sync-blobs --parallel 10
