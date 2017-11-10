@@ -364,18 +364,10 @@ jobs:
       capi-release: git-capi-release
   - task: Show patched CC Gemfile.lock
     file: ci-tasks/tasks/show-patched-cc.yml
-  - task: 'Patch: Add bits-service ca_cert property in CC'
-    file: ci-tasks/tasks/git-apply-patch-to-submodule.yml
-    input_mapping: { git_repo: patched-capi-release }
-    output_mapping: { patched_repo: patched-capi-release-ca-cert }
-    params:
-      PATCH_URL: https://github.com/idev4u/cloud_controller_ng/commit/0f287544ba41e430694914edb4eb05588f0930b1.diff
-      SUBMODULE: git_repo/src/cloud_controller_ng
-
   - task: Create capi-release tarball
     file: ci-tasks/tasks/create-capi-release.yml
     input_mapping:
-      capi-release: patched-capi-release-ca-cert
+      capi-release: patched-capi-release
     params:
       VERSION_FILE: capi-release-version/number
   - put: capi-release-tarball
@@ -411,7 +403,7 @@ jobs:
 - name: Publish Final Release
   plan:
   - aggregate:
-    - get: bits-service-release-tarball
+    - get: git-bits-service-release
       passed: *migration-tests-passed
     - get: bits-service-release-version
       passed:
@@ -423,18 +415,23 @@ jobs:
       resource: git-bits-service-ci
   - task: promote release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
+    input_mapping:
+      release-version: bits-service-release-version
+      release-git-repo: git-bits-service-release
     params:
-      VERSION_FILE: bits-service-release-version/number
-      TARBALL_DIR: bits-service-release-tarball
+      PRIVATE_YML_CONTENT: {{private-yml}}
   - aggregate:
     - put: bits-service-github-final-release
       params:
         name: bits-service-release-version/version
         tag: bits-service-release-version/version
         only_tag: true
-        globs: [ "releases/*.tgz" ]
+        globs: [ "release-tarball/*.tgz" ]
     - put: bits-service-release-version
-      params: { file: bits-service-release-version/number }
+      params: { file: bits-service-release-version/version }
+    - put: git-bits-service-release
+      params: { repository: release-git-repo-final }
+
   on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
@@ -472,6 +469,7 @@ jobs:
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, trigger: true }
+    - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -543,6 +541,7 @@ jobs:
     - { get: git-cf-deployment, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: git-bits-service-release, passed: [deploy-and-test-cf-diego-aws], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -652,6 +651,7 @@ jobs:
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
+    - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -736,6 +736,7 @@ jobs:
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
+    - { get: git-bits-service-release, passed: [migration-bosh1 (S3)], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -817,6 +818,7 @@ jobs:
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
+    - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -885,6 +887,7 @@ jobs:
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
+    - { get: git-bits-service-release, passed: [migration-bosh2 (webdav)], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:

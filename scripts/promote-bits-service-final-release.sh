@@ -1,14 +1,12 @@
 #!/bin/bash -ex
 
-version=$(cat $VERSION_FILE)
+version=$(cat release-version/version)
+echo "$PRIVATE_YML_CONTENT" > release-git-repo/config/private.yml
 
-#uploading /tmp/build/put/bits-service-release-tarball/bits-service-1.1.0-dev.1.tgz
-# cp $TARBALL_DIR/bits-service-${tarbal-dev-version}.tgz ../releases/bits-service-$version.tgz --version $version
-TGZ_COUNT=`ls $TARBALL_DIR/*.tgz | wc -l`
-if [ ${TGZ_COUNT} -ne 1 ]
-then
-  printf "warning more then one tarball \n"
-  printf "ls $TARBALL_DIR/*.tgz"
-fi
+cd release-git-repo
+# bosh2 -n sync-blobs --parallel 10
+bosh2 create-release --final --name bits-service --tarball ../release-tarball/bits-service-$version.tgz --version $version
+git add .
+git commit -am "Final release $version"
 
-cp -v $TARBALL_DIR/bits-service-*.tgz releases/bits-service-${version}.tgz
+cp -a release-git-repo/. release-git-repo-final
