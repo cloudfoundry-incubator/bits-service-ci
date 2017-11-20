@@ -1108,6 +1108,23 @@ jobs:
     #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.enabled.CCs.1
     #     LOOP_COUNT: 5
   on_failure: *notify
+- name: Sync cf-deployment fork
+  plan:
+    - aggregate:
+      - get: git-cf-deployment
+      - get: git-cf-deployment-upstream
+        trigger: true
+      - get: ci-tasks
+        resource: git-bits-service-ci
+    - task: sync
+      file: ci-tasks/tasks/sync-repo.yml
+      input_mapping:
+        fork-repo: git-cf-deployment
+        upstream-repo: git-cf-deployment-upstream
+      params: { BRANCH: develop }
+    - put: git-cf-deployment
+      params: { repository: synced-repo, force: true }
+
 groups:
 - name: all
   jobs:
@@ -1134,6 +1151,7 @@ groups:
   - Publish Final Release
   - update-cloud-config-bosh1
   - update-cloud-config-bosh2
+  - Sync cf-deployment fork
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -1240,12 +1258,18 @@ resources:
 - name: git-cf-deployment-cloud-config
   type: git
   source:
-    uri: https://github.com/cloudfoundry/cf-deployment.git
+    uri: https://github.com/petergtz/cf-deployment.git
     branch: develop
     paths:
       - &bosh-lite-cloud-config-path iaas-support/bosh-lite/cloud-config.yml
 
 - name: git-cf-deployment
+  type: git
+  source:
+    uri: git@github.com:petergtz/cf-deployment.git
+    branch: develop
+    private_key: {{github-private-key}}
+- name: git-cf-deployment-upstream
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
