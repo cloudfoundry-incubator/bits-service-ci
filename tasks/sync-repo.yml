@@ -11,5 +11,8 @@ inputs:
 outputs:
 - name: synced-repo
 
+params:
+  BRANCH: master
+
 run:
   path: ci-tasks/scripts/sync-repo.sh
