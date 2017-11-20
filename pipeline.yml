@@ -650,6 +650,7 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
+    - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
@@ -817,6 +818,7 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
+    - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
