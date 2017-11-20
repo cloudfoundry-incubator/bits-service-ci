@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 pushd fork-repo
-git co $BRANCH
+git checkout $BRANCH
 git remote add upstream ../upstream-repo
 git remote -vvv
 git fetch upstream
