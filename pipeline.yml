@@ -627,6 +627,7 @@ jobs:
 - name: update-cloud-config-bosh1
   plan:
   - aggregate:
+    - { get: bosh1-recreation-events, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment-cloud-config, trigger: true }
   - task: Update cloud-config
@@ -650,6 +651,7 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
+    - { get: bosh1-recreation-events, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
@@ -794,6 +796,7 @@ jobs:
 - name: update-cloud-config-bosh2
   plan:
   - aggregate:
+    - { get: bosh2-recreation-events, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-cf-deployment-cloud-config, trigger: true }
   - task: Update cloud-config
@@ -818,6 +821,7 @@ jobs:
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
+    - { get: bosh2-recreation-events, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
@@ -932,8 +936,11 @@ jobs:
 - name: recreate-bosh-lite-1
   serial: true
   plan:
-  - get: ci-tasks
-    resource: git-bits-service-ci
+  - aggregate:
+    - get: ci-tasks
+      resource: git-bits-service-ci
+    - get: bosh1-recreation-events
+      params: { bump: major }
   - task: recreate-bosh-lite
     file: ci-tasks/tasks/recreate-bosh-lite.yml
     params:
@@ -943,13 +950,18 @@ jobs:
       BOSH_PASSWORD: {{bosh-password}}
       BOSH_DIRECTOR_IP: 192.168.50.4
       VAGRANT_GATEWAY: 192.168.50.1
+  - put: bosh1-recreation-events
+    params: { file: bosh1-recreation-events/number }
   on_failure: *notify
 
 - name: recreate-bosh-lite-2
   serial: true
   plan:
-  - get: ci-tasks
-    resource: git-bits-service-ci
+  - aggregate:
+    - get: ci-tasks
+      resource: git-bits-service-ci
+    - get: bosh2-recreation-events
+      params: { bump: major }
   - task: recreate-bosh-lite
     file: ci-tasks/tasks/recreate-bosh-lite.yml
     params:
@@ -959,6 +971,8 @@ jobs:
       BOSH_PASSWORD: {{bosh2-password}}
       BOSH_DIRECTOR_IP: 192.168.50.4
       VAGRANT_GATEWAY: 192.168.50.1
+  - put: bosh2-recreation-events
+    params: { file: bosh2-recreation-events/number }
   on_failure: *notify
 
 - name: recreate-bosh-lite-acceptance
@@ -1419,6 +1433,21 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-bosh2/deployment-deleted
+
+- name: bosh1-recreation-events
+  type: semver
+  source: &recreation-events-source
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: events
+    file: events/bosh1/recreated
+    private_key: {{github-private-key}}
+
+- name: bosh2-recreation-events
+  type: semver
+  source:
+    <<: *recreation-events-source
+    file: events/bosh2/recreated
 
 - name: cf-diego-aws-deployment-events
   type: semver
