@@ -1,0 +1,24 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: ci-tasks
+- name: bits-service-release
+
+params:
+  SSH_CONNECTION_STRING: unconfigured
+  SSH_KEY: unconfigured
+  REMOTE_HOST: unconfigured
+  CF_DOMAIN: unconfigured
+  test_suite: unconfigured
+  cf_admin_password: unconfigured
+  BSMT_PERSISTENT_ORG: unconfigured
+  BSMT_PERSISTENT_SPACE: unconfigured
+  noColorFlag: 
+  verbose: 
+  DEBUG:
+
+run:
+  path: ci-tasks/scripts/run-bits-service-migration-tests.sh
