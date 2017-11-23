@@ -14,19 +14,13 @@ function setup_ssh {
   local ip=$(echo $SSH_CONNECTION_STRING | cut -d "@" -f2)
 
   ssh-keyscan -t rsa,dsa $ip >> ~/.ssh/known_hosts
-  ssh $SSH_CONNECTION_STRING -i $PWD/.ssh-key -L 80:$REMOTE_HOST:8080 -N &
-  ssh $SSH_CONNECTION_STRING -i $PWD/.ssh-key -L 443:$REMOTE_HOST:4443 -N &
-  sleep 3 # just making sure that the tunnels are up
   export SSH_CONNECTION_STRING="$SSH_CONNECTION_STRING -i $PWD/.ssh-key"
 }
 
 setup_ssh
-# TODO: instead change the system domain in the cf deployment and use change-ip
-echo "127.0.0.1 api.bosh-lite.com" >> /etc/hosts
-echo "127.0.0.1 uaa.bosh-lite.com" >> /etc/hosts
-echo "127.0.0.1 login.bosh-lite.com" >> /etc/hosts
-echo "127.0.0.1 ssh.bosh-lite.com" >> /etc/hosts
-echo "127.0.0.1 doppler.bosh-lite.com" >> /etc/hosts
+ssh $SSH_CONNECTION_STRING "ssh root@192.168.50.4 -L 80:10.244.0.34:80 -N" &
+ssh $SSH_CONNECTION_STRING "ssh root@192.168.50.4 -L 443:10.244.0.34:443 -N" &
+sleep 3
 
 export GOPATH=$PWD/bits-service-release
 export PATH=${GOPATH}/bin:${PATH}
@@ -50,4 +44,4 @@ cat > config.json <<EOF
 EOF
 export CONFIG="$(readlink -nf config.json)"
 
-bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose -keepGoing $test_suite
+bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose -v -progress -keepGoing $test_suite
