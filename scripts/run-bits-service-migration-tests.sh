@@ -25,6 +25,8 @@ sleep 3
 export GOPATH=$PWD/bits-service-release
 export PATH=${GOPATH}/bin:${PATH}
 
+cf_admin_password=`bosh2 int deployment-vars/environments/$BOSH_ENV/deployment-vars-cf.yml --path /cf_admin_password`
+
 cd bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-migration-tests
 
 cat > config.json <<EOF
