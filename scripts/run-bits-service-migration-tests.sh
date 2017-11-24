@@ -7,20 +7,20 @@ if [ -n "$DEBUG" ]; then
 fi
 
 
-function setup_ssh {
-  echo "$SSH_KEY" > $PWD/.ssh-key
-  chmod 600 $PWD/.ssh-key
-  mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  local ip=$(echo $SSH_CONNECTION_STRING | cut -d "@" -f2)
+# function setup_ssh {
+#   echo "$SSH_KEY" > $PWD/.ssh-key
+#   chmod 600 $PWD/.ssh-key
+#   mkdir -p ~/.ssh && chmod 700 ~/.ssh
+#   local ip=$(echo $SSH_CONNECTION_STRING | cut -d "@" -f2)
 
-  ssh-keyscan -t rsa,dsa $ip >> ~/.ssh/known_hosts
-  export SSH_CONNECTION_STRING="$SSH_CONNECTION_STRING -i $PWD/.ssh-key"
-}
+#   ssh-keyscan -t rsa,dsa $ip >> ~/.ssh/known_hosts
+#   export SSH_CONNECTION_STRING="$SSH_CONNECTION_STRING -i $PWD/.ssh-key"
+# }
 
-setup_ssh
-ssh $SSH_CONNECTION_STRING "ssh root@192.168.50.4 -L 80:10.244.0.34:80 -N" &
-ssh $SSH_CONNECTION_STRING "ssh root@192.168.50.4 -L 443:10.244.0.34:443 -N" &
-sleep 3
+# setup_ssh
+# ssh $SSH_CONNECTION_STRING "ssh root@192.168.50.4 -L 80:10.244.0.34:80 -N" &
+# ssh $SSH_CONNECTION_STRING "ssh root@192.168.50.4 -L 443:10.244.0.34:443 -N" &
+# sleep 3
 
 export GOPATH=$PWD/bits-service-release
 export PATH=${GOPATH}/bin:${PATH}
