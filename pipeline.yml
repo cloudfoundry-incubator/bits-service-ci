@@ -693,12 +693,13 @@ jobs:
     params: &boshlite1-bsmt-preparation-params
       test_suite: preparation
       CF_DOMAIN: boshlite1.dynamic-dns.net
-      BOSH_ENV: bosh1
       SSH_CONNECTION_STRING: root@10.155.171.3
+      SSH_KEY: {{github-private-key}}
       BSMT_PERSISTENT_ORG: BSMT-persistent-org
       BSMT_PERSISTENT_SPACE: BSMT-persistent-space
       REMOTE_HOST: 10.155.171.3
       DEBUG: true
+      DEPLOYMENT_VARS_FILE: deployment-vars/environments/bosh1/deployment-vars-cf.yml
     on_failure: &inform-pipeline-operator-bosh1-migration-tests
       task: inform-pipeline-operator
       file: ci-tasks/tasks/echo.yml
@@ -731,6 +732,7 @@ jobs:
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping:
       bits-service-release: git-bits-service-release
+      deployment-vars: git-deployment-vars
     params: &boshlite1-bsmt-verification-params
       <<: *boshlite1-bsmt-preparation-params
       test_suite: verification
@@ -768,6 +770,7 @@ jobs:
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping:
       bits-service-release: git-bits-service-release
+      deployment-vars: git-deployment-vars
     params: *boshlite1-bsmt-preparation-params
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
   - task: Generate CF deployment manifest with bits-service disabled
