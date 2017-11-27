@@ -14,7 +14,7 @@ params:
   REMOTE_HOST: unconfigured
   CF_DOMAIN: unconfigured
   test_suite: unconfigured
-  BOSH_ENV: unconfigured
+  DEPLOYMENT_VARS_FILE: unconfigured
   BSMT_PERSISTENT_ORG: unconfigured
   BSMT_PERSISTENT_SPACE: unconfigured
   noColorFlag: 
