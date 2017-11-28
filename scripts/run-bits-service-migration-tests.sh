@@ -6,41 +6,6 @@ if [ -n "$DEBUG" ]; then
   go version
 fi
 
-function setup_ssh() {
-  echo "$SSH_KEY" >$PWD/.ssh-key
-  chmod 600 $PWD/.ssh-key
-  mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  local ip=$(echo $SSH_CONNECTION_STRING | cut -d "@" -f2)
-  ssh-keyscan -t rsa,dsa $ip >>~/.ssh/known_hosts
-}
-
-function is_tunnel_up() {
-  ssh $conn_str "nc -z localhost $1"
-}
-
-function wait_for_tunnel() {
-  local result=1
-  local n=0
-  until [ $n -ge 5 ]; do
-    if is_tunnel_up $1; then
-      result=0
-      break
-    fi
-
-    n=$(($n + 1))
-    sleep 1
-  done
-
-  return $result
-}
-
-setup_ssh
-conn_str="$SSH_CONNECTION_STRING -i $PWD/.ssh-key"
-ssh $conn_str "ssh root@192.168.50.4 -L 80:10.244.0.34:80 -N" &
-ssh $conn_str "ssh root@192.168.50.4 -L 443:10.244.0.34:443 -N" &
-wait_for_tunnel 80
-wait_for_tunnel 443
-
 export GOPATH=$PWD/bits-service-release
 export PATH=${GOPATH}/bin:${PATH}
 
