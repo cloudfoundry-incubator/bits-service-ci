@@ -687,7 +687,7 @@ jobs:
   - task: Run migration preparation tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
-    input_mapping:
+    input_mapping: &migration-tests-input-mappings
       bits-service-release: git-bits-service-release
       deployment-vars: git-deployment-vars
     params: &boshlite1-bsmt-preparation-params
@@ -698,7 +698,6 @@ jobs:
       BSMT_PERSISTENT_ORG: BSMT-persistent-org
       BSMT_PERSISTENT_SPACE: BSMT-persistent-space
       REMOTE_HOST: 10.155.171.3
-      DEBUG: true
       DEPLOYMENT_VARS_FILE: deployment-vars/environments/bosh1/deployment-vars-cf.yml
     on_failure: &inform-pipeline-operator-bosh1-migration-tests
       task: inform-pipeline-operator
@@ -730,9 +729,7 @@ jobs:
   - task: Run migration verification tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
-    input_mapping:
-      bits-service-release: git-bits-service-release
-      deployment-vars: git-deployment-vars
+    input_mapping: *migration-tests-input-mappings
     params: &boshlite1-bsmt-verification-params
       <<: *boshlite1-bsmt-preparation-params
       test_suite: verification
@@ -768,9 +765,7 @@ jobs:
   - task: Run migration preparation tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
-    input_mapping:
-      bits-service-release: git-bits-service-release
-      deployment-vars: git-deployment-vars
+    input_mapping: *migration-tests-input-mappings
     params: *boshlite1-bsmt-preparation-params
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
   - task: Generate CF deployment manifest with bits-service disabled
@@ -789,8 +784,7 @@ jobs:
   - task: Run migration verification tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
-    input_mapping:
-      bits-service-release: git-bits-service-release
+    input_mapping: *migration-tests-input-mappings
     params: *boshlite1-bsmt-verification-params
     on_failure: *inform-pipeline-operator-bosh1-migration-tests
   on_failure: *notify
@@ -858,6 +852,7 @@ jobs:
       OPERATIONS: >
         -o ci-tasks/operations/disable-bits-service.yml
         -o ci-tasks/operations/bsmt-errands.yml
+      CF_DOMAIN: boshlite2.dynamic-dns.net
   - put: git-deployment-vars
     params:
       repository: updated/deployment-vars
@@ -865,8 +860,14 @@ jobs:
     params: *params-deployment-bits-service-disabled
   - task: Run migration preparation tests
     attempts: 3
-    file: ci-tasks/tasks/run-errand.yml
-    params: *boshlite2-bsmt-preparation-errand-params
+    file: ci-tasks/tasks/run-bits-service-migration-tests.yml
+    input_mapping: *migration-tests-input-mappings
+    params: &boshlite2-bsmt-preparation-params
+      <<: *boshlite1-bsmt-preparation-params
+      CF_DOMAIN: boshlite2.dynamic-dns.net
+      SSH_CONNECTION_STRING: root@10.155.171.22
+      REMOTE_HOST: 10.155.171.22
+      DEPLOYMENT_VARS_FILE: deployment-vars/environments/bosh2/deployment-vars-cf.yml
     on_failure: &inform-pipeline-operator-bosh2-migration-tests
       task: inform-pipeline-operator
       file: ci-tasks/tasks/echo.yml
@@ -893,8 +894,11 @@ jobs:
     params: *params-deployment-bits-service-enabled
   - task: Run migration verification tests
     attempts: 3
-    file: ci-tasks/tasks/run-errand.yml
-    params: *boshlite2-bsmt-verification-errand-params
+    file: ci-tasks/tasks/run-bits-service-migration-tests.yml
+    input_mapping: *migration-tests-input-mappings
+    params: &boshlite2-bsmt-verification-params
+      <<: *boshlite2-bsmt-preparation-params
+      test_suite: verification
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
   on_failure: *notify
 
@@ -924,10 +928,11 @@ jobs:
       repository: updated/deployment-vars
   - put: boshlite2-deployment
     params: *params-deployment-bits-service-enabled
-  - task: Run preparation tests
-    file: ci-tasks/tasks/run-errand.yml
+  - task: Run migration preparation tests
+    file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     attempts: 3
-    params: *boshlite2-bsmt-preparation-errand-params
+    input_mapping: *migration-tests-input-mappings
+    params: *boshlite2-bsmt-preparation-params
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
@@ -942,10 +947,11 @@ jobs:
       repository: updated/deployment-vars
   - put: boshlite2-deployment
     params: *params-deployment-bits-service-disabled
-  - task: Run verification tests
-    file: ci-tasks/tasks/run-errand.yml
+  - task: Run migration verification tests
+    file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     attempts: 3
-    params: *boshlite2-bsmt-verification-errand-params
+    input_mapping: *migration-tests-input-mappings
+    params: *boshlite2-bsmt-verification-params
     on_failure: *inform-pipeline-operator-bosh2-migration-tests
   on_failure: *notify
 
