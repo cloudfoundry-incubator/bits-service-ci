@@ -41,6 +41,7 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   -v stemcell_version="latest" \
   -o cf-deployment/operations/experimental/bits-service.yml \
   -o cf-deployment/operations/experimental/enable-bits-service-https.yml \
+  -o cf-deployment/operations/experimental/enable-bits-service-consul.yml \
   -o cf-deployment/operations/experimental/bits-service-"${BLOBSTORE_TYPE}".yml \
   ${OPERATIONS} \
   ${VARIABLES} \
