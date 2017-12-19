@@ -16,6 +16,8 @@ params:
   BITS_SERVICE_PRIVATE_ENDPOINT_IP: unconfigured
   DEPLOYMENT_NAME: unconfigured
   ENVIRONMENT_NAME: unconfigured
+  DIRECTOR_NAME: unconfigured
+  DIRECTOR_IP: unconfigured
 
 run:
   path: ci-tasks/scripts/run-release-tests.sh

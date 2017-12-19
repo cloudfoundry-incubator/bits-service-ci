@@ -24,14 +24,8 @@ export CC_PASSWORD=$(
 export CC_USER=admin
 
 echo "${BITS_SERVICE_PRIVATE_ENDPOINT_IP} bits-service.service.cf.internal" >> /etc/hosts
-echo "${DIRECTOR_IP} ${DIRECTOR_NAME}" >> /etc/hosts
 
 cd $(dirname $0)/../../bits-service-system-test-source
-
-export BOSH_CLIENT=$BOSH_USERNAME
-export BOSH_CLIENT_SECRET=$BOSH_PASSWORD
-export BOSH_DEPLOYMENT=$DEPLOYMENT_NAME
-export BOSH_ENVIRONMENT=$DIRECTOR_NAME
 
 bundle install
 bundle exec rspec --tag ~type:limits

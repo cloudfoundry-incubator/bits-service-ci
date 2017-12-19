@@ -15,8 +15,6 @@ params:
   DEPLOYMENT_NAME: unconfigured
   ENVIRONMENT_NAME:
   CF_DOMAIN:
-  DIRECTOR_NAME: unconfigured
-  DIRECTOR_IP: unconfigured
 
 run:
   path: ci-tasks/scripts/run-system-tests.sh
