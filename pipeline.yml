@@ -442,6 +442,20 @@ jobs:
   - put: cf-diego-aws-deployment-events
     params: { file: cf-diego-aws-deployment-events/number }
   on_failure: *notify
+- name: manually-delete-s3-cf-softlayer
+  serial: true
+  plan:
+  - aggregate:
+    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: s3-cf-softlayer-deployment-events, params: { bump: major } }
+  - task: delete-deployment
+    file: ci-tasks/tasks/delete-deployment.yml
+    params:
+      <<: *sl-bosh-params
+      DEPLOYMENT_NAME: cf
+  - put: s3-cf-softlayer-deployment-events
+    params: { file: s3-cf-softlayer-deployment-events/number }
+  on_failure: *notify
 
 - name: deploy-and-test-cf-diego-aws
   serial: true
@@ -1232,6 +1246,7 @@ groups:
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
+  - manually-delete-s3-cf-softlayer
   - delete-deployment-bits-service-local
   - delete-deployment-bits-service-s3
   - delete-deployment-bits-service-webdav
@@ -1477,7 +1492,11 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-diego-aws/deployment-deleted
-
+- name: s3-cf-softlayer-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events/cf-diego-aws/deployment-deleted
 - name: after-midnight
   type: time
   source:
