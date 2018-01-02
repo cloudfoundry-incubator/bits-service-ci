@@ -8,6 +8,8 @@ sl-bosh-params: &sl-bosh-params
   BOSH_USERNAME: {{sl-bosh-username}}
   BOSH_PASSWORD: {{sl-bosh-password}}
   ENVIRONMENT_NAME: softlayer
+  DIRECTOR_IP: {{sl-bosh-director-ip}}
+  DIRECTOR_NAME: {{sl-bosh-director-name}}
 
 bosh2-params: &bosh2-params
   BOSH_TARGET: {{bosh2-target}}
@@ -341,8 +343,6 @@ jobs:
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: softlayer
       CF_DOMAIN: {{sl-cf1-domain}}
-      DIRECTOR_IP: {{sl-bosh-director-ip}}
-      DIRECTOR_NAME: {{sl-bosh-director-name}}
   on_failure: *notify
 
 # CAPI-RELEASE
