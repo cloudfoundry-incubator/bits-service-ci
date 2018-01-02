@@ -117,6 +117,7 @@ jobs:
   serial_groups: [bits-deployment-s3]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
@@ -147,7 +148,7 @@ jobs:
       params: &sl-bits-service-deployment-params
         manifest: manifests/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
-        releases: ["bits-service-release-tarball/*.tgz"]
+        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
   on_failure: *notify
 
@@ -179,6 +180,7 @@ jobs:
   serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
@@ -233,6 +235,7 @@ jobs:
   serial_groups: [bits-deployment-webdav]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
