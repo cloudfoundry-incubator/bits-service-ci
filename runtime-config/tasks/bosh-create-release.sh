@@ -9,7 +9,6 @@ popd
 echo $version > version/number
 
 pushd release-repo
-  bosh -n --parallel 10 sync blobs
-  bosh -n create release --force --name $RELEASE_NAME --with-tarball --version $version
+  bosh2 -n --parallel 10 sync-blobs
+  bosh2 -n create-release --force --name $RELEASE_NAME --tarball ../release-tarball/$RELEASE_NAME-$version.tgz  --version $version
 popd
-mv release-repo/dev_releases/$RELEASE_NAME/$RELEASE_NAME-*.tgz release-tarball
