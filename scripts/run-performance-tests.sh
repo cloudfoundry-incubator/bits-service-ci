@@ -30,7 +30,7 @@ EOT
   login_response=$(curl \
     -X POST \
     -d "user=$BLUEMIX_USERNAME&passwd=$BLUEMIX_PASSWORD&organization=Cloud%20Foundry%20Flintstone&space=performance-tests" \
-    https://logmet.ng.bluemix.net/login)
+    https://metrics.ng.bluemix.net/login)
 
   logging_token=$(echo $login_response | jq --raw-output .logging_token)
   space_id=$(echo $login_response | jq --raw-output .space_id)
