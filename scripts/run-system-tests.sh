@@ -29,3 +29,6 @@ cd $(dirname $0)/../../bits-service-system-test-source
 
 bundle install
 bundle exec rspec --tag ~type:limits
+
+echo "IMPORTANT: When this test fails with 'No route to host', make sure our dyndns entries on changeip.com point to the correct IPs within the CF deployment."
+echo "Access to changeip.com is in LastPass."
