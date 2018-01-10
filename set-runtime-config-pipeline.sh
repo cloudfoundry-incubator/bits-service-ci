@@ -7,6 +7,7 @@ bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Fo
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
 softlayer_bosh_username=$(lpass show "Shared-Flintstone"/"Flintstone BOSH director" --username)
 softlayer_bosh_password=$(lpass show "Shared-Flintstone"/"Flintstone BOSH director" --password)
+ibm_metrics_api_key=$(lpass show "Shared-Flintstone"/"IBM Metrics API Key" --password)
 
 fly -t flintstone login \
   --username $(lpass show --username "Shared-Flintstone"/"Flintstone Concourse") \
@@ -19,7 +20,8 @@ fly -t flintstone set-pipeline \
   -v github-private-key="${github_ssh_key}" \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
-  -v softlayer-bosh-target="10.155.171.25" \
+  -v ibm_metrics_api_key="${ibm_metrics_api_key}" \
+  -v softlayer-bosh-target="10.175.110.153" \
   -v softlayer-bosh-username="${softlayer_bosh_username}" \
   -v softlayer-bosh-password="${softlayer_bosh_password}"
 

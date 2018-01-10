@@ -77,6 +77,7 @@ jobs:
     params:
       BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
       BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+      METRICS_API_KEY: {{ibm_metrics_api_key}}
   - aggregate:
     - put: bosh-aws-runtime-config
       params: &bosh-runtime-config-params
