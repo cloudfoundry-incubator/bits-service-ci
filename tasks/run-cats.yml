@@ -16,7 +16,7 @@ params:
   ENVIRONMENT_NAME:
   CF_DOMAIN: bosh-lite.com
   CF_DIAL_TIMEOUT: 300
-  NODES: 5
+  NODES: 12
 
 run:
   path: ci-tasks/scripts/run-cats.sh
