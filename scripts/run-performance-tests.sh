@@ -2,16 +2,21 @@
 
 
 function start_collectd {
-  cat <<EOT > /etc/collectd/collectd.conf.d/mt-metrics-writer.conf.sample
-  LoadPlugin write_metric_mtlumberjack
-  <Plugin write_metric_mtlumberjack>
-     <Logstash>
-         Host "metrics.opvis.bluemix.net"
-         Port "9095"
-         GraphitePrefix "SPACE_ID.GROUP_NAME."
-         SpaceId "SPACE_ID"
-         LoggingToken "LOGGING_TOKEN"
-     </Logstash>
+  cat <<EOT > /etc/collectd/collectd.conf.d/ibmcloud-monitoring.sample
+
+  <LoadPlugin IBMCloudMonitoring>
+    FlushInterval 60
+  </LoadPlugin>
+  <Plugin IBMCloudMonitoring>
+    <Endpoint "ng">
+      Host "metrics.ng.bluemix.net"
+      Port 9095
+      ApiKey "API_KEY"
+      SkipInternalPrefixForStatsd false
+      RateCounter false
+      ScopeId "s-SPACE_ID"
+      Prefix "SPACE_ID.performance-tests."
+    </Endpoint>
   </Plugin>
   LoadPlugin statsd
   <Plugin statsd>
@@ -32,15 +37,14 @@ EOT
     -d "user=$BLUEMIX_USERNAME&passwd=$BLUEMIX_PASSWORD&organization=Cloud%20Foundry%20Flintstone&space=performance-tests" \
     https://metrics.ng.bluemix.net/login)
 
-  logging_token=$(echo $login_response | jq --raw-output .logging_token)
   space_id=$(echo $login_response | jq --raw-output .space_id)
 
   sed \
     -e "s/SPACE_ID/$space_id/g" \
-    -e "s/LOGGING_TOKEN/$logging_token/g" \
+    -e "s/API_KEY/$METRICS_API_KEY/g" \
     -e "s/GROUP_NAME/performance-tests/g" \
-    /etc/collectd/collectd.conf.d/mt-metrics-writer.conf.sample \
-    > /etc/collectd/collectd.conf.d/mt-metrics-writer.conf
+    /etc/collectd/collectd.conf.d/ibmcloud-monitoring.sample \
+    > /etc/collectd/collectd.conf.d/ibmcloud-monitoring
 
   collectd
 }

@@ -15,6 +15,7 @@ params:
   CF_ADMIN_PASSWORD:
   PERFORMANCE_TEST_METRICS_PREFIX:
   LOOP_COUNT:
+  METRICS_API_KEY: unconfigured
 
 outputs:
 
