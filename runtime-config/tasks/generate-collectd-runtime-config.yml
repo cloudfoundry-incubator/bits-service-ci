@@ -8,8 +8,9 @@ inputs:
 - name: collectd-version
 
 params:
-  BLUEMIX_USERNAME:
-  BLUEMIX_PASSWORD:
+  BLUEMIX_USERNAME: unconfigured
+  BLUEMIX_PASSWORD: unconfigured
+  METRICS_API_KEY: unconfigured
 
 outputs:
 - name: runtime-config

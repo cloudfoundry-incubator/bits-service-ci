@@ -9,4 +9,4 @@ addons:
   properties:
     collectd:
       space_id: SPACE_ID
-      logging_token: LOGGING_TOKEN
+      api_key: API_KEY
