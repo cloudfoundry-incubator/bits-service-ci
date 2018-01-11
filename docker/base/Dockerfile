@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:trusty
 
 RUN apt-get update && \
     apt-get -y install git zip unzip wget curl software-properties-common \
