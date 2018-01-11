@@ -46,6 +46,11 @@ EOT
 
   space_id=$(echo $login_response | jq --raw-output .space_id)
 
+  if [ "$space_id" == "null" ]; then
+    echo "Could not get space ID from https://metrics.ng.bluemix.net/login."
+    exit 1
+  fi
+
   sed \
     -e "s/SPACE_ID/$space_id/g" \
     -e "s/API_KEY/$METRICS_API_KEY/g" \
