@@ -1,0 +1,4 @@
+---
+- type: replace
+  path: /properties/env?
+  value: ((global_env))
