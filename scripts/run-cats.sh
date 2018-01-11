@@ -78,3 +78,6 @@ if [[ $EXIT_CODE -eq 0 ]]; then
 else
   printf "run-cats-$BITS_SERVICE_ENABLEMENT-failed.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 fi
+
+# stop it gracefully hoping that it sends metrics before quitting.
+/etc/init.d/collectd stop
