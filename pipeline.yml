@@ -536,7 +536,7 @@ jobs:
       BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
       BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
       METRICS_API_KEY:  {{ibm_metrics_api_key}}
-
+      BITS_SERVICE_ENABLEMENT: without-bits-service
     on_failure: &inform-pipeline-operator-diego-aws-cats
       task: inform-pipeline-operator
       file: ci-tasks/tasks/echo.yml
@@ -595,6 +595,7 @@ jobs:
       BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
       BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
       METRICS_API_KEY:  {{ibm_metrics_api_key}}
+      BITS_SERVICE_ENABLEMENT: with-bits-service
     on_failure: *inform-pipeline-operator-diego-aws-cats
   on_failure: *notify
 

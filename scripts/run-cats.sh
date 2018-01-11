@@ -74,7 +74,7 @@ EXIT_CODE=$?
 set -e
 
 if [[ $EXIT_CODE -eq 0 ]]; then
-  printf "run-cats-succeeded.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+  printf "run-cats-$BITS_SERVICE_ENABLEMENT-succeeded.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 else
-  printf "run-cats-failed.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+  printf "run-cats-$BITS_SERVICE_ENABLEMENT-failed.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 fi

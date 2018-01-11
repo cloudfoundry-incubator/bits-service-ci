@@ -17,6 +17,7 @@ params:
   CF_DOMAIN: bosh-lite.com
   CF_DIAL_TIMEOUT: 300
   NODES: 12
+  BITS_SERVICE_ENABLEMENT: with-bits-service-unknown
 
 run:
   path: ci-tasks/scripts/run-cats.sh
