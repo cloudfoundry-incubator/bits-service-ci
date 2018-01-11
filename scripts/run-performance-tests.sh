@@ -7,7 +7,7 @@ cat <<EOT > $PWD/bits-service-release/src/github.com/cloudfoundry-incubator/bits
 {
   "api": "api.${CF_DOMAIN}",
   "apps_domain": "${CF_DOMAIN}",
-  "admin_user": "${CF_ADMIN_USER}",
+  "admin_user": "admin",
   "admin_password": "${CF_ADMIN_PASSWORD}",
   "skip_ssl_validation": true,
   "use_http": true
