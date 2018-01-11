@@ -3,6 +3,14 @@
 function start_collectd {
   cat <<EOT > /etc/collectd/collectd.conf.d/ibmcloud-monitoring.sample
 
+  LoadPlugin logfile
+  <Plugin logfile>
+    LogLevel "info"
+    File "/var/log/collectd.log"
+    Timestamp true
+    PrintSeverity false
+  </Plugin>
+
   <LoadPlugin IBMCloudMonitoring>
     FlushInterval 60
   </LoadPlugin>
