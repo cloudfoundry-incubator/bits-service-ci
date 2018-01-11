@@ -15,16 +15,16 @@ function start_collectd {
       SkipInternalPrefixForStatsd false
       RateCounter false
       ScopeId "s-SPACE_ID"
-      Prefix "SPACE_ID.performance-tests."
+      Prefix "performance-tests."
     </Endpoint>
   </Plugin>
   LoadPlugin statsd
   <Plugin statsd>
     Host "127.0.0.1"
-    DeleteCounters true
-    DeleteTimers true
-    DeleteGauges true
-    DeleteSets true
+    DeleteCounters false
+    DeleteTimers false
+    DeleteGauges false
+    DeleteSets false
     TimerPercentile 99.0
     TimerPercentile 95.0
     TimerPercentile 90.0
