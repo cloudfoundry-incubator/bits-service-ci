@@ -592,6 +592,9 @@ jobs:
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: aws
       CF_DOMAIN: {{aws-cf1-domain}}
+      BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+      BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+      METRICS_API_KEY:  {{ibm_metrics_api_key}}
     on_failure: *inform-pipeline-operator-diego-aws-cats
   on_failure: *notify
 
