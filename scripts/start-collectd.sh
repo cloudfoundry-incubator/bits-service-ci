@@ -58,5 +58,5 @@ EOT
     /etc/collectd/collectd.conf.d/ibmcloud-monitoring.sample \
     > /etc/collectd/collectd.conf.d/ibmcloud-monitoring.conf
 
-  collectd
+  /etc/init.d/collectd start
 }
