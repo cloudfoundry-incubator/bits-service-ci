@@ -67,7 +67,14 @@ echo '##########################################################################
 # metrics correctly, when the range is >24h.
 printf "run-cats-started.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 
+set +e
 bin/test -r -slowSpecThreshold=120 -randomizeAllSpecs \
   -nodes="${NODES}" -skipPackage=helpers -keepGoing
+EXIT_CODE=$?
+set -e
 
-printf "run-cats-finished.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+if [[ $EXIT_CODE -eq 0 ]]; then
+  printf "run-cats-succeeded.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+else
+  printf "run-cats-failed.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+fi
