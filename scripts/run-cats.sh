@@ -65,7 +65,7 @@ echo '##########################################################################
 
 # .count is needed because Bluemix Logmet/Grafana does not roll up sparse
 # metrics correctly, when the range is >24h.
-printf "run-cats-started.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+printf "run-cats-$BITS_SERVICE_ENABLEMENT-started.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 
 set +e
 bin/test -r -slowSpecThreshold=120 -randomizeAllSpecs \
