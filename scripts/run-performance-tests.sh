@@ -3,12 +3,18 @@
 . ci-tasks/scripts/start-collectd.sh
 start_collectd
 
+
+cf_admin_password=$( \
+  bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml \
+  --path /cf_admin_password
+)
+
 cat <<EOT > $PWD/bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-performance-tests/integration_aws_config.json
 {
   "api": "api.${CF_DOMAIN}",
   "apps_domain": "${CF_DOMAIN}",
   "admin_user": "admin",
-  "admin_password": "${CF_ADMIN_PASSWORD}",
+  "admin_password": "${cf_admin_password}",
   "skip_ssl_validation": true,
   "use_http": true
 }

@@ -550,8 +550,11 @@ jobs:
     - task: Run performance tests
       file: ci-tasks/tasks/run-performance-tests.yml
       input_mapping:
+        deployment-vars: git-deployment-vars
         bits-service-release: git-bits-service-release
       params:
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: aws
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
         CF_DOMAIN: {{aws-cf1-domain}}
