@@ -68,20 +68,32 @@ jobs:
   - aggregate:
     - { get: ci-tasks, trigger: true }
     - { get: collectd-release-tarball, trigger: true }
-  - task: Generate collectd runtime config file
+  - task: Generate collectd runtime config file (aws)
     file: ci-tasks/runtime-config/tasks/generate-collectd-runtime-config.yml
     input_mapping:
       collectd-version: collectd-release-tarball
       ci-tasks: ci-tasks
-    output_mapping: { runtime-config: runtime-config }
-    params:
+    output_mapping: { runtime-config: runtime-config-aws }
+    params: &params
       BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
       BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
       METRICS_API_KEY: {{ibm_metrics_api_key}}
+      IAAS: aws
+  - task: Generate collectd runtime config file (softlayer)
+    file: ci-tasks/runtime-config/tasks/generate-collectd-runtime-config.yml
+    input_mapping:
+      collectd-version: collectd-release-tarball
+      ci-tasks: ci-tasks
+    output_mapping: { runtime-config: runtime-config-softlayer }
+    params:
+      <<: *params
+      IAAS: softlayer
   - aggregate:
     - put: bosh-aws-runtime-config
-      params: &bosh-runtime-config-params
-        manifest: runtime-config/runtime-config.yml
+      params:
+        manifest: runtime-config-aws/runtime-config.yml
         releases: [ collectd-release-tarball/*.tgz ]
     - put: bosh-softlayer-runtime-config
-      params: *bosh-runtime-config-params
+      params:
+        manifest: runtime-config-softlayer/runtime-config.yml
+        releases: [ collectd-release-tarball/*.tgz ]

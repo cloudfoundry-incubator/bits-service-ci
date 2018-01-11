@@ -10,3 +10,4 @@ addons:
     collectd:
       space_id: SPACE_ID
       api_key: API_KEY
+    env: IAAS

@@ -11,6 +11,7 @@ params:
   BLUEMIX_USERNAME: unconfigured
   BLUEMIX_PASSWORD: unconfigured
   METRICS_API_KEY: unconfigured
+  IAAS: unconfigured
 
 outputs:
 - name: runtime-config

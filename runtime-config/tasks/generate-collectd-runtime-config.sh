@@ -13,6 +13,7 @@ sed \
   -e "s/COLLECTD_VERSION/$collectd_version/g" \
   -e "s/SPACE_ID/$space_id/g" \
   -e "s/API_KEY/$METRICS_API_KEY/g" \
+  -e "s/IAAS/$IAAS/g" \
   -e "s/GROUP_NAME/performance-tests/g" \
   ci-tasks/runtime-config/templates/collectd_addon.yml \
   > runtime-config/runtime-config.yml
