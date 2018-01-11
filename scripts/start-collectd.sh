@@ -43,7 +43,7 @@ EOT
     -e "s/API_KEY/$METRICS_API_KEY/g" \
     -e "s/GROUP_NAME/performance-tests/g" \
     /etc/collectd/collectd.conf.d/ibmcloud-monitoring.sample \
-    > /etc/collectd/collectd.conf.d/ibmcloud-monitoring
+    > /etc/collectd/collectd.conf.d/ibmcloud-monitoring.conf
 
   collectd
 }
