@@ -2,6 +2,9 @@
 
 set -e -x
 
+. ci-tasks/scripts/start-collectd.sh
+start_collectd
+
 mkdir -p gopath/src/github.com/cloudfoundry
 cp -r acceptance-tests gopath/src/github.com/cloudfoundry/cf-acceptance-tests
 
@@ -60,5 +63,11 @@ echo CONFIG=$CONFIG
 env | sort
 echo '################################################################################################################'
 
+# .count is needed because Bluemix Logmet/Grafana does not roll up sparse
+# metrics correctly, when the range is >24h.
+printf "run-cats-started.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+
 bin/test -r -slowSpecThreshold=120 -randomizeAllSpecs \
   -nodes="${NODES}" -skipPackage=helpers -keepGoing
+
+printf "run-cats-finished.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
