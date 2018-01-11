@@ -28,7 +28,7 @@ function start_collectd {
   LoadPlugin statsd
   <Plugin statsd>
     Host "127.0.0.1"
-    DeleteCounters false
+    DeleteCounters ture
     DeleteTimers false
     DeleteGauges false
     DeleteSets false
