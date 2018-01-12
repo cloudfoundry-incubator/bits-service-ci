@@ -81,3 +81,5 @@ fi
 
 # Wait for collectd to send final metrics
 sleep 90
+
+exit $EXIT_CODE
