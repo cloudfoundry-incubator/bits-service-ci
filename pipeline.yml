@@ -558,7 +558,7 @@ jobs:
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
         CF_DOMAIN: {{aws-cf1-domain}}
-        PERFORMANCE_TEST_METRICS_PREFIX: bits-service.disabled.CCs.1
+        PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
         LOOP_COUNT: 20
 
   on_failure: *notify
