@@ -597,22 +597,37 @@ jobs:
     params: &params-aws-deployment-bits-service-enabled
       <<: *params-aws-deployment-bits-service-disabled
       manifest: cf-with-bits-service-enabled/manifest.yml
-  - task: Run CATs
-    file: ci-tasks/tasks/run-cats.yml
-    input_mapping:
-      deployment-vars: git-deployment-vars
-      acceptance-tests: git-cf-acceptance-tests
-    attempts: 3
-    params:
-      <<: *aws-bosh-params
-      DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: aws
-      CF_DOMAIN: {{aws-cf1-domain}}
-      BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-      BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-      METRICS_API_KEY:  {{ibm_metrics_api_key}}
-      BITS_SERVICE_ENABLEMENT: with-bits-service
-    on_failure: *inform-pipeline-operator-diego-aws-cats
+  - aggregate:
+    - task: Run CATs
+      file: ci-tasks/tasks/run-cats.yml
+      input_mapping:
+        deployment-vars: git-deployment-vars
+        acceptance-tests: git-cf-acceptance-tests
+      attempts: 3
+      params:
+        <<: *aws-bosh-params
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: aws
+        CF_DOMAIN: {{aws-cf1-domain}}
+        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+        METRICS_API_KEY:  {{ibm_metrics_api_key}}
+        BITS_SERVICE_ENABLEMENT: with-bits-service
+      on_failure: *inform-pipeline-operator-diego-aws-cats
+    - task: Run performance tests
+      file: ci-tasks/tasks/run-performance-tests.yml
+      input_mapping:
+        deployment-vars: git-deployment-vars
+        bits-service-release: git-bits-service-release
+      params:
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: aws
+        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+        CF_DOMAIN: {{aws-cf1-domain}}
+        PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
+        LOOP_COUNT: 20
+
   on_failure: *notify
 
 # delete standalone bits-service deployment
