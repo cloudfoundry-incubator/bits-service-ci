@@ -1148,65 +1148,6 @@ jobs:
       BOSH_TARGET: {{bosh-acceptance-target}}
   on_failure: *notify
 
-- name: Run performance tests
-  serial_groups: [cf-aws-deployment]
-  serial: true
-  plan:
-    - aggregate:
-      - { get: after-midnight, trigger: true }
-      - { get: bits-service-release-tarball, passed: [Publish Dev Release] }
-      - { get: capi-release-tarball, passed: [Publish Dev Release] }
-      - { get: stemcell, resource: aws-stemcell }
-      - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-      - { get: git-cf-deployment, trigger: true }
-      - { get: git-deployment-vars }
-    - task: Generate CF deployment manifest with bits-service disabled, 1 CC
-      file: ci-tasks/tasks/bosh-interpolate.yml
-      input_mapping:
-        cf-deployment: git-cf-deployment
-        deployment-vars: git-deployment-vars
-      output_mapping:
-        manifests: cf-with-bits-service-disabled
-      params: *bosh-interpolate-aws-bits-service-disabled
-    - put: git-deployment-vars
-      params:
-        repository: updated/deployment-vars
-    - put: aws-diego-deployment
-      attempts: 2
-      params: *params-aws-deployment-bits-service-disabled
-    # - task: Run performance tests
-    #   file: ci-tasks/tasks/run-performance-tests.yml
-    #   input_mapping:
-    #     bits-service-release: git-bits-service-release
-    #   params:
-    #     BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-    #     BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-    #     CF_DOMAIN: {{aws-cf1-domain}}
-    #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.disabled.CCs.1
-    #     LOOP_COUNT: 5
-    - task: Create CF deployment manifest with Bits-Service enabled, 1 CC
-      file: ci-tasks/tasks/bosh-interpolate.yml
-      input_mapping:
-        cf-deployment: git-cf-deployment
-        deployment-vars: git-deployment-vars
-      output_mapping:
-        manifests: cf-with-bits-service-enabled
-      params:
-        <<: *bosh-interpolate-aws-bits-service-enabled
-    - put: aws-diego-deployment
-      attempts: 2
-      params: *params-aws-deployment-bits-service-enabled
-    # - task: Run performance tests
-    #   file: ci-tasks/tasks/run-performance-tests.yml
-    #   input_mapping:
-    #     bits-service-release: git-bits-service-release
-    #   params:
-    #     BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-    #     BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-    #     CF_DOMAIN: {{aws-cf1-domain}}
-    #     PERFORMANCE_TEST_METRICS_PREFIX: bits-service.enabled.CCs.1
-    #     LOOP_COUNT: 5
-  on_failure: *notify
 - name: Sync cf-deployment fork
   plan:
     - aggregate:
@@ -1296,10 +1237,6 @@ groups:
   - delete-deployment-bits-service-local
   - delete-deployment-bits-service-s3
   - delete-deployment-bits-service-webdav
-- name: performance-tests
-  jobs:
-  - Publish Dev Release
-  - Run performance tests
 
 resource_types:
 - name: bosh2-deployment
@@ -1543,11 +1480,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-diego-aws/deployment-deleted
-- name: after-midnight
-  type: time
-  source:
-    start: 12:00 AM
-    stop: 1:00 AM
 
 - name: bits-service-github-release
   type: github-release
