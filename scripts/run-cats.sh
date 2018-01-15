@@ -63,9 +63,9 @@ echo CONFIG=$CONFIG
 env | sort
 echo '################################################################################################################'
 
-# .count is needed because Bluemix Logmet/Grafana does not roll up sparse
+# _count is needed because Bluemix Logmet/Grafana does not roll up sparse
 # metrics correctly, when the range is >24h.
-printf "run-cats-$BITS_SERVICE_ENABLEMENT-started.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+printf "run-cats-$BITS_SERVICE_ENABLEMENT-started_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 
 set +e
 bin/test -r -slowSpecThreshold=120 -randomizeAllSpecs \
@@ -74,9 +74,9 @@ EXIT_CODE=$?
 set -e
 
 if [[ $EXIT_CODE -eq 0 ]]; then
-  printf "run-cats-$BITS_SERVICE_ENABLEMENT-succeeded.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+  printf "run-cats-$BITS_SERVICE_ENABLEMENT-succeeded_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 else
-  printf "run-cats-$BITS_SERVICE_ENABLEMENT-failed.count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
+  printf "run-cats-$BITS_SERVICE_ENABLEMENT-failed_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 fi
 
 # Wait for collectd to send final metrics
