@@ -41,6 +41,7 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   -v stemcell_version="latest" \
   -o ci-tasks/operations/global-env-property.yml \
   -v global_env=${IAAS} \
+  -o ci-tasks/operations/remove-statsd-injector.yml \
   -o cf-deployment/operations/experimental/bits-service.yml \
   -o cf-deployment/operations/experimental/enable-bits-service-https.yml \
   -o cf-deployment/operations/experimental/enable-bits-service-consul.yml \
