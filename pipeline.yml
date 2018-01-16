@@ -625,6 +625,7 @@ jobs:
         ENVIRONMENT_NAME: aws
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+        METRICS_API_KEY:  {{ibm_metrics_api_key}}
         CF_DOMAIN: {{aws-cf1-domain}}
         PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
         LOOP_COUNT: 20
