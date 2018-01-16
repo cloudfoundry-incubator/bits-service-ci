@@ -31,3 +31,6 @@ pushd bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-pe
   glide install
   ginkgo -v --progress
 popd
+
+# Wait for collectd to send final metrics
+sleep 90
