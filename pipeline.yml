@@ -523,13 +523,13 @@ jobs:
         stemcells: ["stemcell/stemcell.tgz"]
         releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
-  - aggregate:
+  - attempts: 3
+    aggregate:
     - task: Run CATs
       file: ci-tasks/tasks/run-cats.yml
       input_mapping:
         deployment-vars: git-deployment-vars
         acceptance-tests: git-cf-acceptance-tests
-      attempts: 3
       params:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
@@ -600,13 +600,13 @@ jobs:
     params: &params-aws-deployment-bits-service-enabled
       <<: *params-aws-deployment-bits-service-disabled
       manifest: cf-with-bits-service-enabled/manifest.yml
-  - aggregate:
+  - attempts: 3
+    aggregate:
     - task: Run CATs
       file: ci-tasks/tasks/run-cats.yml
       input_mapping:
         deployment-vars: git-deployment-vars
         acceptance-tests: git-cf-acceptance-tests
-      attempts: 3
       params:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
