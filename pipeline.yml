@@ -503,6 +503,7 @@ jobs:
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
         -o ci-tasks/operations/disable-bits-service.yml
+        -o ci-tasks/operations/scale-diego-cell-instances.yml
       VARIABLES: >
         -v aws_region={{cf-migration-s3-blobstore-region}}
         -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
@@ -590,6 +591,7 @@ jobs:
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
+        -o ci-tasks/operations/scale-diego-cell-instances.yml
   - put: git-deployment-vars
     params:
       repository: updated/deployment-vars
