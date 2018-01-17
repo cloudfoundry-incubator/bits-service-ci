@@ -299,6 +299,7 @@ jobs:
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
+    - { get: s3-cf-softlayer-deployment-events, trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -319,10 +320,10 @@ jobs:
         -v aws_region={{s3-blobstore-region}}
         -v blobstore_access_key_id={{s3-blobstore-access-key-id}}
         -v blobstore_secret_access_key={{s3-blobstore-secret-access-key}}
-        -v resource_directory_key={{s3-blobstore-bucket-name}}
-        -v buildpack_directory_key={{s3-blobstore-bucket-name}}
-        -v droplet_directory_key={{s3-blobstore-bucket-name}}
-        -v app_package_directory_key={{s3-blobstore-bucket-name}}
+        -v resource_directory_key={{cf2-s3-blobstore-bucket-name}}
+        -v buildpack_directory_key={{cf2-s3-blobstore-bucket-name}}
+        -v droplet_directory_key={{cf2-s3-blobstore-bucket-name}}
+        -v app_package_directory_key={{cf2-s3-blobstore-bucket-name}}
   - aggregate:
     - put: git-deployment-vars
       params:
@@ -508,10 +509,10 @@ jobs:
         -v aws_region={{cf-migration-s3-blobstore-region}}
         -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
         -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
-        -v resource_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v buildpack_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v droplet_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v app_package_directory_key={{cf-migration-s3-blobstore-bucket-name}}
+        -v resource_directory_key={{cf1-s3-blobstore-bucket-name}}
+        -v buildpack_directory_key={{cf1-s3-blobstore-bucket-name}}
+        -v droplet_directory_key={{cf1-s3-blobstore-bucket-name}}
+        -v app_package_directory_key={{cf1-s3-blobstore-bucket-name}}
   - aggregate:
     - put: git-deployment-vars
       params:
