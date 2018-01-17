@@ -39,12 +39,19 @@ function start_collectd {
   </Plugin>
 EOT
 
-  login_response=$(curl \
-    -X POST \
-    -d "user=$BLUEMIX_USERNAME&passwd=$BLUEMIX_PASSWORD&organization=Cloud%20Foundry%20Flintstone&space=performance-tests" \
-    https://metrics.ng.bluemix.net/login)
+  # try 5 times to get the space ID. Looks like the curl call fails quite often.
+  for i in {1..5}; do
+    login_response=$(curl \
+      -X POST \
+      -d "user=$BLUEMIX_USERNAME&passwd=$BLUEMIX_PASSWORD&organization=Cloud%20Foundry%20Flintstone&space=performance-tests" \
+      https://metrics.ng.bluemix.net/login)
 
-  space_id=$(echo $login_response | jq --raw-output .space_id)
+    space_id=$(echo $login_response | jq --raw-output .space_id)
+
+    if [ "$space_id" != "null" ]; then
+      break
+    fi
+  done
 
   if [ "$space_id" == "null" ]; then
     echo "Could not get space ID from https://metrics.ng.bluemix.net/login."
