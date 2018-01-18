@@ -335,6 +335,14 @@ jobs:
         stemcells: ["stemcell/stemcell.tgz"]
         releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
+  - task: Update change-ip
+    file: ci-tasks/tasks/update-changeip-dns.yml
+    input_mapping:
+      deployment-vars: git-deployment-vars
+    params:
+      <<: *sl-bosh-params
+      CHANGE_IP_USER: {{changeip-username}}
+      CHANGE_IP_PASSWORD: {{changeip-password}}
   - task: Run tests
     timeout: 5m
     attempts: 3
