@@ -459,7 +459,7 @@ jobs:
       release-version: bits-service-release-version
       cf-deployment: git-cf-deployment
   - put: git-cf-deployment
-    params: { repository: bumped-version }
+    params: { repository: cf-deployment-fork/cf-deployment }
 
   on_failure: *notify
 
