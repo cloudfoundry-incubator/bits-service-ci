@@ -1,0 +1,15 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: ci-tasks
+- name: source-repo
+- name: release-version
+
+outputs:
+- name: committed-repo
+
+run:
+  path: ci-tasks/scripts/commit-updates.sh
