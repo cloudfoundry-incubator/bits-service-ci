@@ -444,6 +444,25 @@ jobs:
 
   on_failure: *notify
 
+- name: Update-Final-Version-CF-Deployment
+  plan:
+  - aggregate:
+    - get: bits-service-release-version
+      passed:
+        - Publish Final Release
+    - get: ci-tasks
+      resource: git-bits-service-ci
+    - get: git-cf-deployment
+  - task: update-version-in-cf-deployment
+    file: ci-tasks/tasks/update-version-in-cf-deployment.yml
+    input_mapping:
+      release-version: bits-service-release-version
+      cf-deployment: git-cf-deployment
+  - put: git-cf-deployment
+    params: { repository: bumped-version }
+
+  on_failure: *notify
+
 - name: manually-delete-cf-diego-aws
   serial: true
   plan:
@@ -1319,6 +1338,7 @@ resources:
     uri: git@github.com:petergtz/cf-deployment.git
     branch: develop
     private_key: {{github-private-key}}
+
 - name: git-cf-deployment-upstream
   type: git
   source:
