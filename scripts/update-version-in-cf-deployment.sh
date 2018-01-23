@@ -13,7 +13,7 @@ export VERSION=$(cat $VERSION_FILE)
 # has to replaced with the output of create release
 export SHA1=caa55a888046c2898063fabf0bb19c650ff9a618 
 
-ruby ci-tasks/scripts/update-version-in-cf-deployment.rb
+ruby ci-tasks/scripts/update_version_in_cf_deployment.rb
 sed 's/"//g' $BITS_OPSFILE_TMP > $BITS_OPSFILE
 
 pushd cf-deployment
