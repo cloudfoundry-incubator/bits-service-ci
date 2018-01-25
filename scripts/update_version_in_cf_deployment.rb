@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'yaml'
 
 version = ENV['VERSION']
@@ -8,7 +10,7 @@ tmp_config_path = "#{ENV['BITS_OPSFILE_TMP']}"
 source_config = YAML.load_file(source_config_path)
 
 source_config.each do | section |
-    unless section["value"]["version"] && section["value"]["sha1"] && section["value"]["url"] 
+    unless section["value"]["version"] && section["value"]["sha1"] && section["value"]["url"]
         next
     end
     puts section["value"]["version"] = version

@@ -15,4 +15,4 @@ outputs:
 - name: cf-deplyoment-fork
 
 run:
-  path: ci-tasks/scripts/update-version-in-cf-deployment.sh
+  path: ci-tasks/scripts/update-version-in-cf-deployment.rb

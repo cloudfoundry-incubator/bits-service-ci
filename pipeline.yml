@@ -453,6 +453,8 @@ jobs:
     input_mapping:
       release-version: bits-service-release-version
       cf-deployment: git-cf-deployment
+  - task: commit-back
+    file: TBD
   - put: git-cf-deployment
     params: { repository: cf-deployment-fork/cf-deployment }
 
