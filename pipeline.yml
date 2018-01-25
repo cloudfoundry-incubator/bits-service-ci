@@ -423,6 +423,7 @@ jobs:
       params: { bump: minor }
     - get: ci-tasks
       resource: git-bits-service-ci
+    - get: git-cf-deployment
   - task: promote release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
@@ -441,18 +442,12 @@ jobs:
       params: { file: bits-service-release-version/version }
     - put: git-bits-service-release
       params: { repository: release-git-repo-final }
-
-  on_failure: *notify
-
-- name: Update-Final-Version-CF-Deployment
-  plan:
-  - aggregate:
-    - get: bits-service-release-version
-      passed:
-        - Publish Final Release
-    - get: ci-tasks
-      resource: git-bits-service-ci
-    - get: git-cf-deployment
+  - task: calculate-digest-of-final-release
+    file: ci-tasks/tasks/calculate-digest.yml
+    input_mapping:
+      source: release-tarball
+    output_mapping:
+      digests: release-digest
   - task: update-version-in-cf-deployment
     file: ci-tasks/tasks/update-version-in-cf-deployment.yml
     input_mapping:
