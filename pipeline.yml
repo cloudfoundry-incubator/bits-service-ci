@@ -453,10 +453,17 @@ jobs:
     input_mapping:
       release-version: bits-service-release-version
       cf-deployment: git-cf-deployment
-  - task: commit-back
-    file: TBD
-  - put: git-cf-deployment
-    params: { repository: cf-deployment-fork/cf-deployment }
+      digests: release-digest
+    output_mapping:
+      cf-deployment-updated: git-cf-deployment
+  - task: commit-updates
+    file: ci-tasks/tasks/commit-updates.yml
+    input_mapping:
+      source-repo: git-cf-deployment
+    output_mapping:
+      updated-repo: git-updated-cf-deployment
+  # - put: git-cf-deployment
+  #   params: { repository: updated/git-cf-deployment }
 
   on_failure: *notify
 
