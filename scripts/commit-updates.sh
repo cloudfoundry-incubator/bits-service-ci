@@ -1,4 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash -ex
+
+version=$(cat release-version/version)
 
 pushd source-repo
   set +e
@@ -13,9 +15,8 @@ pushd source-repo
     git config --global user.email flintstone@cloudfoundry.org
 
     git add .
-    scripts/staged_shortlog
-    scripts/staged_shortlog | git commit -F -
+    git commit -m "Update opsfile with bits-service release $version"
   fi
 popd
 
-cp -r source-repo updated-repo/source-repo
+cp -r source-repo/. committed-repo/

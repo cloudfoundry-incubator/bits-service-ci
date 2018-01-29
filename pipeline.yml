@@ -455,15 +455,16 @@ jobs:
       cf-deployment: git-cf-deployment
       digests: release-digest
     output_mapping:
-      cf-deployment-updated: git-cf-deployment
+      cf-deployment-updated: cf-deployment-updated
   - task: commit-updates
     file: ci-tasks/tasks/commit-updates.yml
     input_mapping:
-      source-repo: git-cf-deployment
+      release-version: bits-service-release-version
+      source-repo: cf-deployment-updated
     output_mapping:
-      updated-repo: git-updated-cf-deployment
+      committed-repo: cf-deployment-committed
   # - put: git-cf-deployment
-  #   params: { repository: updated/git-cf-deployment }
+  #   params: { repository: cf-deployment-committed }
 
   on_failure: *notify
 

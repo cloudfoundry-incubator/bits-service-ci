@@ -3,7 +3,6 @@ require 'pathname'
 require_relative '../scripts/ops_file_updater'
 require 'tempfile'
 
-
 describe OpsFileUpdater do
   subject { OpsFileUpdater.new(ops_file) }
   let(:ops_file) { Pathname('spec/fixtures/bits-service.yml') }
