@@ -448,8 +448,8 @@ jobs:
       source: release-tarball
     output_mapping:
       digests: release-digest
-  - task: update-version-in-cf-deployment
-    file: ci-tasks/tasks/update-version-in-cf-deployment.yml
+  - task: update-opsfile
+    file: ci-tasks/tasks/update-opsfile.yml
     input_mapping:
       release-version: bits-service-release-version
       cf-deployment: git-cf-deployment

@@ -15,4 +15,4 @@ outputs:
 - name: cf-deployment-updated
 
 run:
-  path: ci-tasks/scripts/update-version-in-cf-deployment.rb
+  path: ci-tasks/scripts/update-opsfile.rb
