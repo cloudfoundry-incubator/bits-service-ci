@@ -424,7 +424,7 @@ jobs:
     - get: ci-tasks
       resource: git-bits-service-ci
     - get: git-cf-deployment
-  - task: promote release
+  - task: Promote Release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
       release-version: bits-service-release-version
@@ -442,13 +442,13 @@ jobs:
       params: { file: bits-service-release-version/version }
     - put: git-bits-service-release
       params: { repository: release-git-repo-final }
-  - task: calculate-digest-of-final-release
+  - task: Calculate Digest of Final Release
     file: ci-tasks/tasks/calculate-digest.yml
     input_mapping:
       source: release-tarball
     output_mapping:
       digests: release-digest
-  - task: update-opsfile
+  - task: Update Opsfile
     file: ci-tasks/tasks/update-opsfile.yml
     input_mapping:
       release-version: bits-service-release-version
@@ -456,16 +456,15 @@ jobs:
       digests: release-digest
     output_mapping:
       cf-deployment-updated: cf-deployment-updated
-  - task: commit-updates
+  - task: Commit Updates
     file: ci-tasks/tasks/commit-updates.yml
     input_mapping:
       release-version: bits-service-release-version
       source-repo: cf-deployment-updated
     output_mapping:
       committed-repo: cf-deployment-committed
-  # - put: git-cf-deployment
-  #   params: { repository: cf-deployment-committed }
-
+  - put: git-cf-deployment
+    params: { repository: cf-deployment-committed }
   on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
