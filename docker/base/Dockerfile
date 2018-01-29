@@ -1,7 +1,7 @@
 FROM ubuntu:trusty
 
 RUN apt-get update && \
-    apt-get -y install git zip unzip wget curl software-properties-common \
+    apt-get -y install git zip unzip wget curl dnsutils software-properties-common \
         libxml2-dev libxslt-dev libcurl4-openssl-dev \
         build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev && \
         apt-get clean -y && \
