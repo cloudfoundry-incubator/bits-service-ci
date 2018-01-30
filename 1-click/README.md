@@ -9,13 +9,13 @@ Make sure you have the following 2 git repos in `~/workspace`:
 ## How to create a new bosh-lite in SL Concourse management pipeline:
 
 ```bash
-./set-pipeline.sh my-pipeline-name my-pipeline-config.yml
+./set-pipeline.sh bosh-lite-name
 ```
 
-Where `my-pipeline-config.yml` must contain:
-```yml
-meta:
-  bosh-lite-name: my-bosh-lite-name
-  events-git-repo: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-  cf-system-domain: my-bosh-lite-name.dynamic-dns.net
+where `bosh-lite-name` should be the name of the bosh-lite Softlayer VM. A `-bosh-lite` suffix is automatically appended to that name. So e.g.:
+
+```bash
+./set-pipeline.sh pego
 ```
+
+would create a bosh-lite with name `pego-bosh-lite` together with a Concourse pipline with name `pego-bosh-lite`.
