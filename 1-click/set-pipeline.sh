@@ -36,6 +36,6 @@ fly \
 
 # Hack to make this pinned version available in the pipeline (following Concourse's doc).
 # We need this version, because `use-compiled-release.yml` depends on it.
-fly -t flintstone check-resource -r $full_name/boshlite-stemcell -f version:3468.19
+fly -t flintstone check-resource -r $full_name/boshlite-stemcell -f version:3468.21
 
 rm pipeline.yml
