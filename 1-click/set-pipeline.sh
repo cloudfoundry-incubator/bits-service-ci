@@ -5,7 +5,7 @@ full_name=$1-bosh-lite
 cat > config.yml <<EOF
 meta:
   bosh-lite-name: $full_name
-  events-git-repo: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+  state-git-repo: git@github.com:cloudfoundry/bits-service-private-config.git
   cf-system-domain: $1.bosh-lite.dynamic-dns.net
 EOF
 
