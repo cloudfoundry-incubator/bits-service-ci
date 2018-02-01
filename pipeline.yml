@@ -517,6 +517,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, trigger: true }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
+    - { get: run-after-midnight, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -611,6 +612,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-bits-service-release, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: run-after-midnight, passed: [deploy-and-test-cf-diego-aws], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1526,3 +1528,10 @@ resources:
     access_token: {{github-access-token}}
     release: false
     pre_release: true
+
+- name: run-after-midnight
+  type: time
+  source:
+    start: 12:00 AM
+    stop: 1:00 AM
+    location: Europe/Berlin
