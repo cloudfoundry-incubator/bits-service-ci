@@ -14,9 +14,6 @@ rm config.yml
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 
-changeip_username=$(lpass show "Shared-Flintstone"/"changeip.com" --username --sync=no)
-changeip_password=$(lpass show "Shared-Flintstone"/"changeip.com" --password --sync=no)
-
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \
   -t flintstone \
@@ -24,9 +21,7 @@ fly \
   -p $full_name \
   -c pipeline.yml \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' $HOME/workspace/bits-service-private-config/environments/softlayer/director/bosh-warden-cpi.yml )" \
-  -v changeip-username="${changeip_username}" \
-  -v changeip-password="${changeip_password}"
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' $HOME/workspace/bits-service-private-config/environments/softlayer/director/bosh-warden-cpi.yml )"
 
 # Unpause so the check-resource call below works.
 fly \
