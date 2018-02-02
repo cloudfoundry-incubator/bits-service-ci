@@ -12,13 +12,10 @@ EOF
 spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml > pipeline.yml
 rm config.yml
 
-password=$(lpass show "Shared-Flintstone/Softlayer BOSH director" --password --sync=no)
-
 lpass show "Shared-Flintstone/Softlayer VLan IDs" --notes > vlanids.yml
 
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o operations/softlayer-cpi.yml \
-    -v mbus_bootstrap_password=$password \
     -v internal_ip=127.0.0.1 \
     -v softlayer_domain=flintstone.ams \
     -l vlanids.yml \
@@ -26,12 +23,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -v director_vm_prefix=$full_name \
     -v softlayer_username=flintstone@cloudfoundry.org \
     -v softlayer_api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no) \
-    -v nats_password=$password \
-    -v blobstore_agent_password=$password \
-    -v blobstore_director_password=$password \
-    -v postgres_password=$password \
     -v director_name=bosh \
-    -v hm_password=$password \
     -o ~/workspace/bosh-deployment/bosh-lite.yml \
     -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
     -o operations/bosh-lite-network-default.yml \
