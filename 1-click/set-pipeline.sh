@@ -12,6 +12,32 @@ EOF
 spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml > pipeline.yml
 rm config.yml
 
+password=$(lpass show "Shared-Flintstone/Softlayer BOSH director" --password --sync=no)
+
+lpass show "Shared-Flintstone/Softlayer VLan IDs" --notes > vlanids.yml
+
+bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
+    -o operations/softlayer-cpi.yml \
+    -v mbus_bootstrap_password=$password \
+    -v internal_ip=127.0.0.1 \
+    -v softlayer_domain=flintstone.ams \
+    -l vlanids.yml \
+    -v softlayer_datacenter_name=ams03 \
+    -v director_vm_prefix=$full_name \
+    -v softlayer_username=flintstone@cloudfoundry.org \
+    -v softlayer_api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no) \
+    -v nats_password=$password \
+    -v blobstore_agent_password=$password \
+    -v blobstore_director_password=$password \
+    -v postgres_password=$password \
+    -v director_name=bosh \
+    -v hm_password=$password \
+    -o ~/workspace/bosh-deployment/bosh-lite.yml \
+    -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
+    -o operations/bosh-lite-network-default.yml \
+    > bosh-generated.yml
+
+
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
@@ -21,7 +47,7 @@ fly \
   -p $full_name \
   -c pipeline.yml \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' $HOME/workspace/bits-service-private-config/environments/softlayer/director/bosh-warden-cpi.yml )"
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-generated.yml )"
 
 # Unpause so the check-resource call below works.
 fly \

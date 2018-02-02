@@ -81,12 +81,12 @@
   value: ((director_vm_prefix)).((softlayer_domain))
 
 # It's unclear why we need this here. 
-- type: replace
-  path: /variables/name=nats_server_tls/options/alternative_names?
-  value:
-  - 127.0.0.1
-  - 10.254.50.4
-  - ((director_vm_prefix)).((softlayer_domain))
+# - type: replace
+#   path: /variables/name=nats_server_tls/options/alternative_names?
+#   value:
+#   # - 127.0.0.1
+#   # - 10.254.50.4
+#   - ((director_vm_prefix)).((softlayer_domain))
 
 # Needed, because we talk to the director through its softlayer hostname
 - type: replace
