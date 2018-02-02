@@ -3,8 +3,8 @@
 - type: replace
   path: /resource_pools/name=vms/stemcell?
   value:
-    url: https://bosh.io/d/stemcells/bosh-softlayer-xen-ubuntu-trusty-go_agent?v=3421.11.5
-    sha1: b10cdc25cc2daf2ce2bb6b3c6f539579c0ff6ba0
+    url: https://bosh.io/d/stemcells/bosh-softlayer-xen-ubuntu-trusty-go_agent?v=3445.2.1
+    sha1: b53d3d4d0207fb19ad2ea2b5c9f234c54417307a
 
 - type: replace
   path: /releases/-
@@ -12,6 +12,7 @@
     name: bosh-softlayer-cpi
     url: https://bosh.io/d/github.com/cloudfoundry/bosh-softlayer-cpi-release?v=23
     sha1: 960f6068c7823bc3822c5e7ec6c855060c5582d0
+    version: 23
 
 - type: replace
   path: /cloud_provider/properties/softlayer?
@@ -46,33 +47,12 @@
     startCpus: 4
     maxMemory: 8192
     datacenter:
-      name: ((softlayer_datacenter_name))
+      name: ((sl_datacenter))
     hourlyBillingFlag: true
     deployedByBoshcli: true
-    PrimaryNetworkComponent:
-      NetworkVlan:
-        Id: ((softlayer_public_vlan_id))
-    PrimaryBackendNetworkComponent:
-      NetworkVlan:
-        Id: ((softlayer_private_vlan_id))
     networkComponents:
-    - MaxSpeed: 1000
+    - maxSpeed: 100
 
-# NETWORKS
-- type: remove
-  path: /instance_groups/name=bosh/networks/name=default/static_ips
-
-- type: replace
-  path: /networks/name=default
-  value:
-    name: default
-    type: dynamic
-    dns: [8.8.8.8]
-
-- type: replace
-  path: /instance_groups/name=bosh/properties/agent/mbus
-  # probably director_hostname does not really matter here
-  value: nats://nats:((nats_password))@((director_vm_prefix)).((softlayer_domain)):4222
 - type: replace
   path: /cloud_provider/mbus
   value: https://mbus:((mbus_bootstrap_password))@((director_vm_prefix)).((softlayer_domain)):6868

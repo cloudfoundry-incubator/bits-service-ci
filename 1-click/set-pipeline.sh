@@ -12,24 +12,25 @@ EOF
 spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml > pipeline.yml
 rm config.yml
 
-lpass show "Shared-Flintstone/Softlayer VLan IDs" --notes > vlanids.yml
+lpass show --sync=no "Shared-Flintstone/Softlayer Properties" --notes > softlayer_properties.yml
 
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
-    -o operations/softlayer-cpi.yml \
+    -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
+    -l softlayer_properties.yml \
     -v internal_ip=127.0.0.1 \
-    -v softlayer_domain=flintstone.ams \
-    -l vlanids.yml \
-    -v softlayer_datacenter_name=ams03 \
-    -v director_vm_prefix=$full_name \
-    -v softlayer_username=flintstone@cloudfoundry.org \
-    -v softlayer_api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no) \
+    -v sl_vm_domain=flintstone.ams \
+    -v sl_vm_name_prefix=$full_name \
+    -v sl_username=flintstone@cloudfoundry.org \
+    -v sl_api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no) \
     -v director_name=bosh \
     -o ~/workspace/bosh-deployment/bosh-lite.yml \
     -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
-    -o operations/bosh-lite-network-default.yml \
+    -o operations/change-to-single-dynamic-network-named-default.yml \
+    -o operations/change-cloud-provider-mbus-host.yml \
+    -o operations/make-it-work-again-workaround.yml \
     > bosh-generated.yml
 
-rm vlanids.yml
+rm softlayer_properties.yml
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 

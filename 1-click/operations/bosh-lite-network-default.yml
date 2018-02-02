@@ -1,3 +1,0 @@
-- type: replace
-  path: /instance_groups/name=bosh/networks/name=default/default?
-  value: [dns, gateway]
