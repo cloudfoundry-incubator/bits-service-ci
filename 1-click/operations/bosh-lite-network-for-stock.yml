@@ -1,0 +1,28 @@
+- type: replace
+  path: /instance_groups/name=bosh/networks
+  value: 
+    - name: default
+      default: [dns, gateway]
+
+# NETWORKS
+- type: remove
+  path: /instance_groups/name=bosh/networks/name=default/static_ips?
+
+- type: replace
+  path: /networks
+  value:
+  - name: default
+    type: dynamic
+    dns: [8.8.8.8]
+    cloud_properties:
+      PrimaryNetworkComponent:
+        NetworkVlan:
+          Id: ((softlayer_public_vlan_id))
+      PrimaryBackendNetworkComponent:
+        NetworkVlan:
+          Id: ((softlayer_private_vlan_id))
+
+# TODO move somewhere else:
+- type: replace
+  path: /cloud_provider/mbus
+  value: https://mbus:((mbus_bootstrap_password))@((sl_vm_name_prefix)).((sl_vm_domain)):6868
