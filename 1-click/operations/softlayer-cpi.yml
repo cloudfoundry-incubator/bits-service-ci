@@ -54,10 +54,6 @@
     - maxSpeed: 100
 
 - type: replace
-  path: /instance_groups/name=bosh/properties/agent/mbus
-  # probably director_hostname does not really matter here
-  value: nats://nats:((nats_password))@((director_vm_prefix)).((softlayer_domain)):4222
-- type: replace
   path: /cloud_provider/mbus
   value: https://mbus:((mbus_bootstrap_password))@((director_vm_prefix)).((softlayer_domain)):6868
 - type: replace
