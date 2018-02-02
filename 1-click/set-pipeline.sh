@@ -29,6 +29,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o operations/bosh-lite-network-default.yml \
     > bosh-generated.yml
 
+rm vlanids.yml
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 
