@@ -49,25 +49,8 @@
       name: ((softlayer_datacenter_name))
     hourlyBillingFlag: true
     deployedByBoshcli: true
-    PrimaryNetworkComponent:
-      NetworkVlan:
-        Id: ((softlayer_public_vlan_id))
-    PrimaryBackendNetworkComponent:
-      NetworkVlan:
-        Id: ((softlayer_private_vlan_id))
     networkComponents:
-    - MaxSpeed: 1000
-
-# NETWORKS
-- type: remove
-  path: /instance_groups/name=bosh/networks/name=default/static_ips
-
-- type: replace
-  path: /networks/name=default
-  value:
-    name: default
-    type: dynamic
-    dns: [8.8.8.8]
+    - maxSpeed: 100
 
 - type: replace
   path: /instance_groups/name=bosh/properties/agent/mbus
