@@ -37,7 +37,7 @@ cat > config.json <<EOF
   "include_routing_isolation_segments": false,
   "include_security_groups": true,
   "include_services": true,
-  "include_ssh": true,
+  "include_ssh": false,
   "include_sso": true,
   "include_tasks": true,
   "include_v3": false,
