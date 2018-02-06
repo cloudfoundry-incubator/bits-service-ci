@@ -12,6 +12,7 @@ cf_admin_password=$( \
   bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml \
   --path /cf_admin_password
 )
+
 cat > config.json <<EOF
 {
   "api": "api.${CF_DOMAIN}",
@@ -23,20 +24,20 @@ cat > config.json <<EOF
   "default_timeout": 75,
   "include_apps": true,
   "include_backend_compatibility": false,
-  "include_container_networking": false,
+  "include_container_networking": true,
   "include_detect": true,
-  "include_docker": false,
+  "include_docker": true,
   "include_internet_dependent": true,
   "include_isolation_segments": false,
   "include_persistent_app": false,
   "include_private_docker_registry": false,
   "include_privileged_container_support": false,
-  "include_route_services": false,
+  "include_route_services": true,
   "include_routing": true,
   "include_routing_isolation_segments": false,
   "include_security_groups": true,
   "include_services": true,
-  "include_ssh": false,
+  "include_ssh": true,
   "include_sso": true,
   "include_tasks": true,
   "include_v3": false,
