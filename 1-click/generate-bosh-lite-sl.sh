@@ -6,18 +6,14 @@ sl_username=$(lpass show "Shared-Flintstone/Softlayer API Key" --username)
 api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no)
 public_vlan_id=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep softlayer_public_vlan_id | tr -d ' ' | cut -d ':' -f 2)
 private_vlan_id=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep softlayer_private_vlan_id | tr -d ' ' | cut -d ':' -f 2)
-vm_domain=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep sl_vm_domain | tr -d ' ' | cut -d ':' -f 2)
-vm_name_prefix=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep sl_vm_name_prefix | tr -d ' ' | cut -d ':' -f 2)
-datacenter=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep sl_datacenter | tr -d ' ' | cut -d ':' -f 2)
-internal_ip=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep internal_ip | tr -d ' ' | cut -d ':' -f 2)
-director_name=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep director_name | tr -d ' ' | cut -d ':' -f 2)
+datacenter=$(lpass show "Shared-Flintstone/Softlayer Properties" --notes | grep softlayer_datacenter | tr -d ' ' | cut -d ':' -f 2)
 
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
     -v mbus_bootstrap_password=$password \
-    -v internal_ip=$internal_ip \
-    -v sl_vm_domain=$vm_domain \
-    -v sl_vm_name_prefix=$vm_name_prefix \
+    -v internal_ip=127.0.0.1 \
+    -v sl_vm_domain=flintstone.ams \
+    -v sl_vm_name_prefix=bosh-lite1 \
     -v softlayer_public_vlan_id=$public_vlan_id \
     -v softlayer_private_vlan_id=$private_vlan_id \
     -v sl_datacenter=$datacenter \
@@ -27,7 +23,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -v blobstore_agent_password=$password \
     -v blobstore_director_password=$password \
     -v postgres_password=$password \
-    -v director_name=$director_name \
+    -v director_name=bosh \
     -v admin_password=$password \
     -v hm_password=$password \
     -o ~/workspace/bosh-deployment/bosh-lite.yml \
@@ -38,19 +34,19 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o operations/softlayer-cpi.yml \
     -v mbus_bootstrap_password=$password \
-    -v internal_ip=$internal_ip \
-    -v softlayer_domain=$vm_domain \
+    -v internal_ip=127.0.0.1 \
+    -v softlayer_domain=flintstone.ams \
     -v softlayer_public_vlan_id=$public_vlan_id \
     -v softlayer_private_vlan_id=$private_vlan_id \
     -v softlayer_datacenter_name=$datacenter \
-    -v director_vm_prefix=$vm_name_prefix \
+    -v director_vm_prefix=bosh-lite1 \
     -v softlayer_username=$sl_username \
     -v softlayer_api_key=$api_key \
     -v nats_password=$password \
     -v blobstore_agent_password=$password \
     -v blobstore_director_password=$password \
     -v postgres_password=$password \
-    -v director_name=$director_name \
+    -v director_name=bosh \
     -v admin_password=$password \
     -v hm_password=$password \
     -o ~/workspace/bosh-deployment/bosh-lite.yml \
