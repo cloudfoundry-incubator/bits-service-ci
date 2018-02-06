@@ -26,7 +26,7 @@ cat > config.json <<EOF
   "include_backend_compatibility": false,
   "include_container_networking": true,
   "include_detect": true,
-  "include_docker": true,
+  "include_docker": false,
   "include_internet_dependent": true,
   "include_isolation_segments": false,
   "include_persistent_app": false,
