@@ -1,10 +1,9 @@
-- type: replace
-  path: /instance_groups/name=bosh/networks/name=default/default?
-  value: [dns, gateway]
-
 # NETWORKS
-- type: remove
-  path: /instance_groups/name=bosh/networks/name=default/static_ips
+- type: replace
+  path: /instance_groups/name=bosh/networks
+  value: 
+    - name: default
+      default: [dns, gateway]
 
 - type: replace
   path: /networks
