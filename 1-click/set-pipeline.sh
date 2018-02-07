@@ -16,7 +16,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
-    > bosh-generated.yml
+    > bosh-lite-in-sl.yml
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 
@@ -34,9 +34,9 @@ fly \
   -p $full_name \
   -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-generated.yml )"
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )"
 
-rm config.yml
+rm config.yml bosh-lite-in-sl.yml
 
 # Unpause so the check-resource call below works.
 fly \
