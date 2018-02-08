@@ -714,7 +714,6 @@ jobs:
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
         -o ci-tasks/operations/disable-bits-service.yml
-        -o ci-tasks/operations/scale-diego-cell-instances.yml
       # VARIABLES: >
       #   -v resource_directory_key={{cf1-s3-blobstore-bucket-name}}
       #   -v buildpack_directory_key={{cf1-s3-blobstore-bucket-name}}
