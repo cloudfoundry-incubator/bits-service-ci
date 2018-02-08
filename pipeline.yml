@@ -680,30 +680,22 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - get: bits-service-release-tarball
-      passed: &run-system-tests-passed
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
-        - deploy-and-test-with-s3-cf-softlayer
-      trigger: true
+    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
     - { get: git-deployment-vars }
-    - { get: git-cf-acceptance-tests, trigger: true }
+    - { get: cf-smoke-tests, trigger: true }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
     - { get: run-after-midnight, trigger: true }
-  - task: Generate CF deployment manifest with bits-service disabled
+  - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
       cf-deployment: git-cf-deployment
       deployment-vars: git-deployment-vars
-    output_mapping:
-      manifests: cf-with-bits-service-disabled
-    params: &bosh-interpolate-blobstore-local-bits-service-disabled
+    params:
       BOSH_TARGET: {{blobstore-local-bosh-target}}
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: blobstore-local
@@ -713,40 +705,28 @@ jobs:
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
-        -o ci-tasks/operations/disable-bits-service.yml
-      # VARIABLES: >
-      #   -v resource_directory_key={{cf1-s3-blobstore-bucket-name}}
-      #   -v buildpack_directory_key={{cf1-s3-blobstore-bucket-name}}
-      #   -v droplet_directory_key={{cf1-s3-blobstore-bucket-name}}
-      #   -v app_package_directory_key={{cf1-s3-blobstore-bucket-name}}
   - aggregate:
     - put: git-deployment-vars
-      params:
-        repository: updated/deployment-vars
+      params: { repository: updated/deployment-vars }
     - put: blobstore-local-cf-deployment
       attempts: 2
-      params: &params-aws-deployment-bits-service-disabled
-        manifest: cf-with-bits-service-disabled/manifest.yml
+      params:
+        manifest: manifests/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
         releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
         no_redact: true
   - attempts: 3
     aggregate:
-    - task: Run CATs
-      file: ci-tasks/tasks/run-cats.yml
+    - task: Run Smoke Tests
+      file: ci-tasks/tasks/run-smoke-tests.yml
       input_mapping:
         deployment-vars: git-deployment-vars
-        acceptance-tests: git-cf-acceptance-tests
       params:
         <<: *blobstore-local-bosh-params
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: blobstore-local
-        CF_DOMAIN: *blobstore-local-cf-domain
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
-        BITS_SERVICE_ENABLEMENT: without-bits-service
-      on_failure: &inform-pipeline-operator-diego-blobstore-local-cats
+        CF_SYSTEM_DOMAIN: *blobstore-local-cf-domain
+      on_failure:
         task: inform-pipeline-operator
         file: ci-tasks/tasks/echo.yml
         params:
@@ -754,21 +734,6 @@ jobs:
               Consider doing a fresh deployment by manually running job
               [manually-delete-cf-diego-aws]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-and-test-cf-blobstore-local)
-
-    - task: Run performance tests
-      file: ci-tasks/tasks/run-performance-tests.yml
-      input_mapping:
-        deployment-vars: git-deployment-vars
-        bits-service-release: git-bits-service-release
-      params:
-        DEPLOYMENT_NAME: cf
-        ENVIRONMENT_NAME: blobstore-local
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
-        CF_DOMAIN: *blobstore-local-cf-domain
-        PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
-        LOOP_COUNT: 20
 
   on_failure: *notify
 
@@ -1505,6 +1470,11 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
     branch: master
+
+- name: cf-smoke-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-smoke-tests.git
 
 - name: nightly-timer
   type: time
