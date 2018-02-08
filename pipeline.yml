@@ -396,14 +396,14 @@ jobs:
   plan:
   - aggregate:
     - get: capi-release-tarball
-      passed: &migration-tests-passed
+      passed: &acceptance-tests-passed
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
       trigger: true
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: bits-service-release-tarball, passed: *migration-tests-passed, trigger: true }
-    - { get: bits-service-release-version, passed: *migration-tests-passed }
+    - { get: bits-service-release-tarball, passed: *acceptance-tests-passed, trigger: true }
+    - { get: bits-service-release-version, passed: *acceptance-tests-passed }
   - aggregate:
     - task: Publish release tarball URLs
       file: ci-tasks/tasks/publish-release-tarball-urls.yml
@@ -420,7 +420,7 @@ jobs:
   plan:
   - aggregate:
     - get: git-bits-service-release
-      passed: *migration-tests-passed
+      passed: *acceptance-tests-passed
     - get: bits-service-release-version
       passed:
         - enable-BITS-SERVICE-diego-and-run-CATs
