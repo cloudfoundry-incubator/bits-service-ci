@@ -1289,6 +1289,23 @@ jobs:
     - put: git-cf-deployment
       params: { repository: synced-repo, force: true }
 
+- name: Sync capi-release fork
+  plan:
+    - aggregate:
+      - get: git-capi-release
+      - get: git-capi-release-upstream
+        trigger: true
+      - get: ci-tasks
+        resource: git-bits-service-ci
+    - task: sync
+      file: ci-tasks/tasks/sync-repo.yml
+      input_mapping:
+        fork-repo: git-capi-release
+        upstream-repo: git-capi-release-upstream
+      params: { BRANCH: master }
+    - put: git-capi-release
+      params: { repository: synced-repo, force: true }
+
 groups:
 - name: all
   jobs:
@@ -1316,6 +1333,7 @@ groups:
   - update-cloud-config-bosh1
   - update-cloud-config-bosh2
   - Sync cf-deployment fork
+  - Sync capi-release fork
   - deploy-and-test-cf-blobstore-local
 - name: bits-service
   jobs:
@@ -1476,11 +1494,18 @@ resources:
     release: true
     drafts: true
 
-- name: git-capi-release
+- name: git-capi-release-upstream
   type: git
   source:
     uri: https://github.com/cloudfoundry/capi-release.git
     branch: master
+
+- name: git-capi-release
+  type: git
+  source:
+    uri: git@github.com:petergtz/capi-release.git
+    branch: master
+    private_key: {{github-private-key}}
 
 - name: git-cf-acceptance-tests
   type: git
