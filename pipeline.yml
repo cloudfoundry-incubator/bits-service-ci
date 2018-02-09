@@ -148,6 +148,7 @@ jobs:
   - aggregate:
     - put: git-deployment-vars
       params:
+        rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-s3
       attempts: 3
@@ -207,6 +208,7 @@ jobs:
   - aggregate:
     - put: git-deployment-vars
       params:
+        rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-local
       attempts: 3
@@ -262,6 +264,7 @@ jobs:
   - aggregate:
     - put: git-deployment-vars
       params:
+        rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-webdav
       attempts: 3
@@ -333,6 +336,7 @@ jobs:
   - aggregate:
     - put: git-deployment-vars
       params:
+        rebase: true
         repository: updated/deployment-vars
     - put: softlayer-cf-deployment
       attempts: 2
@@ -555,6 +559,7 @@ jobs:
   - aggregate:
     - put: git-deployment-vars
       params:
+        rebase: true
         repository: updated/deployment-vars
     - put: aws-diego-deployment
       attempts: 2
@@ -635,6 +640,7 @@ jobs:
         -o ci-tasks/operations/scale-diego-cell-instances.yml
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: aws-diego-deployment
     attempts: 2
@@ -708,7 +714,9 @@ jobs:
         -o ci-tasks/operations/use-local-blobstore.yml
   - aggregate:
     - put: git-deployment-vars
-      params: { repository: updated/deployment-vars }
+      params: 
+        repository: updated/deployment-vars
+        rebase: true
     - put: blobstore-local-cf-deployment
       attempts: 2
       params:
@@ -845,6 +853,7 @@ jobs:
       CF_DOMAIN: boshlite1.dynamic-dns.net
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite1-deployment
     params: &params-deployment-bits-service-disabled
@@ -893,6 +902,7 @@ jobs:
       manifest: cf-with-bits-service-enabled/manifest.yml
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - task: Run migration verification tests
     attempts: 3
@@ -927,6 +937,7 @@ jobs:
     params: *bosh-interpolate-boshlite1-bits-service-enabled
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite1-deployment
     params: *params-deployment-bits-service-enabled
@@ -946,6 +957,7 @@ jobs:
     params: *bosh-interpolate-boshlite1-bits-service-disabled
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite1-deployment
     params: *params-deployment-bits-service-disabled
@@ -1023,6 +1035,7 @@ jobs:
       CF_DOMAIN: boshlite2.dynamic-dns.net
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite2-deployment
     params: *params-deployment-bits-service-disabled
@@ -1057,6 +1070,7 @@ jobs:
         -o ci-tasks/operations/bsmt-errands.yml
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite2-deployment
     params: *params-deployment-bits-service-enabled
@@ -1093,6 +1107,7 @@ jobs:
     params: *bosh-interpolate-boshlite2-bits-service-enabled
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite2-deployment
     params: *params-deployment-bits-service-enabled
@@ -1112,6 +1127,7 @@ jobs:
     params: *bosh-interpolate-boshlite2-bits-service-disabled
   - put: git-deployment-vars
     params:
+      rebase: true
       repository: updated/deployment-vars
   - put: boshlite2-deployment
     params: *params-deployment-bits-service-disabled
