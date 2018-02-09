@@ -373,9 +373,7 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-version, params: { pre: dev } }
-    # TODO: remove pinned version (1.46.0) once capi-release v1.48.0 is out. v1.47.0 has a bug related to a non-optional link
-    #       which manifests itself as "Can't find link with type 'directories_to_backup' for job 'blobstore' ..."
-    - { get: git-capi-release, trigger: true, version: { ref: 5534906e48bd4a2465d0beef8daa7f23be6b8e89 } }
+    - { get: git-capi-release, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-bits-service-client, passed: [Publish gem], trigger: true }
   - task: "Patch: Consume latest prerelease of bits_service_client"
