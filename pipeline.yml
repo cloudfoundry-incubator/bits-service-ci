@@ -376,16 +376,10 @@ jobs:
     - { get: git-capi-release, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-bits-service-client, passed: [Publish gem], trigger: true }
-  - task: "Patch: Consume latest prerelease of bits_service_client"
-    file: ci-tasks/tasks/patch-cc-to-use-bits-service-client-latest-prerelease.yml
-    input_mapping:
-      capi-release: git-capi-release
-  - task: Show patched CC Gemfile.lock
-    file: ci-tasks/tasks/show-patched-cc.yml
   - task: Create capi-release tarball
     file: ci-tasks/tasks/create-capi-release.yml
     input_mapping:
-      capi-release: patched-capi-release
+      capi-release: git-capi-release
     params:
       VERSION_FILE: capi-release-version/number
   - put: capi-release-tarball
