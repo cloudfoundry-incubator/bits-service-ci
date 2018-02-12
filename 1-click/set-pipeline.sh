@@ -17,6 +17,7 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
     > bosh-lite-in-sl.yml
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
