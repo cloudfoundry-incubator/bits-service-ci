@@ -22,23 +22,17 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 
-cat > config.yml <<EOF
-meta:
-  bosh-lite-name: $full_name
-  state-git-repo: git@github.com:cloudfoundry/bits-service-private-config.git
-  cf-system-domain: $1.bosh-lite.dynamic-dns.net
-EOF
-
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \
   -t flintstone \
   set-pipeline \
   -p $full_name \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )"
-
-rm config.yml bosh-lite-in-sl.yml
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
+  -v bosh_lite_name=$full_name \
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
+  -v cf_system_domain="$1.bosh-lite.dynamic-dns.net"
 
 # Unpause so the check-resource call below works.
 fly \

@@ -22,21 +22,15 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
 
 fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
 
-cat > config.yml <<EOF
-meta:
-  bosh-lite-name: blobstore-local-bosh-lite
-  state-git-repo: git@github.com:cloudfoundry/bits-service-private-config.git
-  cf-system-domain: blobstore-local.bosh-lite.dynamic-dns.net
-EOF
-
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \
   -t flintstone \
   set-pipeline \
   -p blobstore-local-bosh-lite \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml) \
+  -c ~/workspace/1-click-bosh-lite-pipeline/template.yml \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )"
-
-rm config.yml bosh-lite-in-sl.yml
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
+  -v bosh_lite_name='blobstore-local-bosh-lite' \
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
+  -v cf_system_domain="blobstore-local.bosh-lite.dynamic-dns.net"
 
