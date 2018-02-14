@@ -34,7 +34,7 @@ fly \
   -t flintstone \
   set-pipeline \
   -p $full_name \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml config.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )"
 
@@ -49,4 +49,4 @@ fly \
 # Hack to make this pinned version available in the pipeline (following Concourse's doc).
 # We need this version, because `use-compiled-release.yml` depends on it.
 # UNCOMMENT when using ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml
-# fly -t flintstone check-resource -r $full_name/boshlite-stemcell -f version:3468.21
+fly -t flintstone check-resource -r $full_name/boshlite-stemcell -f version:3541.2
