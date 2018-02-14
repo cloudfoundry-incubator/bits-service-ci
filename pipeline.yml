@@ -681,7 +681,6 @@ jobs:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
-    - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-cf-deployment, trigger: true }
@@ -689,6 +688,7 @@ jobs:
     - { get: cf-smoke-tests, trigger: true }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
     - { get: run-after-midnight, trigger: true }
+    - { get: blobstore-local-bosh-lite-ready-for-deployment-events, trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1636,6 +1636,12 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-diego-aws/deployment-deleted
+
+- name: blobstore-local-bosh-lite-ready-for-deployment-events
+  type: semver
+  source: &recreation-events-source
+    <<: *deployment-events-source
+    file: events-bosh-lites-blobstore-local-lite-ready
 
 - name: bits-service-github-release
   type: github-release
