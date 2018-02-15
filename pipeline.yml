@@ -306,13 +306,13 @@ jobs:
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: stemcell, resource: softlayer-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: git-cf-deployment, trigger: true }
+    - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: s3-cf-softlayer-deployment-events, trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
@@ -426,7 +426,7 @@ jobs:
       params: { bump: minor }
     - get: ci-tasks
       resource: git-bits-service-ci
-    - get: git-cf-deployment
+    - get: cf-deployment-develop
   - task: Promote Release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
@@ -455,7 +455,7 @@ jobs:
     file: ci-tasks/tasks/update-opsfile.yml
     input_mapping:
       release-version: bits-service-release-version
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       digests: release-digest
     output_mapping:
       cf-deployment-updated: cf-deployment-updated
@@ -466,7 +466,7 @@ jobs:
       source-repo: cf-deployment-updated
     output_mapping:
       committed-repo: cf-deployment-committed
-  - put: git-cf-deployment
+  - put: cf-deployment-develop
     params: { repository: cf-deployment-committed }
   on_failure: *notify
 
@@ -516,7 +516,7 @@ jobs:
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: git-cf-deployment, trigger: true }
+    - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, trigger: true }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
@@ -524,7 +524,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-disabled
@@ -612,7 +612,7 @@ jobs:
     - { get: bits-service-release-version, passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
-    - { get: git-cf-deployment, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: cf-deployment-develop, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-bits-service-release, passed: [deploy-and-test-cf-diego-aws], trigger: true }
@@ -620,7 +620,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
@@ -683,7 +683,7 @@ jobs:
     - { get: bits-service-release-version, passed: *run-system-tests-passed }
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: git-cf-deployment, trigger: true }
+    - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-smoke-tests, trigger: true }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
@@ -692,7 +692,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     params:
       BOSH_TARGET: {{blobstore-local-bosh-target}}
@@ -706,7 +706,7 @@ jobs:
         -o ci-tasks/operations/use-local-blobstore.yml
   - aggregate:
     - put: git-deployment-vars
-      params: 
+      params:
         repository: updated/deployment-vars
         rebase: true
     - put: blobstore-local-cf-deployment
@@ -791,11 +791,11 @@ jobs:
   - aggregate:
     - { get: bosh1-recreation-events, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci }
-    - { get: git-cf-deployment-cloud-config, trigger: true }
+    - { get: cf-deployment-develop-cloud-config, trigger: true }
   - task: Update cloud-config
     file: ci-tasks/tasks/update-cloud-config.yml
     input_mapping:
-      manifests: git-cf-deployment-cloud-config
+      manifests: cf-deployment-develop-cloud-config
     params:
       <<: *bosh1-params
       MANIFEST: *bosh-lite-cloud-config-path
@@ -812,15 +812,15 @@ jobs:
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: git-cf-deployment, trigger: true }
+    - { get: cf-deployment-develop, trigger: true }
     - { get: bosh1-recreation-events, passed: [ update-cloud-config-bosh1 ], trigger: true }
-    - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
+    - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-disabled
@@ -879,7 +879,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
@@ -916,13 +916,13 @@ jobs:
     - { get: bits-service-release-version, passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
-    - { get: git-cf-deployment, passed: [migration-bosh1 (S3)], trigger: true }
+    - { get: cf-deployment-develop, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: [migration-bosh1 (S3)], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
@@ -942,7 +942,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-disabled
@@ -981,11 +981,11 @@ jobs:
   - aggregate:
     - { get: bosh2-recreation-events, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci }
-    - { get: git-cf-deployment-cloud-config, trigger: true }
+    - { get: cf-deployment-develop-cloud-config, trigger: true }
   - task: Update cloud-config
     file: ci-tasks/tasks/update-cloud-config.yml
     input_mapping:
-      manifests: git-cf-deployment-cloud-config
+      manifests: cf-deployment-develop-cloud-config
     params:
       <<: *bosh2-params
       MANIFEST: *bosh-lite-cloud-config-path
@@ -1003,15 +1003,15 @@ jobs:
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: git-cf-deployment, trigger: true }
+    - { get: cf-deployment-develop, trigger: true }
     - { get: bosh2-recreation-events, passed: [ update-cloud-config-bosh2 ], trigger: true }
-    - { get: git-cf-deployment-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
+    - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-disabled
@@ -1052,7 +1052,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
@@ -1086,13 +1086,13 @@ jobs:
     - { get: bits-service-release-version, passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
-    - { get: git-cf-deployment, passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: cf-deployment-develop, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-bits-service-release, passed: [migration-bosh2 (webdav)], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
@@ -1112,7 +1112,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: git-cf-deployment
+      cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-disabled
@@ -1264,21 +1264,38 @@ jobs:
       BOSH_TARGET: {{bosh-acceptance-target}}
   on_failure: *notify
 
-- name: Sync cf-deployment fork
+- name: Sync cf-deployment fork (develop)
   plan:
     - aggregate:
-      - get: git-cf-deployment
-      - get: git-cf-deployment-upstream
+      - get: cf-deployment-develop
+      - get: cf-deployment-develop-upstream
         trigger: true
       - get: ci-tasks
         resource: git-bits-service-ci
     - task: sync
       file: ci-tasks/tasks/sync-repo.yml
       input_mapping:
-        fork-repo: git-cf-deployment
-        upstream-repo: git-cf-deployment-upstream
+        fork-repo: cf-deployment-develop
+        upstream-repo: cf-deployment-develop-upstream
       params: { BRANCH: develop }
-    - put: git-cf-deployment
+    - put: cf-deployment-develop
+      params: { repository: synced-repo, force: true }
+
+- name: Sync cf-deployment fork (master)
+  plan:
+    - aggregate:
+      - get: cf-deployment-master
+      - get: cf-deployment-master-upstream
+        trigger: true
+      - get: ci-tasks
+        resource: git-bits-service-ci
+    - task: sync
+      file: ci-tasks/tasks/sync-repo.yml
+      input_mapping:
+        fork-repo: cf-deployment-master
+        upstream-repo: cf-deployment-master-upstream
+      params: { BRANCH: master }
+    - put: cf-deployment-master
       params: { repository: synced-repo, force: true }
 
 - name: Sync capi-release fork
@@ -1324,7 +1341,8 @@ groups:
   - Publish Final Release
   - update-cloud-config-bosh1
   - update-cloud-config-bosh2
-  - Sync cf-deployment fork
+  - Sync cf-deployment fork (develop)
+  - Sync cf-deployment fork (master)
   - Sync capi-release fork
   - deploy-and-test-cf-blobstore-local
 - name: bits-service
@@ -1427,7 +1445,7 @@ resources:
     private_key: {{github-private-key}}
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
 
-- name: git-cf-deployment-cloud-config
+- name: cf-deployment-develop-cloud-config
   type: git
   source:
     uri: https://github.com/petergtz/cf-deployment.git
@@ -1435,18 +1453,31 @@ resources:
     paths:
       - &bosh-lite-cloud-config-path iaas-support/bosh-lite/cloud-config.yml
 
-- name: git-cf-deployment
+- name: cf-deployment-develop
   type: git
   source:
     uri: git@github.com:petergtz/cf-deployment.git
     branch: develop
     private_key: {{github-private-key}}
 
-- name: git-cf-deployment-upstream
+- name: cf-deployment-develop-upstream
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: develop
+
+- name: cf-deployment-master
+  type: git
+  source:
+    uri: git@github.com:petergtz/cf-deployment.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: cf-deployment-master-upstream
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-deployment.git
+    branch: master
 
 - name: git-deployment-vars
   type: git
