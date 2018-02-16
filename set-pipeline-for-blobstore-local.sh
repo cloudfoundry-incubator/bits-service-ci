@@ -31,6 +31,4 @@ fly \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
   -v bosh_lite_name='blobstore-local-bosh-lite' \
-  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
-  -v cf_system_domain="blobstore-local.bosh-lite.dynamic-dns.net"
-
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'

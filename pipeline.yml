@@ -700,7 +700,7 @@ jobs:
       ENVIRONMENT_NAME: blobstore-local
       BLOBSTORE_TYPE: local
       IAAS: bosh-lite
-      CF_DOMAIN: &blobstore-local-cf-domain cf-blobstore-local.bosh-lite.dynamic-dns.net
+      CF_DOMAIN: &blobstore-local-cf-domain blobstore-local-bosh-lite.freeddns.org
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
