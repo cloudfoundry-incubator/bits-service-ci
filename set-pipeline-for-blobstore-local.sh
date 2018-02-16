@@ -1,26 +1,8 @@
 #!/bin/bash -e
 
-# TODO this is almost identical to 1-click/set-pipeline. We should find a better way.
+1-click/generate-bosh-lite-in-sl-manifest.sh blobstore-local-bosh-lite > bosh-lite-in-sl.yml
 
-bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
-    -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
-    -l <(lpass show --sync=no "Shared-Flintstone/Softlayer Properties" --notes) \
-    -v internal_ip=127.0.0.1 \
-    -v sl_vm_domain=flintstone.ams \
-    -v sl_vm_name_prefix=blobstore-local-bosh-lite \
-    -v sl_username=flintstone@cloudfoundry.org \
-    -v sl_api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no) \
-    -v director_name=bosh \
-    -o ~/workspace/bosh-deployment/bosh-lite.yml \
-    -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
-    -o ~/workspace/bosh-deployment/jumpbox-user.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-to-single-dynamic-network-named-default.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/change-cloud-provider-mbus-host.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/make-it-work-again-workaround.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
-    > bosh-lite-in-sl.yml
-
-fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password --sync=no)
+./fly-login.sh flintstone
 
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \

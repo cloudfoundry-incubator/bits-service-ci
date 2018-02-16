@@ -4,7 +4,7 @@ cd $(dirname $0)
 
 target=flintstone
 
-fly -t ${target} login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password)
+./fly-login.sh ${target}
 
 # use brew install lastpass-cli
 lpass show "Shared-Flintstone"/ci-config --notes > config.yml
