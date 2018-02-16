@@ -32,7 +32,7 @@ fly \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
   -v bosh_lite_name=$full_name \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
-  -v cf_system_domain="$1.bosh-lite.dynamic-dns.net"
+  -v cf_system_domain="$full_name.freeddns.org"
 
 # Unpause so the check-resource call below works.
 fly \
