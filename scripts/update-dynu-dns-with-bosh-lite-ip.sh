@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 router_ip=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}/hosts | cut -d ' ' -f1)
 
