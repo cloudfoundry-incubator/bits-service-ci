@@ -1669,9 +1669,10 @@ resources:
 
 - name: blobstore-local-bosh-lite-ready-for-deployment-events
   type: semver
-  source: &recreation-events-source
+  source:
     <<: *deployment-events-source
-    file: events-bosh-lites-blobstore-local-lite-ready
+    file: events-bosh-lites-blobstore-local-bosh-lite-ready
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
 
 - name: bits-service-github-release
   type: github-release
