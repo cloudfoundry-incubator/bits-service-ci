@@ -11,7 +11,7 @@ fly \
   -t flintstone \
   set-pipeline \
   -p $full_name \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
   -v bosh_lite_name=$full_name \
