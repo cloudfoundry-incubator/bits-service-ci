@@ -701,6 +701,7 @@ jobs:
       BLOBSTORE_TYPE: local
       IAAS: bosh-lite
       CF_DOMAIN: &blobstore-local-cf-domain blobstore-local-bosh-lite.freeddns.org
+      # TODO: remove these operations. They are very likely not used, because this is a deployment *with* bits-service.
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
