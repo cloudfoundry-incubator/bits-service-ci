@@ -10,7 +10,7 @@ inputs:
 
 params:
   ENVIRONMENT_NAME: unconfigured
-  CF_SYSTEM_DOMAIN: unconfigured
+  CF_SYSTEM_DOMAIN:
   DEPLOYMENT_NAME: unconfigured
 
 run:

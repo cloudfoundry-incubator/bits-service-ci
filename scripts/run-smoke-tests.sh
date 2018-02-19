@@ -7,8 +7,12 @@ export PATH=$PATH:$GOPATH/bin
 
 cf version
 
-cf_admin_password=$(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml --path /cf_admin_password
-)
+cf_admin_password=$(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml --path /cf_admin_password)
+
+if [ ! -n $CF_SYSTEM_DOMAIN ]; then
+  CF_SYSTEM_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).xip.io
+fi
+
 cat > config.json <<EOF
 {
   "suite_name"                      : "CF_SMOKE_TESTS",

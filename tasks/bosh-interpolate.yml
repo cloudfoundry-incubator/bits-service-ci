@@ -20,7 +20,7 @@ params:
   BLOBSTORE_TYPE:
   OPERATIONS:
   VARIABLES:
-  CF_DOMAIN: bosh-lite.com
+  CF_DOMAIN:
 
 run:
   path: ci-tasks/scripts/bosh-interpolate.sh
