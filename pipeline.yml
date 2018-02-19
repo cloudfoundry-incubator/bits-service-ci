@@ -700,7 +700,6 @@ jobs:
       ENVIRONMENT_NAME: blobstore-local
       BLOBSTORE_TYPE: local
       IAAS: bosh-lite
-      CF_DOMAIN: &blobstore-local-cf-domain blobstore-local-bosh-lite.freeddns.org
       # TODO: remove these operations. They are very likely not used, because this is a deployment *with* bits-service.
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
@@ -727,7 +726,6 @@ jobs:
         <<: *blobstore-local-bosh-params
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: blobstore-local
-        CF_SYSTEM_DOMAIN: *blobstore-local-cf-domain
       on_failure:
         task: inform-pipeline-operator
         file: ci-tasks/tasks/echo.yml
