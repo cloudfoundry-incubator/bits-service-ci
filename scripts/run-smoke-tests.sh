@@ -9,7 +9,7 @@ cf version
 
 cf_admin_password=$(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml --path /cf_admin_password)
 
-if [ ! -n $CF_SYSTEM_DOMAIN ]; then
+if [ $CF_SYSTEM_DOMAIN == "" ]; then
   CF_SYSTEM_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).xip.io
 fi
 
