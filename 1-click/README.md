@@ -5,6 +5,7 @@
 Make sure you have the following 2 git repos in `~/workspace`:
 - https://github.com/cloudfoundry/bits-service-private-config
 - https://github.com/petergtz/1-click-bosh-lite-pipeline
+- spruce version min 1.16
 
 ## How to create a new bosh-lite in SL Concourse management pipeline:
 
