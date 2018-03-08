@@ -69,7 +69,7 @@ echo '##########################################################################
 printf "run-cats-$BITS_SERVICE_ENABLEMENT-started_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
 
 set +e
-bin/test -r -slowSpecThreshold=120 -randomizeAllSpecs \
+bin/test -slowSpecThreshold=120 -randomizeAllSpecs \
   -nodes="${NODES}" -skipPackage=helpers -keepGoing
 EXIT_CODE=$?
 set -e
