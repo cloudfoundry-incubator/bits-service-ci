@@ -14,9 +14,9 @@
     HOSTS_ENTRY_FILE: unconfigured
     DEPLOYMENT_NAME: unconfigured
     VARS_STORE_FILE: unconfigured
-    STEMCELL_FILES: stemcells/*.tgz
-    RELEASE_FILES: releases/*.tgz
-    MANIFEST_FILE: manifests/manifest.yml
+    STEMCELL_FILES: '*.tgz'
+    RELEASE_FILES: '*.tgz'
+    MANIFEST_FILE: manifest.yml
 
   run:
     path: ci-tasks/scripts/bosh-deploy.sh
