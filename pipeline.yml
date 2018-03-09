@@ -704,36 +704,44 @@ jobs:
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
+        -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   - aggregate:
     - put: git-deployment-vars
       params:
         repository: updated/deployment-vars
         rebase: true
-    - put: blobstore-local-cf-deployment
-      attempts: 2
-      params:
-        manifest: manifests/manifest.yml
-        stemcells: ["stemcell/stemcell.tgz"]
-        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
-        no_redact: true
-  - attempts: 3
-    aggregate:
-    - task: Run Smoke Tests
-      file: ci-tasks/tasks/run-smoke-tests.yml
-      input_mapping:
-        deployment-vars: git-deployment-vars
-      params:
-        <<: *blobstore-local-bosh-params
-        DEPLOYMENT_NAME: cf
-        ENVIRONMENT_NAME: blobstore-local
-      on_failure:
-        task: inform-pipeline-operator
-        file: ci-tasks/tasks/echo.yml
+    - do:
+      - task: merge release tarballs
+        file: ci-tasks/tasks/merge-resources.yml
+        input_mapping: { a: capi-release-tarball, b: bits-service-release-tarball }
+        output_mapping: { merged: releases }
+      - task: make blobstore-local-cf-deployment
+        file: ci-tasks/tasks/bosh-deploy.yml
+        attempts: 2
+        input_mapping:
+          stemcells: stemcell
+          vars-store: git-deployment-vars
         params:
-          MESSAGE: |
-              Consider doing a fresh deployment by manually running job
-              [manually-delete-cf-diego-aws]
-              (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-and-test-cf-blobstore-local)
+          HOSTS_ENTRY_FILE: environments/softlayer/director/blobstore-local-bosh-lite/hosts
+          DEPLOYMENT_NAME: cf
+          VARS_STORE_FILE: environments/softlayer/director/blobstore-local-bosh-lite/vars.yml
+  - task: Run Smoke Tests
+    attempts: 3
+    file: ci-tasks/tasks/run-smoke-tests.yml
+    input_mapping:
+      deployment-vars: git-deployment-vars
+    params:
+      <<: *blobstore-local-bosh-params
+      DEPLOYMENT_NAME: cf
+      ENVIRONMENT_NAME: blobstore-local
+    on_failure:
+      task: inform-pipeline-operator
+      file: ci-tasks/tasks/echo.yml
+      params:
+        MESSAGE: |
+            Consider doing a fresh deployment by manually running job
+            [manually-delete-cf-diego-aws]
+            (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-and-test-cf-blobstore-local)
 
   on_failure: *notify
 
@@ -1551,14 +1559,6 @@ resources:
     target: {{aws-bosh-target}}
     username: {{aws-bosh-username}}
     password: {{aws-bosh-password}}
-    deployment: cf
-
-- name: blobstore-local-cf-deployment
-  type: bosh-deployment
-  source:
-    target: {{blobstore-local-bosh-target}}
-    username: {{blobstore-local-bosh-username}}
-    password: {{blobstore-local-bosh-password}}
     deployment: cf
 
 - name: boshlite1-deployment
