@@ -33,6 +33,7 @@ fly \
   -p bits-service \
   -c pipeline-overbooked.yml \
   -l config.yml \
+  -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
   -v github-private-key="${github_ssh_key}" \
   -v github-access-token="${github_access_token}" \
   -v rubygems-api-key="${rubygems_api_key}" \
