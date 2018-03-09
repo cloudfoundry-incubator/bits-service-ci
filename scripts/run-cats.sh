@@ -40,7 +40,7 @@ cat > config.json <<EOF
   "include_ssh": false,
   "include_sso": true,
   "include_tasks": true,
-  "include_v3": false,
+  "include_v3": true,
   "include_zipkin": false,
   "include_credhub": false,
   "backend": "diego",
