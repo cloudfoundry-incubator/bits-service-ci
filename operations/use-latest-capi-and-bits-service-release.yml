@@ -1,0 +1,8 @@
+---
+- type: replace
+  path: /releases/name=capi/version
+  value: latest
+
+- type: replace
+  path: /releases/name=bits-service/version
+  value: latest
