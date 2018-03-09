@@ -13,6 +13,16 @@ export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
 
+export ROUTER_IP=$(
+  bosh vms ${DEPLOYMENT_NAME} \
+  | grep ' router' \
+  | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
+)
+
+echo "$ROUTER_IP  api.cf-deployment.dynamic-dns.net" >> /etc/hosts
+echo "$ROUTER_IP  uaa.cf-deployment.dynamic-dns.net" >> /etc/hosts
+echo "$BITS_SERVICE_PRIVATE_ENDPOINT_IP  bits-service.cf-deployment.dynamic-dns.net" >> /etc/hosts
+
 bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml --path /bits_service_ssl/ca > /tmp/bits-service-ca.crt
 export BITS_SERVICE_CA_CERT=/tmp/bits-service-ca.crt
 
