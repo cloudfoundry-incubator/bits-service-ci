@@ -32,5 +32,7 @@ pushd bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-pe
   ginkgo -v --progress
 popd
 
+cp bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-performance-tests/metrics.csv metrics
+
 # Wait for collectd to send final metrics
 sleep 90

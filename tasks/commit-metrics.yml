@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: ci-tasks
+- name: metrics-input
+- name: metrics-updated
+
+params:
+- REPO_DIR: metrics-committed
+- FILENAME: metrics/metrics.csv
+- COMMIT_MESSAGE: "Update metrics"
+
+outputs:
+- name: metrics-committed
+
+run:
+  path: ci-tasks/scripts/commit-metrics.sh
