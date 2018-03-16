@@ -520,6 +520,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, trigger: true }
     - { get: git-bits-service-release, passed: *run-system-tests-passed, trigger: true }
+    - get: git-bits-service-metrics
     - { get: run-after-midnight, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
@@ -590,6 +591,8 @@ jobs:
       input_mapping:
         deployment-vars: git-deployment-vars
         bits-service-release: git-bits-service-release
+      # output_mapping:
+      #   metrics: metrics
       params:
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: aws
@@ -599,6 +602,14 @@ jobs:
         CF_DOMAIN: {{aws-cf1-domain}}
         PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
         LOOP_COUNT: 20
+    # Copy metrics.csv and commit to metadata branch
+    - task: Copy and commit new metrics
+      file: ci-tasks/tasks/commit-metrics.yml
+      input_mapping:
+        # metrics: metrics
+        metrics-input: git-bits-service-metrics
+    - put: git-bits-service-metrics
+      params: { repository: metrics-committed }
 
   on_failure: *notify
 
@@ -656,6 +667,7 @@ jobs:
         METRICS_API_KEY:  {{ibm_metrics_api_key}}
         BITS_SERVICE_ENABLEMENT: with-bits-service
       on_failure: *inform-pipeline-operator-diego-aws-cats
+    - { get: git-bits-service-metrics, passed: [deploy-and-test-cf-diego-aws] }
     - task: Run performance tests
       file: ci-tasks/tasks/run-performance-tests.yml
       input_mapping:
@@ -670,6 +682,15 @@ jobs:
         CF_DOMAIN: {{aws-cf1-domain}}
         PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
         LOOP_COUNT: 20
+      # output_mapping:
+      #   metrics: metrics
+    - task: Copy and commit new metrics
+      file: ci-tasks/tasks/commit-metrics.yml
+      input_mapping:
+        # metrics: metrics
+        metrics-input: git-bits-service-metrics
+    - put: git-bits-service-metrics
+      params: { repository: metrics-committed }
 
   on_failure: *notify
 
@@ -1451,6 +1472,14 @@ resources:
     branch: master
     private_key: {{github-private-key}}
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
+
+- name: git-bits-service-metrics
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    private_key: {{github-private-key}}
+    paths: ["metrics/*"]
 
 - name: cf-deployment-develop-cloud-config
   type: git
