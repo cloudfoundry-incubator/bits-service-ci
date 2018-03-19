@@ -18,20 +18,12 @@ ibm_metrics_api_key=$(lpass show "Shared-Flintstone"/"IBM Metrics API Key" --pas
 private_yml=$(lpass show "Shared-Flintstone/private.yml" --notes)
 changeip_username=$(lpass show "Shared-Flintstone"/"changeip.com" --username)
 changeip_password=$(lpass show "Shared-Flintstone"/"changeip.com" --password)
-echo 'Installing overbook...'
-set +e
-wget --no-clobber https://github.com/petergtz/overbook/releases/download/0.1.0/overbook-macos -O /tmp/overbook
-set -e
-chmod +x /tmp/overbook
-echo 'done'
-
-/tmp/overbook -c pipeline.yml -t ci-tasks/tasks/generated/aggregate-committers-for-notification -r ci=ci-tasks > pipeline-overbooked.yml
 
 fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c pipeline-overbooked.yml \
+  -c pipeline.yml \
   -l config.yml \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
   -v github-private-key="${github_ssh_key}" \
@@ -47,7 +39,6 @@ fly \
   -v changeip-username="${changeip_username}" \
   -v changeip-password="${changeip_password}"
 
-rm -f pipeline-overbooked.yml
 rm -f config.yml
 
 fly -t ${target} expose-pipeline --pipeline bits-service
