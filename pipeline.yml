@@ -609,7 +609,7 @@ jobs:
         # metrics: metrics
         metrics-input: git-bits-service-metrics
     - put: git-bits-service-metrics
-      params: { repository: metrics-committed }
+      params: { repository: metrics-committed, rebase: true }
 
   on_failure: *notify
 
@@ -690,7 +690,7 @@ jobs:
         # metrics: metrics
         metrics-input: git-bits-service-metrics
     - put: git-bits-service-metrics
-      params: { repository: metrics-committed }
+      params: { repository: metrics-committed, rebase: true }
 
   on_failure: *notify
 
