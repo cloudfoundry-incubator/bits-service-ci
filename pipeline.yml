@@ -684,13 +684,13 @@ jobs:
         LOOP_COUNT: 20
       output_mapping:
         metrics: metrics
-    - task: Copy and commit new metrics
-      file: ci-tasks/tasks/commit-metrics.yml
-      input_mapping:
-        # metrics: metrics
-        metrics-input: git-bits-service-metrics
-    - put: git-bits-service-metrics
-      params: { repository: metrics-committed/metrics, rebase: true }
+  - task: Copy and commit new metrics
+    file: ci-tasks/tasks/commit-metrics.yml
+    input_mapping:
+      # metrics: metrics
+      metrics-input: git-bits-service-metrics
+  - put: git-bits-service-metrics
+    params: { repository: metrics-committed/metrics, rebase: true }
 
   on_failure: *notify
 
