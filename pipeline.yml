@@ -599,6 +599,10 @@ jobs:
         CF_DOMAIN: {{aws-cf1-domain}}
         PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
         LOOP_COUNT: 20
+  - task: Copy and commit new metrics
+    file: ci-tasks/tasks/commit-metrics.yml
+  - put: git-deployment-vars
+    params: { repository: metrics-committed, rebase: true }
 
   on_failure: *notify
 
@@ -670,7 +674,10 @@ jobs:
         CF_DOMAIN: {{aws-cf1-domain}}
         PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
         LOOP_COUNT: 20
-
+  - task: Copy and commit new metrics
+    file: ci-tasks/tasks/commit-metrics.yml
+  - put: git-deployment-vars
+    params: { repository: metrics-committed, rebase: true }
   on_failure: *notify
 
 - name: deploy-and-test-cf-blobstore-local

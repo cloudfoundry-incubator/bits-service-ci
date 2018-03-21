@@ -1,8 +1,5 @@
 #!/bin/bash -ex
 
-cp -r metrics-input/. metrics-committed/
-
-mkdir -p metrics-committed/metrics
-cp metrics/metrics.csv metrics-committed/metrics/
+cp -a metrics/. metrics-committed/
 
 ./ci-tasks/scripts/commit-file-if-changed.sh
