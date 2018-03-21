@@ -19,7 +19,7 @@ params:
   METRICS_API_KEY: unconfigured
 
 outputs:
-- name: metrics
+- name: deployment-vars-out
 
 run:
   path: ci-tasks/scripts/run-performance-tests.sh
