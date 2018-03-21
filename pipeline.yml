@@ -585,24 +585,27 @@ jobs:
               [manually-delete-cf-diego-aws]
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
 
-    - task: Run performance tests
-      file: ci-tasks/tasks/run-performance-tests.yml
-      input_mapping:
-        deployment-vars: git-deployment-vars
-        bits-service-release: git-bits-service-release
-      params:
-        DEPLOYMENT_NAME: cf
-        ENVIRONMENT_NAME: aws
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
-        CF_DOMAIN: {{aws-cf1-domain}}
-        PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
-        LOOP_COUNT: 20
-  - task: Copy and commit new metrics
-    file: ci-tasks/tasks/commit-metrics.yml
-  - put: git-deployment-vars
-    params: { repository: metrics-committed, rebase: true }
+    - do:
+      - task: Run performance tests
+        file: ci-tasks/tasks/run-performance-tests.yml
+        input_mapping:
+          deployment-vars: git-deployment-vars
+          bits-service-release: git-bits-service-release
+        params:
+          DEPLOYMENT_NAME: cf
+          ENVIRONMENT_NAME: aws
+          BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+          BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+          METRICS_API_KEY:  {{ibm_metrics_api_key}}
+          CF_DOMAIN: {{aws-cf1-domain}}
+          PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
+          LOOP_COUNT: 20
+      - task: Copy and commit new metrics
+        file: ci-tasks/tasks/commit-metrics.yml
+        input_mapping: { state: git-deployment-vars }
+        output_mapping: { state-out: metrics-committed }
+      - put: git-deployment-vars
+        params: { repository: metrics-committed, rebase: true }
 
   on_failure: *notify
 
@@ -660,24 +663,27 @@ jobs:
         METRICS_API_KEY:  {{ibm_metrics_api_key}}
         BITS_SERVICE_ENABLEMENT: with-bits-service
       on_failure: *inform-pipeline-operator-diego-aws-cats
-    - task: Run performance tests
-      file: ci-tasks/tasks/run-performance-tests.yml
-      input_mapping:
-        deployment-vars: git-deployment-vars
-        bits-service-release: git-bits-service-release
-      params:
-        DEPLOYMENT_NAME: cf
-        ENVIRONMENT_NAME: aws
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
-        CF_DOMAIN: {{aws-cf1-domain}}
-        PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
-        LOOP_COUNT: 20
-  - task: Copy and commit new metrics
-    file: ci-tasks/tasks/commit-metrics.yml
-  - put: git-deployment-vars
-    params: { repository: metrics-committed, rebase: true }
+    - do:
+      - task: Run performance tests
+        file: ci-tasks/tasks/run-performance-tests.yml
+        input_mapping:
+          deployment-vars: git-deployment-vars
+          bits-service-release: git-bits-service-release
+        params:
+          DEPLOYMENT_NAME: cf
+          ENVIRONMENT_NAME: aws
+          BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+          BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+          METRICS_API_KEY:  {{ibm_metrics_api_key}}
+          CF_DOMAIN: {{aws-cf1-domain}}
+          PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
+          LOOP_COUNT: 20
+      - task: Copy and commit new metrics
+        file: ci-tasks/tasks/commit-metrics.yml
+        input_mapping: { state: git-deployment-vars }
+        output_mapping: { state-out: metrics-committed }
+      - put: git-deployment-vars
+        params: { repository: metrics-committed, rebase: true }
   on_failure: *notify
 
 - name: deploy-and-test-cf-blobstore-local
