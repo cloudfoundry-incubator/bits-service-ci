@@ -562,12 +562,13 @@ jobs:
         no_redact: true
   - attempts: 3
     aggregate:
-    - task: Run CATs
+    - &aws-bits-service-disabled-run-cats
+      task: Run CATs
       file: ci-tasks/tasks/run-cats.yml
       input_mapping:
         deployment-vars: git-deployment-vars
         acceptance-tests: git-cf-acceptance-tests
-      params:
+      params: &aws-bits-service-disabled-run-cats-params
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: aws
@@ -586,12 +587,12 @@ jobs:
               (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
 
     - do:
-      - task: Run performance tests
+      - task: Run performance tests (v2-push)
         file: ci-tasks/tasks/run-performance-tests.yml
         input_mapping:
           deployment-vars: git-deployment-vars
           bits-service-release: git-bits-service-release
-        params:
+        params: &aws-bits-service-disabled-run-perf-tests-params
           DEPLOYMENT_NAME: cf
           ENVIRONMENT_NAME: aws
           BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
@@ -600,6 +601,25 @@ jobs:
           CF_DOMAIN: {{aws-cf1-domain}}
           PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
           LOOP_COUNT: 20
+      - task: Copy and commit new metrics
+        file: ci-tasks/tasks/commit-metrics.yml
+        input_mapping: { state: deployment-vars-out }
+        output_mapping: { state-out: metrics-committed }
+      - put: git-deployment-vars
+        params: { repository: metrics-committed, rebase: true }
+  - attempts: 3
+    aggregate:
+    - *aws-bits-service-disabled-run-cats
+    - do:
+      - task: Run performance tests (v3-push)
+        file: ci-tasks/tasks/run-performance-tests.yml
+        input_mapping:
+          deployment-vars: git-deployment-vars
+          bits-service-release: git-bits-service-release
+        params:
+          <<: *aws-bits-service-disabled-run-perf-tests-params
+          PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1_v3-push
+          PERFORMANCE_TEST_SHOULD_USE_V3_PUSH: true
       - task: Copy and commit new metrics
         file: ci-tasks/tasks/commit-metrics.yml
         input_mapping: { state: deployment-vars-out }
@@ -648,7 +668,8 @@ jobs:
       manifest: cf-with-bits-service-enabled/manifest.yml
   - attempts: 3
     aggregate:
-    - task: Run CATs
+    - &aws-bits-service-enabled-run-cats
+      task: Run CATs
       file: ci-tasks/tasks/run-cats.yml
       input_mapping:
         deployment-vars: git-deployment-vars
@@ -664,12 +685,12 @@ jobs:
         BITS_SERVICE_ENABLEMENT: with-bits-service
       on_failure: *inform-pipeline-operator-diego-aws-cats
     - do:
-      - task: Run performance tests
+      - task: Run performance tests (v2-push)
         file: ci-tasks/tasks/run-performance-tests.yml
         input_mapping:
           deployment-vars: git-deployment-vars
           bits-service-release: git-bits-service-release
-        params:
+        params: &aws-bits-service-enabled-run-perf-tests-params
           DEPLOYMENT_NAME: cf
           ENVIRONMENT_NAME: aws
           BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
@@ -678,6 +699,25 @@ jobs:
           CF_DOMAIN: {{aws-cf1-domain}}
           PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
           LOOP_COUNT: 20
+      - task: Copy and commit new metrics
+        file: ci-tasks/tasks/commit-metrics.yml
+        input_mapping: { state: deployment-vars-out }
+        output_mapping: { state-out: metrics-committed }
+      - put: git-deployment-vars
+        params: { repository: metrics-committed, rebase: true }
+  - attempts: 3
+    aggregate:
+    - *aws-bits-service-enabled-run-cats
+    - do:
+      - task: Run performance tests (v3-push)
+        file: ci-tasks/tasks/run-performance-tests.yml
+        input_mapping:
+          deployment-vars: git-deployment-vars
+          bits-service-release: git-bits-service-release
+        params:
+          <<: *aws-bits-service-enabled-run-perf-tests-params
+          PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1_v3-push
+          PERFORMANCE_TEST_SHOULD_USE_V3_PUSH: true
       - task: Copy and commit new metrics
         file: ci-tasks/tasks/commit-metrics.yml
         input_mapping: { state: deployment-vars-out }
