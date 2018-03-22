@@ -28,7 +28,7 @@ pushd bits-service-release/src/github.com/onsi/ginkgo/ginkgo
 popd
 
 cp -a deployment-vars/. deployment-vars-out
-export PERFORMANCE_TEST_METRICS_CSV_FILE=$(readlink -f deployment-vars-out/metrics.csv)
+export PERFORMANCE_TEST_METRICS_CSV_FILE=$(readlink -f deployment-vars-out/${PERFORMANCE_TEST_METRICS_PREFIX}-metrics.csv)
 pushd bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-performance-tests
   glide install
   ginkgo -v --progress
