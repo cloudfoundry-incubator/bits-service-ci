@@ -17,6 +17,7 @@ params:
   PERFORMANCE_TEST_METRICS_PREFIX:
   LOOP_COUNT:
   METRICS_API_KEY: unconfigured
+  PERFORMANCE_TEST_SHOULD_USE_V3_PUSH: false
 
 outputs:
 - name: deployment-vars-out
