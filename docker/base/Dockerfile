@@ -42,8 +42,8 @@ RUN apt-get -y install collectd collectd-write-mtlumberjack ibmcloud-monitoring 
 
 RUN gem install \
         unf_ext:0.0.7.2 \
-        msgpack:0.5.9 \
-        yajl-ruby:1.2.1 \
+        msgpack:1.1.0 \
+        yajl-ruby:1.3.1 \
         posix-spawn:0.3.11 \
         posix-spawn:0.3.9 \
         thin:1.6.4 \
@@ -53,7 +53,7 @@ RUN gem install \
         fog:1.34.0 \
         mime-types:3.0 \
         byebug:8.2.2 \
-        json:1.8.3 \
+        json:2.1.0 \
         ffi:1.9.14
 
 RUN git config --global user.email "flintstone+cibot@cloudfoundry.org" && \
