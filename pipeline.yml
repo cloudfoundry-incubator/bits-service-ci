@@ -602,7 +602,7 @@ jobs:
           LOOP_COUNT: 20
       - task: Copy and commit new metrics
         file: ci-tasks/tasks/commit-metrics.yml
-        input_mapping: { state: git-deployment-vars }
+        input_mapping: { state: deployment-vars-out }
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
@@ -680,7 +680,7 @@ jobs:
           LOOP_COUNT: 20
       - task: Copy and commit new metrics
         file: ci-tasks/tasks/commit-metrics.yml
-        input_mapping: { state: git-deployment-vars }
+        input_mapping: { state: deployment-vars-out }
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
