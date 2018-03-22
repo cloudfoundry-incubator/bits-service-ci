@@ -9,7 +9,7 @@ inputs:
 
 params:
 - REPO_DIR: state-out
-- FILENAME: metrics.csv
+- FILENAME: '*-metrics.csv'
 - COMMIT_MESSAGE: "Update metrics"
 
 outputs:
