@@ -10,8 +10,8 @@
 # semver version and expect everywhere that 1.2.3+dev.42 < 1.2.3.
 sed -i -e 's/-dev/+dev/' $VERSION_FILE
 
-version=$(cat $VERSION_FILE)
+version=$(cat $VERSION_FILE)${RELEASE_VERSION_SUFFIX}
 cd git-bits-service-release
 
 bosh2 -n sync-blobs --parallel 10
-bosh2 create-release --force --name bits-service$RELEASE_NAME_SUFFIX --tarball ../releases/bits-service$RELEASE_NAME_SUFFIX-$version.tgz --version $version
+bosh2 create-release --force --name bits-service --tarball ../releases/bits-service-$version.tgz --version $version

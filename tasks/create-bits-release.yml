@@ -10,7 +10,7 @@ inputs:
 
 params:
   VERSION_FILE:
-  RELEASE_NAME_SUFFIX:
+  RELEASE_VERSION_SUFFIX:
 
 outputs:
 - name: releases
