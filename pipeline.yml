@@ -1273,6 +1273,18 @@ jobs:
         RELEASE_FILE: capi-release-tarball/*.tgz
   on_failure: *notify
 
+- name: cleanup-bosh-sl
+  serial: true
+  plan:
+  - get: ci-tasks
+    resource: git-bits-service-ci
+  - get: nightly-timer
+    trigger: true
+  - task: cleanup-bosh
+    file: ci-tasks/tasks/bosh-cleanup.yml
+    params: *sl-bosh-params
+  on_failure: *notify
+
 - name: cleanup-bosh-1
   serial: true
   plan:
@@ -1442,6 +1454,7 @@ groups:
   - cleanup-bosh-1
   - cleanup-bosh-2
   - cleanup-bosh-aws
+  - cleanup-bosh-sl
   - cleanup-bosh-acceptance
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
