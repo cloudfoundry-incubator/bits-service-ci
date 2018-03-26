@@ -128,7 +128,7 @@ jobs:
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: stemcell, resource: softlayer-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
@@ -192,7 +192,7 @@ jobs:
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
-    - { get: stemcell, resource: softlayer-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
@@ -248,7 +248,7 @@ jobs:
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
-    - { get: stemcell, resource: softlayer-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
@@ -304,7 +304,7 @@ jobs:
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
     - { get: git-bits-service-release, passed: [create-and-upload-release], trigger: true }
-    - { get: stemcell, resource: softlayer-stemcell }
+    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
