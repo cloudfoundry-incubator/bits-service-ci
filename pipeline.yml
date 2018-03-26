@@ -488,6 +488,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
+    - { get: daily-morning-timer, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: s3-cf-softlayer-deployment-events, params: { bump: major } }
   - task: delete-deployment
@@ -801,7 +802,9 @@ jobs:
 # delete standalone bits-service deployment
 - name: delete-deployment-bits-service-local
   plan:
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - aggregate:
+      - { get: daily-morning-timer, trigger: true }
+      - { get: ci-tasks, resource: git-bits-service-ci }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
       params:
@@ -811,7 +814,9 @@ jobs:
 
 - name: delete-deployment-bits-service-webdav
   plan:
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - aggregate:
+      - { get: daily-morning-timer, trigger: true }
+      - { get: ci-tasks, resource: git-bits-service-ci }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
       params:
@@ -821,7 +826,9 @@ jobs:
 
 - name: delete-deployment-bits-service-s3
   plan:
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - aggregate:
+      - { get: daily-morning-timer, trigger: true }
+      - { get: ci-tasks, resource: git-bits-service-ci }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
       params:
@@ -1196,6 +1203,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
+    - { get: daily-morning-timer, trigger: true }
     - get: ci-tasks
       resource: git-bits-service-ci
     - get: bosh1-recreation-events
@@ -1217,6 +1225,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
+    - { get: daily-morning-timer, trigger: true }
     - get: ci-tasks
       resource: git-bits-service-ci
     - get: bosh2-recreation-events
@@ -1618,6 +1627,14 @@ resources:
   type: time
   source:
     interval: 24h
+
+- name: daily-morning-timer
+  type: time
+  source:
+    interval: 24h
+    start: 4:00 AM
+    stop: 5:00 AM
+    location: Europe/Berlin
 
 - name: aws-diego-deployment
   type: bosh-deployment
