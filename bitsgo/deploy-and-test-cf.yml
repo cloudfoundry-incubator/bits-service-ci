@@ -1,0 +1,82 @@
+resources:
+- name: cf-smoke-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-smoke-tests.git
+- name: cf-deployment-bitsgo
+  type: git
+  source:
+    uri: https://github.com/petergtz/cf-deployment.git
+    branch: bitsgo
+
+jobs:
+- name: deploy-cf-in-((bosh_lite_name))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: ((bosh_lite_name))-cf-deployment-events
+      trigger: true
+    - get: ((bosh_lite_name))-ready-for-deployment-events
+      trigger: true
+      passed: [ update-cloud-config-((bosh_lite_name)) ]
+    - get: state
+    - { get: cf-deployment, resource: cf-deployment-bitsgo}
+  - task: detect-stemcell
+    file: 1-click/tasks/detect-stemcell.yml
+  - task: Generate cf deployment manifest
+    file: 1-click/tasks/generate-cf-deployment-manifest.yml
+    params:
+      BOSH_LITE_NAME: ((bosh_lite_name))
+      OPS_FILES: >
+       -o cf-deployment/operations/experimental/bits-service.yml
+       -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
+       -o cf-deployment/operations/experimental/bits-service-s3.yml
+  - put: state
+    params:
+      repository: out-state
+      rebase: true
+  - aggregate:
+    - task: Deploy cf
+      file: 1-click/tasks/bosh-deploy.yml
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+    # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
+    - task: Check system_domain DNS
+      file: 1-click/tasks/check-dns.yml
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+
+- name:  run-cf-smoke-tests-in-((bosh_lite_name))
+  serial: true
+  plan:
+  - aggregate:
+    - get: 1-click
+    - get: ((bosh_lite_name))-cf-deployment-events
+      passed: [ deploy-cf-in-((bosh_lite_name)) ]
+      trigger: true
+    - get: ((bosh_lite_name))-ready-for-deployment-events
+      trigger: true
+      passed: [ deploy-cf-in-((bosh_lite_name)) ]
+    - get: state
+    - get: cf-smoke-tests
+  - task: Run smoke-tests
+    file: 1-click/tasks/run-smoke-tests.yml
+    params:
+      BOSH_LITE_NAME: ((bosh_lite_name))
+
+- name: Show CF login summary for ((bosh_lite_name))
+  plan:
+  - aggregate:
+    - { get: 1-click }
+    - get: state
+    - get: ((bosh_lite_name))-cf-deployment-events
+      passed: [ deploy-cf-in-((bosh_lite_name)) ]
+      trigger: true
+    - get: ((bosh_lite_name))-ready-for-deployment-events
+      trigger: true
+      passed: [ deploy-cf-in-((bosh_lite_name)) ]
+  - task: Show Summary
+    file: 1-click/tasks/show-cf-summary.yml
+    params:
+      BOSH_LITE_NAME: ((bosh_lite_name))
