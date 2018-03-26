@@ -99,6 +99,7 @@ jobs:
   on_failure: *notify
 
 - name: create-and-upload-release
+  serial: true
   plan:
   - aggregate:
     - { get: bits-service-release-version, params: { pre: dev } }
@@ -119,6 +120,7 @@ jobs:
   on_failure: *notify
 
 - name: create-and-upload-bitsgo-release
+  serial: true
   plan:
   - aggregate:
     - { get: bits-service-release-version, params: { pre: dev } }
