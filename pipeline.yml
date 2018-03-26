@@ -118,6 +118,30 @@ jobs:
       only_tag: true
   on_failure: *notify
 
+- name: create-and-upload-bitsgo-release
+  plan:
+  - aggregate:
+    - { get: bits-service-release-version, params: { pre: dev } }
+    - { get: bits-service-release-bitsgo, trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - put: bits-service-release-version
+    params: { file: bits-service-release-version/version }
+  - task: Create release
+    file: ci-tasks/tasks/create-bits-release.yml
+    params:
+      VERSION_FILE: bits-service-release-version/version
+      RELEASE_VERSION_SUFFIX: '-bitsgo'
+    input_mapping:
+      git-bits-service-release: bits-service-release-bitsgo
+  - put: bits-service-release-bitsgo-tarball
+    params: { file: releases/*.tgz }
+  - put: bits-service-release-bitsgo
+    params:
+      repository: bits-service-release-bitsgo
+      tag: bits-service-release-version/version
+      only_tag: true
+  on_failure: *notify
+
 - name: deploy-with-S3
   serial: true
   serial_groups: [bits-deployment-s3]
@@ -1415,6 +1439,7 @@ groups:
   - run-bits-service-client-tests
   - Publish gem
   - create-and-upload-release
+  - create-and-upload-bitsgo-release
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
@@ -1525,6 +1550,12 @@ resources:
     regexp: bits-service-release/bits-service-(.*).tgz
     private: false
 
+- name: bits-service-release-bitsgo-tarball
+  type: s3
+  source:
+    <<: *s3-resource
+    regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
+
 - name: capi-release-tarball
   type: s3
   source:
@@ -1599,6 +1630,13 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: bits-service-release-bitsgo
+  type: git
+  source:
+    uri: git@github.com:petergtz/bits-service-release.git
     branch: master
     private_key: {{github-private-key}}
 
