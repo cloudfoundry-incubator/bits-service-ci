@@ -9,6 +9,17 @@ resources:
     uri: https://github.com/petergtz/cf-deployment.git
     branch: bitsgo
 
+- name: bits-service-release-bitsgo-tarball
+  type: s3
+  source:
+    access_key_id: {{s3-blobstore-access-key-id}}
+    secret_access_key: {{s3-blobstore-secret-access-key}}
+    bucket: ci-bits-service-artifacts
+    region_name: eu-west-1
+    private: false
+    regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
+
+
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
   serial: true
@@ -22,16 +33,24 @@ jobs:
       passed: [ update-cloud-config-((bosh_lite_name)) ]
     - get: state
     - { get: cf-deployment, resource: cf-deployment-bitsgo}
+    - { get: bits-service-release-bitsgo-tarball, trigger: true }
   - task: detect-stemcell
     file: 1-click/tasks/detect-stemcell.yml
+  - task: bosh upload-release bits-service
+    file: 1-click/tasks/bosh-upload-release.yml
+    input_mapping:
+      releases: bits-service-release-bitsgo-tarball
+    params:
+      BOSH_LITE_NAME: ((bosh_lite_name))
+      RELEASE_TARBALL: '*.tgz'
   - task: Generate cf deployment manifest
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
-      OPS_FILES: >
+      OPERATIONS: >
        -o cf-deployment/operations/experimental/bits-service.yml
        -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-       -o cf-deployment/operations/experimental/bits-service-s3.yml
+       -o cf-deployment/operations/experimental/bits-service-webdav.yml
   - put: state
     params:
       repository: out-state
