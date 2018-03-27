@@ -837,6 +837,7 @@ jobs:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
       - { get: ci-tasks, resource: git-bits-service-ci }
+      - { get: bits-service-local-sl-deployment-events, params: { bump: major } }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
       params:
@@ -851,6 +852,7 @@ jobs:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
       - { get: ci-tasks, resource: git-bits-service-ci }
+      - { get: bits-service-webdav-sl-deployment-events, params: { bump: major } }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
       params:
@@ -865,6 +867,7 @@ jobs:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
       - { get: ci-tasks, resource: git-bits-service-ci }
+      - { get: bits-service-s3-sl-deployment-events, params: { bump: major } }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
       params:
