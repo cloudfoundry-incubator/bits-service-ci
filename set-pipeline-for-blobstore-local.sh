@@ -9,7 +9,7 @@ fly \
   -t flintstone \
   set-pipeline \
   -p blobstore-local-bosh-lite \
-  -c ~/workspace/1-click-bosh-lite-pipeline/template.yml \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml recreate-blobstore-local-bosh-lite-every-morning.yml) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' bosh-lite-in-sl.yml )" \
   -v bosh_lite_name='blobstore-local-bosh-lite' \
