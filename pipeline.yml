@@ -466,17 +466,19 @@ jobs:
       release-git-repo: git-bits-service-release
     params:
       PRIVATE_YML_CONTENT: {{private-yml}}
-  - aggregate:
+  - do:
+    - put: git-bits-service-release
+      params:
+        repository: release-git-repo-final
+        tag: bits-service-release-version/version
     - put: bits-service-github-final-release
       params:
         name: bits-service-release-version/version
         tag: bits-service-release-version/version
-        only_tag: true
         globs: [ "release-tarball/*.tgz" ]
     - put: bits-service-release-version
       params: { file: bits-service-release-version/version }
-    - put: git-bits-service-release
-      params: { repository: release-git-repo-final }
+
   - task: Calculate Digest of Final Release
     file: ci-tasks/tasks/calculate-digest.yml
     input_mapping:
