@@ -6,6 +6,14 @@ pushd capi-release/releases
 popd
 echo $version > $VERSION_FILE
 
+prerelease_version=$(\
+  gem search bits_service_client --all --pre --no-verbose \
+  | sed 's/bits_service_client (\([^,]*\).*/\1/' \
+)
+sed \
+  -i capi-release/src/cloud_controller_ng/Gemfile.lock \
+  -e "s/bits_service_client .*/bits_service_client ($prerelease_version)/"
+
 cd capi-release
 
 bosh2 -n sync-blobs --parallel 10
