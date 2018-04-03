@@ -47,7 +47,7 @@ jobs:
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
-      OPERATIONS: >
+      EXTRA_ARGS: >
        -o cf-deployment/operations/experimental/bits-service.yml
        -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
        -o cf-deployment/operations/experimental/bits-service-webdav.yml
