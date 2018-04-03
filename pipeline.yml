@@ -66,6 +66,7 @@ jobs:
   on_failure: *notify
 
 - name: bump-bits-service-release
+  serial: true
   plan:
   - aggregate:
     - { get: bits-service, passed: [run-unit-and-integration-tests], trigger: true }
@@ -73,8 +74,32 @@ jobs:
     - { get: git-bits-service-release }
   - task: Bump bits-service-release
     file: ci-tasks/tasks/bump-release.yml
+    input_mapping:
+      git-repo: git-bits-service-release
+      git-sub-repo: bits-service
+    params:
+      SUB_MODULE_PATH: src/bits-service
   - put: git-bits-service-release
-    params: {repository: bumped/git-bits-service-release}
+    params: {repository: bumped/git-repo}
+  on_failure: *notify
+
+- name: bump-bits-service-release-bitsgo
+  serial: true
+  plan:
+  - aggregate:
+    # - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bitsgo, trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: bits-service-release-bitsgo }
+  - task: Bump bits-service-release-bitsgo
+    file: ci-tasks/tasks/bump-release.yml
+    input_mapping:
+      git-repo: bits-service-release-bitsgo
+      git-sub-repo: bitsgo
+    params:
+      SUB_MODULE_PATH: src/github.com/petergtz/bitsgo
+  - put: bits-service-release-bitsgo
+    params: {repository: bumped/git-repo}
   on_failure: *notify
 
 - name: run-bits-service-client-tests
@@ -1461,6 +1486,7 @@ groups:
   - migration-backwards-bosh1
   - migration-backwards-bosh2
   - bump-bits-service-release
+  - bump-bits-service-release-bitsgo
   - Publish Dev Release
   - Publish Final Release
   - update-cloud-config-bosh1
@@ -1624,6 +1650,12 @@ resources:
     uri: https://github.com/cloudfoundry-incubator/bits-service.git
     branch: master
     path: ["lib/*", "spec/*", "vendor/*", "app.rb", "config.rb", "Gemfile.lock"]
+
+- name: bitsgo
+  type: git
+  source:
+    uri: https://github.com/petergtz/bitsgo.git
+    private_key: {{github-private-key}}
 
 - name: git-bits-service-client
   type: git
