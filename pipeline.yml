@@ -404,7 +404,6 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: capi-release-version, params: { pre: dev } }
     - { get: git-capi-release, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: git-bits-service-client, passed: [Publish gem], trigger: true }
