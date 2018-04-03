@@ -79,6 +79,7 @@ jobs:
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
     - get: state
     - get: cf-smoke-tests
+    - { get: bits-service-release-bitsgo-tarball, passed: [deploy-cf-in-((bosh_lite_name))], trigger: true }
   - task: Run smoke-tests
     file: 1-click/tasks/run-smoke-tests.yml
     params:
