@@ -19,6 +19,21 @@ resources:
     private: false
     regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
 
+- name: git-cf-acceptance-tests
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
+    branch: master
+
+- name: git-deployment-vars
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    branch: master
+    private_key: {{github-private-key}}
+    disable_ci_skip: true
+
+
 
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
@@ -100,3 +115,32 @@ jobs:
     file: 1-click/tasks/show-cf-summary.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
+
+- name: Run CATs
+  plan:
+    - aggregate:
+      - { get: git-deployment-vars }
+      - { get: git-cf-acceptance-tests, trigger: true }
+    - task: Run CATs
+      file: ci-tasks/tasks/run-cats.yml
+      input_mapping:
+        deployment-vars: git-deployment-vars
+        acceptance-tests: git-cf-acceptance-tests
+      params: &aws-bits-service-disabled-run-cats-params
+        BOSH_TARGET: {{aws-bosh-target}}
+        BOSH_USERNAME: {{aws-bosh-username}}
+        BOSH_PASSWORD: {{aws-bosh-password}}
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: aws
+        CF_DOMAIN: {{aws-cf1-domain}}
+        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
+        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
+        METRICS_API_KEY:  {{ibm_metrics_api_key}}
+        BITS_SERVICE_ENABLEMENT: without-bits-service
+      on_failure: &inform-pipeline-operator-diego-aws-cats
+    - task: inform-pipeline-operator
+      file: ci-tasks/tasks/echo.yml
+      params:
+        MESSAGE: |
+          Consider doing a fresh deployment by manually running job
+          [manually-delete-cf-diego-aws]

@@ -1,0 +1,22 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: ci-tasks
+- name: acceptance-tests
+- name: deployment-vars
+
+outputs:
+
+params:
+  ENVIRONMENT_NAME: undefined
+  CF_DIAL_TIMEOUT: 300
+  NODES: 12
+  BITS_SERVICE_ENABLEMENT: with-bits-service-unknown
+  BLUEMIX_USERNAME: undefined
+  BLUEMIX_PASSWORD: undefined
+  METRICS_API_KEY: undefined
+run:
+  path: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.sh
