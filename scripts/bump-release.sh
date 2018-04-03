@@ -1,10 +1,10 @@
 #!/bin/bash -ex
 
-pushd bits-service
+pushd git-sub-repo
   SOURCE_MASTER_SHA=$(git rev-parse HEAD)
 popd
-pushd git-bits-service-release
-  pushd src/bits-service
+pushd git-repo
+  pushd $SUB_MODULE_PATH
     git fetch
     git checkout $SOURCE_MASTER_SHA
   popd
@@ -20,10 +20,10 @@ pushd git-bits-service-release
     git config --global user.name "Pipeline"
     git config --global user.email flintstone@cloudfoundry.org
 
-    git add src/bits-service
+    git add $SUB_MODULE_PATH
     scripts/staged_shortlog
     scripts/staged_shortlog | git commit -F -
   fi
 popd
 
-cp -r git-bits-service-release bumped/git-bits-service-release
+cp -r git-repo bumped/git-repo
