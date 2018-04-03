@@ -65,6 +65,17 @@ jobs:
     file: ci-tasks/tasks/run-service-tests.yml
   on_failure: *notify
 
+- name: run-bitsgo-unit-tests
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
+  on_failure: *notify
+
 - name: bump-bits-service-release
   serial: true
   plan:
@@ -87,8 +98,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    # - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: bitsgo, trigger: true }
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: bits-service-release-bitsgo }
   - task: Bump bits-service-release-bitsgo
@@ -1468,6 +1478,7 @@ groups:
   jobs:
   - run-unit-and-integration-tests
   - run-bits-service-client-tests
+  - run-bitsgo-unit-tests
   - Publish gem
   - create-and-upload-release
   - create-and-upload-bitsgo-release
