@@ -20,6 +20,7 @@ params:
   BITS_SERVICE_JOB_IP:
   BOSH_DIRECTOR_UUID:
   ENVIRONMENT_NAME: unconfigured
+  ADDITIONAL_ARGS:
 
 outputs:
 - name: manifests
