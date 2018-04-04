@@ -1,0 +1,49 @@
+- operation: replace
+  path: /properties/bits-service/buildpacks/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+
+- operation: replace
+  path: /properties/bits-service/droplets/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+
+- operation: replace
+  path: /properties/bits-service/packages/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+
+- operation: replace
+  path: /properties/bits-service/app_stash/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+
+- operation: replace
+  path: /properties/blobstore/tls/cert
+  value: ((blobstore_ssl.cert))
+
+- operation: replace
+  path: /properties/blobstore/tls/private_key
+  value: ((blobstore_ssl.key))
+
+- operation: replace
+  path: /properties/blobstore/tls/ca_cert
+  value: ((blobstore_ssl.ca))
+
+
+- type: replace
+  path: /variables?/name=blobstore_ssl
+  value:
+    name: blobstore_ssl
+    type: certificate
+    options:
+      common_name: not_configured
+      alternative_names:
+      - blobstore.10.175.96.249.xip.io
+      - '*.10.175.96.249.xip.io'
+      ca: default_ca
+
+- type: replace
+  path: /variables?/name=default_ca
+  value:
+    name: default_ca
+    options:
+      common_name: ca
+      is_ca: true
+    type: certificate
