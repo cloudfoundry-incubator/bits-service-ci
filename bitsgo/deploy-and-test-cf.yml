@@ -122,25 +122,14 @@ jobs:
       - { get: git-deployment-vars }
       - { get: git-cf-acceptance-tests, trigger: true }
     - task: Run CATs
-      file: ci-tasks/tasks/run-cats.yml
+      file: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.yml
+      attempts: 3
       input_mapping:
         deployment-vars: git-deployment-vars
         acceptance-tests: git-cf-acceptance-tests
-      params: &aws-bits-service-disabled-run-cats-params
-        BOSH_TARGET: {{aws-bosh-target}}
-        BOSH_USERNAME: {{aws-bosh-username}}
-        BOSH_PASSWORD: {{aws-bosh-password}}
-        DEPLOYMENT_NAME: cf
-        ENVIRONMENT_NAME: aws
-        CF_DOMAIN: {{aws-cf1-domain}}
+      params:
+        ENVIRONMENT_NAME: bits-go
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
         METRICS_API_KEY:  {{ibm_metrics_api_key}}
-        BITS_SERVICE_ENABLEMENT: without-bits-service
-      on_failure: &inform-pipeline-operator-diego-aws-cats
-    - task: inform-pipeline-operator
-      file: ci-tasks/tasks/echo.yml
-      params:
-        MESSAGE: |
-          Consider doing a fresh deployment by manually running job
-          [manually-delete-cf-diego-aws]
+        BITS_SERVICE_ENABLEMENT: bitsgo
