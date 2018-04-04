@@ -16,11 +16,11 @@
 
 - type: replace
   path: /properties/blobstore/tls/cert
-  value: ((blobstore_ssl.cert))
+  value: ((blobstore_ssl.certificate))
 
 - type: replace
   path: /properties/blobstore/tls/private_key
-  value: ((blobstore_ssl.key))
+  value: ((blobstore_ssl.private_key))
 
 - type: replace
   path: /properties/blobstore/tls/ca_cert
