@@ -37,6 +37,7 @@
       alternative_names:
       - blobstore.10.175.96.249.xip.io
       - '*.10.175.96.249.xip.io'
+      - 10.175.96.249.xip.io
       ca: default_ca
 
 - type: replace
