@@ -349,7 +349,6 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-with-WEBDAV], trigger: true }
   - task: Run tests
-    timeout: 5m
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
@@ -421,7 +420,6 @@ jobs:
       CHANGE_IP_USER: {{changeip-username}}
       CHANGE_IP_PASSWORD: {{changeip-password}}
   - task: Run tests
-    timeout: 5m
     attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
     input_mapping:
