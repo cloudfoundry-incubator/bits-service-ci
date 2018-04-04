@@ -241,7 +241,6 @@ jobs:
     params:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_s3
-      RELEASE_NAME: bits-service-s3
       DEPLOYMENT_NAME: bits-service-s3
   on_failure: *notify
 
@@ -299,7 +298,6 @@ jobs:
     params:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_local
-      RELEASE_NAME: bits-service-local
       DEPLOYMENT_NAME: bits-service-local
   on_failure: *notify
 
@@ -357,7 +355,6 @@ jobs:
     params:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
-      RELEASE_NAME: bits-service-webdav
       DEPLOYMENT_NAME: bits-service-webdav
   on_failure: *notify
 
