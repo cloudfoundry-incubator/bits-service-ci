@@ -3,6 +3,7 @@ resources:
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-smoke-tests.git
+
 - name: cf-deployment-bitsgo
   type: git
   source:
@@ -25,15 +26,13 @@ resources:
     uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
     branch: master
 
-- name: git-deployment-vars
+- name: git-bits-service-ci
   type: git
   source:
-    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: master
     private_key: {{github-private-key}}
-    disable_ci_skip: true
-
-
+    paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*"]
 
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
@@ -116,19 +115,23 @@ jobs:
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
 
-- name: Run CATs
+- name: run-CATs-in-((bosh_lite_name))
   plan:
     - aggregate:
-      - { get: git-deployment-vars }
+      - get: ((bosh_lite_name))-ready-for-deployment-events
+        trigger: true
+        passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ]
+      - { get: state }
+      - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
       - { get: git-cf-acceptance-tests, trigger: true }
     - task: Run CATs
       file: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.yml
       attempts: 3
       input_mapping:
-        deployment-vars: git-deployment-vars
+        deployment-vars: state
         acceptance-tests: git-cf-acceptance-tests
       params:
-        ENVIRONMENT_NAME: bits-go
+        ENVIRONMENT_NAME: bitsgo
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
         METRICS_API_KEY:  {{ibm_metrics_api_key}}
