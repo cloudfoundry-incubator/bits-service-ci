@@ -358,6 +358,66 @@ jobs:
       DEPLOYMENT_NAME: bits-service-webdav
   on_failure: *notify
 
+- name: deploy-bitsgo-with-WEBDAV
+  serial: true
+  serial_groups: [bitsgo-deployment-webdav]
+  plan:
+  - aggregate:
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
+    - { get: bits-service-release-bitsgo-tarball, passed: [create-and-upload-bitsgo-release], trigger: true }
+    - { get: bits-service-release-version, passed: [create-and-upload-bitsgo-release] }
+    - { get: bits-service-release-bitsgo, passed: [create-and-upload-bitsgo-release], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
+    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
+    - { get: git-deployment-vars }
+    # - { get: bits-service-webdav-sl-deployment-events, trigger: true }
+  - task: Create deployment manifest
+    file: ci-tasks/tasks/create-bits-manifest.yml
+    input_mapping:
+      bits-service-deployment-manifest-generation-tools: bits-service-release-bitsgo
+      bits-service-private-config: git-deployment-vars
+    params:
+      <<: *sl-bosh-params
+      BLOBSTORE_TYPE: webdav
+      BITS_SERVICE_JOB_IP: &bitsgo_job_ip_webdav 10.175.96.248
+      BLOBSTORE_JOB_IP: 10.175.96.249
+      DEPLOYMENT_NAME: bitsgo-webdav
+      ADDITIONAL_ARGS: ../ci-tasks/operations/override-deployment-name.yml ../ci-tasks/operations/bitsgo-webdav-certs.yml
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/bits-service-private-config
+    - put: bosh-deployment-bitsgo-webdav
+      attempts: 3
+      params:
+        <<: *sl-bits-service-deployment-params
+        releases: ["capi-release-tarball/*.tgz", "bits-service-release-bitsgo-tarball/*.tgz"]
+  on_failure: *notify
+
+- name: run-system-tests-bitsgo-WEBDAV
+  serial: true
+  serial_groups: [bitsgo-deployment-webdav]
+  plan:
+  - aggregate:
+    - { get: bits-service-release-bitsgo-tarball, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
+    - { get: bits-service-release-version, passed: [deploy-bitsgo-with-WEBDAV] }
+    - { get: bits-service-release-bitsgo, passed: [deploy-bitsgo-with-WEBDAV] }
+    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: git-deployment-vars }
+    # - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-release-tests.yml
+    input_mapping:
+      bits-service-system-test-source: bits-service-release-bitsgo
+      deployment-vars: git-deployment-vars
+    params:
+      <<: *sl-bosh-params
+      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bitsgo_job_ip_webdav
+      DEPLOYMENT_NAME: bitsgo-webdav
+  on_failure: *notify
+
 - name: deploy-and-test-with-s3-cf-softlayer
   serial: true
   serial_groups: [cf-softlayer-deployment-s3]
@@ -1501,6 +1561,8 @@ groups:
   - Sync cf-deployment fork (master)
   - Sync capi-release fork
   - deploy-and-test-cf-blobstore-local
+  - run-system-tests-bitsgo-WEBDAV
+  - deploy-bitsgo-with-WEBDAV
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -1770,6 +1832,12 @@ resources:
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-webdav
+
+- name: bosh-deployment-bitsgo-webdav
+  type: bosh2-deployment
+  source:
+    <<: *sl-bosh-deployment-source
+    deployment: bitsgo-webdav
 
 - name: bosh-deployment-bits-service-s3
   type: bosh2-deployment
