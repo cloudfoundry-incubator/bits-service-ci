@@ -128,6 +128,7 @@ jobs:
       - { get: state }
       - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
       - { get: git-cf-acceptance-tests, trigger: true }
+      - { get: bits-service-release-bitsgo-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
     - task: Run CATs
       file: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.yml
       attempts: 3
