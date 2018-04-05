@@ -560,6 +560,7 @@ jobs:
       params:
         repository: release-git-repo-final
         tag: bits-service-release-version/version
+        rebase: true
     - put: bits-service-github-final-release
       params:
         name: bits-service-release-version/version
