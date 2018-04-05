@@ -37,6 +37,7 @@ resources:
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
   serial: true
+  serial_groups: [ cf_deployment ]
   plan:
   - aggregate:
     - get: 1-click
@@ -82,6 +83,7 @@ jobs:
 
 - name:  run-cf-smoke-tests-in-((bosh_lite_name))
   serial: true
+  serial_groups: [ cf_deployment ]
   plan:
   - aggregate:
     - get: 1-click
@@ -116,6 +118,8 @@ jobs:
       BOSH_LITE_NAME: ((bosh_lite_name))
 
 - name: run-CATs-in-((bosh_lite_name))
+  serial: true
+  serial_groups: [ cf_deployment ]
   plan:
     - aggregate:
       - get: ((bosh_lite_name))-ready-for-deployment-events
