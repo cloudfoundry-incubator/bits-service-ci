@@ -13,7 +13,7 @@ outputs:
 params:
   ENVIRONMENT_NAME: undefined
   CF_DIAL_TIMEOUT: 300
-  NODES: 12
+  NODES: 1
   BITS_SERVICE_ENABLEMENT: with-bits-service-unknown
   BLUEMIX_USERNAME: undefined
   BLUEMIX_PASSWORD: undefined
