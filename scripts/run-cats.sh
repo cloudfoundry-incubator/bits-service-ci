@@ -43,6 +43,7 @@ cat > config.json <<EOF
   "include_v3": true,
   "include_zipkin": false,
   "include_credhub": false,
+  "include_windows": false,
   "backend": "diego",
   "include_diego_ssh": false,
   "skip_diego_unsupported_tests": true
