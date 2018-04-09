@@ -1380,45 +1380,6 @@ jobs:
     params: { file: bosh2-recreation-events/number }
   on_failure: *notify
 
-- name: recreate-bosh-lite-acceptance
-  serial: true
-  plan:
-  - aggregate:
-    - get: git-bits-service-ci
-    - get: bits-service
-    - get: bits-service-release-tarball
-    - get: capi-release-tarball
-      passed: [create-capi-release]
-  - task: recreate-bosh-lite
-    file: git-bits-service-ci/tasks/recreate-bosh-lite.yml
-    params:
-      SSH_CONNECTION_STRING: root@10.155.248.164
-      SSH_KEY: {{github-private-key}}
-      BOSH_USERNAME: {{bosh-acceptance-username}}
-      BOSH_PASSWORD: {{bosh-acceptance-password}}
-      BOSH_DIRECTOR_IP: 192.168.150.4
-      VAGRANT_GATEWAY: 192.168.150.1
-  - aggregate:
-    - task: upload-latest-bits-service-release
-      file: git-bits-service-ci/tasks/upload-release.yml
-      input_mapping:
-        releases: bits-service-release-tarball
-      params:
-        BOSH_TARGET: {{bosh-acceptance-target}}
-        BOSH_USERNAME: {{bosh-acceptance-username}}
-        BOSH_PASSWORD: {{bosh-acceptance-password}}
-        RELEASE_FILE: bits-service-release-tarball/*.tgz
-    - task: upload-latest-capi-release
-      file: git-bits-service-ci/tasks/upload-release.yml
-      input_mapping:
-        releases: capi-release-tarball
-      params:
-        BOSH_TARGET: {{bosh-acceptance-target}}
-        BOSH_USERNAME: {{bosh-acceptance-username}}
-        BOSH_PASSWORD: {{bosh-acceptance-password}}
-        RELEASE_FILE: capi-release-tarball/*.tgz
-  on_failure: *notify
-
 - name: cleanup-bosh-sl
   serial: true
   plan:
@@ -1465,21 +1426,6 @@ jobs:
   - task: cleanup-bosh
     file: ci-tasks/tasks/bosh-cleanup.yml
     params: *aws-bosh-params
-  on_failure: *notify
-
-- name: cleanup-bosh-acceptance
-  serial: true
-  plan:
-  - get: ci-tasks
-    resource: git-bits-service-ci
-  - get: nightly-timer
-    trigger: true
-  - task: cleanup-bosh
-    file: ci-tasks/tasks/bosh-cleanup.yml
-    params:
-      BOSH_USERNAME: {{bosh-acceptance-username}}
-      BOSH_PASSWORD: {{bosh-acceptance-password}}
-      BOSH_TARGET: {{bosh-acceptance-target}}
   on_failure: *notify
 
 - name: Sync cf-deployment fork (develop)
@@ -1601,12 +1547,10 @@ groups:
   jobs:
   - recreate-bosh-lite-1
   - recreate-bosh-lite-2
-  - recreate-bosh-lite-acceptance
   - cleanup-bosh-1
   - cleanup-bosh-2
   - cleanup-bosh-aws
   - cleanup-bosh-sl
-  - cleanup-bosh-acceptance
   - manually-delete-cf-diego-aws
   - manually-delete-cf-bosh1
   - manually-delete-cf-bosh2
