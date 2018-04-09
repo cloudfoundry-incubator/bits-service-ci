@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-# use brew install lastpass-cli
-lpass show "Shared-Flintstone"/ci-config --notes > config.yml
+cd $(dirname $0)
+
 github_ssh_key=$(lpass show "Shared-Flintstone"/Github --notes)
 bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username)
 bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password)
@@ -15,8 +15,8 @@ fly -t flintstone login \
 
 fly -t flintstone set-pipeline \
   -p runtime-config \
-  -c runtime-config/pipeline.yml \
-  -l config.yml \
+  -c pipeline.yml \
+  -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -v github-private-key="${github_ssh_key}" \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
@@ -24,5 +24,3 @@ fly -t flintstone set-pipeline \
   -v softlayer-bosh-target="10.175.110.153" \
   -v softlayer-bosh-username="${softlayer_bosh_username}" \
   -v softlayer-bosh-password="${softlayer_bosh_password}"
-
-rm -f config.yml
