@@ -1,8 +1,7 @@
 #!/bin/bash -e
 
+cd $(dirname $0)
 ../fly-login.sh flintstone
-
-
 
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \
