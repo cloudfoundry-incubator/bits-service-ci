@@ -7,7 +7,7 @@ pipeline_name="bitsgo-$1"
 if [ "$1" == "aws-s3" ]; then
   export blobstore_access_key_id=$(lpass show "Shared-Flintstone"/"ci-bitsgo-s3" --username)
   export blobstore_secret_access_key=$(lpass show "Shared-Flintstone"/"ci-bitsgo-s3" --password)
-  export aws_region=eu-west1
+  export aws_region=eu-west-1
   export resource_directory_key=bits-cf-app-com-blobs
   export buildpack_directory_key=bits-cf-app-com-blobs
   export droplet_directory_key=bits-cf-app-com-blobs
