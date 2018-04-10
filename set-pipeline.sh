@@ -6,8 +6,6 @@ target=flintstone
 
 ./fly-login.sh ${target}
 
-# use brew install lastpass-cli
-lpass show "Shared-Flintstone"/ci-config --notes > config.yml
 github_ssh_key=$(lpass show "Shared-Flintstone"/Github --notes)
 github_access_token=$(lpass show "Shared-Flintstone/Github Access Token" --password)
 rubygems_api_key=$(lpass show "Shared-Flintstone"/flintstone@rubygems.org --notes)
@@ -24,7 +22,7 @@ fly \
   set-pipeline \
   -p bits-service \
   -c pipeline.yml \
-  -l config.yml \
+  -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
   -v github-private-key="${github_ssh_key}" \
   -v github-access-token="${github_access_token}" \
@@ -38,7 +36,5 @@ fly \
   -v private-yml="${private_yml}" \
   -v changeip-username="${changeip_username}" \
   -v changeip-password="${changeip_password}"
-
-rm -f config.yml
 
 fly -t ${target} expose-pipeline --pipeline bits-service
