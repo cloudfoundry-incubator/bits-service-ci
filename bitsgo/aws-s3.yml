@@ -1,0 +1,11 @@
+extra_args: |
+  -o cf-deployment/operations/experimental/bits-service.yml
+  -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
+  -o cf-deployment/operations/experimental/bits-service-s3.yml
+  -v blobstore_access_key_id=$blobstore_access_key_id
+  -v blobstore_secret_access_key=$blobstore_secret_access_key
+  -v aws_region=$aws_region
+  -v resource_directory_key=$resource_directory_key
+  -v buildpack_directory_key=$buildpack_directory_key
+  -v droplet_directory_key=$droplet_directory_key
+  -v app_package_directory_key=$app_package_directory_key

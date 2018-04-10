@@ -3,14 +3,25 @@
 cd $(dirname $0)
 ../fly-login.sh flintstone
 
-pipeline_name="bitsgo-webdav"
+pipeline_name="bitsgo-$1"
+if [ "$1" == "aws-s3" ]; then
+  export blobstore_access_key_id=$(lpass show "Shared-Flintstone"/"ci-bitsgo-s3" --username)
+  export blobstore_secret_access_key=$(lpass show "Shared-Flintstone"/"ci-bitsgo-s3" --password)
+  export aws_region=eu-west1
+  export resource_directory_key=bits-cf-app-com-blobs
+  export buildpack_directory_key=bits-cf-app-com-blobs
+  export droplet_directory_key=bits-cf-app-com-blobs
+  export app_package_directory_key=bits-cf-app-com-blobs
+fi
+
+eval "echo \"$(cat $1.yml)\"" > extra_args.yml
 
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \
   -t flintstone \
   set-pipeline \
   -p ${pipeline_name} \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml deploy-and-test-cf.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml deploy-and-test-cf.yml extra_args.yml) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -v bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username) \
   -v bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password) \
@@ -18,10 +29,9 @@ fly \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' <(../1-click/generate-bosh-lite-in-sl-manifest.sh ${pipeline_name}-bosh-lite) )" \
   -v bosh_lite_name=${pipeline_name}-bosh-lite \
-  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
-  -v extra_args="-o cf-deployment/operations/experimental/bits-service.yml \
--o cf-deployment/operations/experimental/enable-bits-service-consul.yml \
--o cf-deployment/operations/experimental/bits-service-webdav.yml"
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
 
 fly -t flintstone expose-pipeline --pipeline ${pipeline_name}
 fly -t flintstone unpause-pipeline --pipeline ${pipeline_name}
+
+rm -f extra_args.yml
