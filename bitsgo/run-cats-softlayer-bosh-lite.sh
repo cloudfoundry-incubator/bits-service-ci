@@ -9,10 +9,10 @@ mkdir -p gopath/src/github.com/cloudfoundry
 cp -r acceptance-tests gopath/src/github.com/cloudfoundry/cf-acceptance-tests
 
 cf_admin_password=$( \
-  bosh2 int deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml \
+  bosh2 int deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}/cf-deployment/vars.yml \
   --path /cf_admin_password
 )
-CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/system_domain)
+CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}/cf-deployment/system_domain)
 
 cat > config.json <<EOF
 {

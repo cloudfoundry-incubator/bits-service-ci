@@ -133,8 +133,8 @@ jobs:
         deployment-vars: state
         acceptance-tests: git-cf-acceptance-tests
       params:
-        ENVIRONMENT_NAME: bitsgo
+        ENVIRONMENT_NAME: ((bosh_lite_name))
         BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
         BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
         METRICS_API_KEY:  {{ibm_metrics_api_key}}
-        BITS_SERVICE_ENABLEMENT: bitsgo
+        BITS_SERVICE_ENABLEMENT: ((bosh_lite_name))
