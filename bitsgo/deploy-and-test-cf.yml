@@ -62,10 +62,8 @@ jobs:
     file: 1-click/tasks/generate-cf-deployment-manifest.yml
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
-      EXTRA_ARGS: >
-       -o cf-deployment/operations/experimental/bits-service.yml
-       -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-       -o cf-deployment/operations/experimental/bits-service-webdav.yml
+      EXTRA_ARGS: |
+        ((extra_args))
   - put: state
     params:
       repository: out-state

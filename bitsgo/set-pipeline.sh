@@ -16,6 +16,9 @@ fly \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' <(../1-click/generate-bosh-lite-in-sl-manifest.sh bitsgo-bosh-lite) )" \
   -v bosh_lite_name=bitsgo-bosh-lite \
-  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
+  -v extra_args="-o cf-deployment/operations/experimental/bits-service.yml \
+-o cf-deployment/operations/experimental/enable-bits-service-consul.yml \
+-o cf-deployment/operations/experimental/bits-service-webdav.yml"
 
 fly -t flintstone expose-pipeline --pipeline bitsgo-bosh-lite
