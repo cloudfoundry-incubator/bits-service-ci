@@ -26,7 +26,7 @@ resources:
     uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
     branch: master
 
-- name: git-bits-service-ci
+- name: bits-service-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
@@ -124,7 +124,7 @@ jobs:
         trigger: true
         passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ]
       - { get: state }
-      - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+      - { get: ci-tasks, resource: bits-service-ci, trigger: true }
       - { get: git-cf-acceptance-tests, trigger: true }
       - { get: bits-service-release-bitsgo-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
     - task: Run CATs
