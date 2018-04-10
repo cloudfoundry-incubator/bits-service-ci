@@ -24,3 +24,5 @@ fly -t flintstone set-pipeline \
   -v softlayer-bosh-target="10.175.110.153" \
   -v softlayer-bosh-username="${softlayer_bosh_username}" \
   -v softlayer-bosh-password="${softlayer_bosh_password}"
+
+fly -t flintstone expose-pipeline --pipeline runtime-config

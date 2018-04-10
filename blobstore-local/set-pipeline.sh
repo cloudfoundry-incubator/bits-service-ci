@@ -19,3 +19,5 @@ fly \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
 
 rm -f /tmp/bosh-lite-in-sl.yml
+
+fly -t flintstone expose-pipeline --pipeline blobstore-local-bosh-lite

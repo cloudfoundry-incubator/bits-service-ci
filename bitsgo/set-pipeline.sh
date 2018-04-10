@@ -17,3 +17,5 @@ fly \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' <(../1-click/generate-bosh-lite-in-sl-manifest.sh bitsgo-bosh-lite) )" \
   -v bosh_lite_name=bitsgo-bosh-lite \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
+
+fly -t flintstone expose-pipeline --pipeline bitsgo-bosh-lite
