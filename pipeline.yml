@@ -439,7 +439,7 @@ jobs:
       deployment-vars: git-deployment-vars
     output_mapping:
       manifests: cf-with-bits-service-enabled
-    params: &bosh-interpolate-softlayer-bits-service-enabled
+    params:
       BOSH_TARGET: {{sl-bosh-target}}
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: softlayer
