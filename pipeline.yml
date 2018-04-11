@@ -1052,6 +1052,7 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - put: boshlite1-deployment
+    attempts: 2
     params: &params-deployment-bits-service-disabled
       manifest: cf-with-bits-service-disabled/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
@@ -1136,6 +1137,7 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - put: boshlite1-deployment
+    attempts: 2
     params: *params-deployment-bits-service-enabled
   - task: Run migration preparation tests
     attempts: 3
@@ -1234,6 +1236,7 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - put: boshlite2-deployment
+    attempts: 2
     params: *params-deployment-bits-service-disabled
   - task: Run migration preparation tests
     attempts: 3
@@ -1306,6 +1309,7 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - put: boshlite2-deployment
+    attempts: 2
     params: *params-deployment-bits-service-enabled
   - task: Run migration preparation tests
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
