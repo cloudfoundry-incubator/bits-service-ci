@@ -1,0 +1,16 @@
+resources:
+- name: daily-morning-timer
+  type: time
+  source:
+    interval: 24h
+    start: 4:00 AM
+    stop: 5:00 AM
+    location: Europe/Berlin
+
+jobs:
+- (( merge ))
+- name: delete-((bosh_lite_name))
+  plan:
+  - (( prepend ))
+  - get: daily-morning-timer
+    trigger: true
