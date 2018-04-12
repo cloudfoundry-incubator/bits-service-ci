@@ -3,6 +3,21 @@
 cd $(dirname $0)
 ../fly-login.sh flintstone
 
+if [ -z $1 ]; then
+  cat << EOF
+    Missing parameter indicating blobstore type
+    usage: ./set-pipeline.sh up <blobstore type>
+
+    blobstore types:
+    - aws-s3
+    - cos-s3
+    - webdav
+    - gcp
+    - azure
+EOF
+  exit 1
+fi
+
 pipeline_name="bitsgo-$1"
 if [ "$1" == "aws-s3" ]; then
   export blobstore_access_key_id=$(lpass show "Shared-Flintstone"/"ci-bitsgo-s3" --username)
