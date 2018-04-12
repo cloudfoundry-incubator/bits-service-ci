@@ -12,6 +12,19 @@ if [ "$1" == "aws-s3" ]; then
   export buildpack_directory_key=bits-cf-app-com-blobs
   export droplet_directory_key=bits-cf-app-com-blobs
   export app_package_directory_key=bits-cf-app-com-blobs
+
+elif [ "$1" == "cos-s3" ]; then
+  export blobstore_access_key_id=$(lpass show "Shared-Flintstone"/"Bluemix COS" --username)
+  export blobstore_secret_access_key=$(lpass show "Shared-Flintstone"/"Bluemix COS" --password)
+  export aws_region=eu-geo
+  export aws_signature_version=4
+  export cos_ssl_version=TLSv1_2
+  export cos_scheme=http
+  export cos_host=s3.eu-geo.objectstorage.softlayer.net
+  export resource_directory_key=cf-bits
+  export buildpack_directory_key=cf-bits
+  export droplet_directory_key=cf-bits
+  export app_package_directory_key=cf-bits
 fi
 
 eval "echo \"$(cat $1.yml)\"" > extra_args.yml
