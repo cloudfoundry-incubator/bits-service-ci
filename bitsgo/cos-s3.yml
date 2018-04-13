@@ -1,7 +1,7 @@
 extra_args: |
   -o cf-deployment/operations/experimental/bits-service.yml
   -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-  -o ci-tasks/operations/experimental/bits-service-cos-s3.yml
+  -o ci-tasks/operations/bits-service-cos-s3.yml
   -v blobstore_access_key_id=$blobstore_access_key_id
   -v blobstore_secret_access_key=$blobstore_secret_access_key
   -v aws_region=$aws_region

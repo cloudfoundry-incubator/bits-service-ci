@@ -47,6 +47,7 @@ jobs:
       trigger: true
       passed: [ update-cloud-config-((bosh_lite_name)) ]
     - get: state
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment, resource: cf-deployment-bitsgo}
     - { get: bits-service-release-bitsgo-tarball, trigger: true }
   - task: detect-stemcell
@@ -59,7 +60,9 @@ jobs:
       BOSH_LITE_NAME: ((bosh_lite_name))
       RELEASE_TARBALL: '*.tgz'
   - task: Generate cf deployment manifest
-    file: 1-click/tasks/generate-cf-deployment-manifest.yml
+    file: ci-tasks/bitsgo/generate-cf-deployment-manifest.yml
+    input_mapping:
+      ci-tasks: ci-tasks
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
       EXTRA_ARGS: (( grab extra_args ))
