@@ -27,24 +27,6 @@ blobstore-local-bosh-params: &blobstore-local-bosh-params
   BOSH_USERNAME: {{blobstore-local-bosh-username}}
   BOSH_PASSWORD: {{blobstore-local-bosh-password}}
 
-boshlite2-bsmt-preparation-errand-params: &boshlite2-bsmt-preparation-errand-params
-  <<: *bosh2-params
-  DEPLOYMENT_NAME: cf
-  ERRAND_NAME: bsmt_preparation
-  EXTRA_ARGS: --keep-alive
-
-boshlite2-bsmt-verification-errand-params: &boshlite2-bsmt-verification-errand-params
-  <<: *bosh2-params
-  DEPLOYMENT_NAME: cf
-  ERRAND_NAME: bsmt_verification
-  EXTRA_ARGS: --keep-alive
-
-boshlite1-bsmt-verification-errand-params: &boshlite1-bsmt-verification-errand-params
-  <<: *bosh1-params
-  DEPLOYMENT_NAME: cf
-  ERRAND_NAME: bsmt_verification
-  EXTRA_ARGS: --keep-alive
-
 notify: &notify
   put: slack
   params:
