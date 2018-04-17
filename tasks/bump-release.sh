@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+export PATH=$PATH:ci-tasks/tasks
+
 pushd git-sub-repo
   SOURCE_MASTER_SHA=$(git rev-parse HEAD)
 popd
@@ -21,8 +23,8 @@ pushd git-repo
     git config --global user.email flintstone@cloudfoundry.org
 
     git add $SUB_MODULE_PATH
-    scripts/staged_shortlog
-    scripts/staged_shortlog | git commit -F -
+    staged_shortlog
+    staged_shortlog | git commit -F -
   fi
 popd
 
