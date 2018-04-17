@@ -1,0 +1,13 @@
+properties:
+  bits-service:
+    max_body_size: 2M
+    app_stash:
+      max_body_size: 3M
+    buildpacks:
+      max_body_size: 4M
+    droplets:
+      max_body_size: 5M
+    packages:
+      max_body_size: 6M
+    buildpack_cache:
+      max_body_size: 7M
