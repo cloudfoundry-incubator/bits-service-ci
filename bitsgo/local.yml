@@ -1,0 +1,4 @@
+extra_args: |
+    -o cf-deployment/operations/experimental/bits-service.yml
+    -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
+    -o cf-deployment/operations/experimental/bits-service-local.yml
