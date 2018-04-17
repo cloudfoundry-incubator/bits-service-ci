@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-export PATH=$PATH:ci-tasks/tasks
+export PATH=$PATH:$(readlink -nf ci-tasks/tasks)
 
 pushd git-sub-repo
   SOURCE_MASTER_SHA=$(git rev-parse HEAD)
