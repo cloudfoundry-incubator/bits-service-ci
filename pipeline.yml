@@ -1019,7 +1019,6 @@ jobs:
       OPERATIONS: >
         -o cf-deployment/operations/use-s3-blobstore.yml
         -o ci-tasks/operations/disable-bits-service.yml
-        -o ci-tasks/operations/bsmt-errands.yml
       VARIABLES: >
         -v aws_region={{cf-migration-s3-blobstore-region}}
         -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
@@ -1074,7 +1073,6 @@ jobs:
       <<: *bosh-interpolate-boshlite1-bits-service-disabled
       OPERATIONS: >
         -o cf-deployment/operations/use-s3-blobstore.yml
-        -o ci-tasks/operations/bsmt-errands.yml
   - put: boshlite1-deployment
     params: &params-deployment-bits-service-enabled
       <<: *params-deployment-bits-service-disabled
@@ -1211,7 +1209,6 @@ jobs:
       IAAS: bosh-lite
       OPERATIONS: >
         -o ci-tasks/operations/disable-bits-service.yml
-        -o ci-tasks/operations/bsmt-errands.yml
       CF_DOMAIN: boshlite2.dynamic-dns.net
   - put: git-deployment-vars
     params:
@@ -1247,8 +1244,7 @@ jobs:
       manifests: cf-with-bits-service-enabled
     params: &bosh-interpolate-boshlite2-bits-service-enabled
       <<: *bosh-interpolate-boshlite2-bits-service-disabled
-      OPERATIONS: >
-        -o ci-tasks/operations/bsmt-errands.yml
+      OPERATIONS: ''
   - put: git-deployment-vars
     params:
       rebase: true
