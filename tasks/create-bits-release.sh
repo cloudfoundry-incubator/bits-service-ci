@@ -8,9 +8,9 @@
 # Since we seem to use a semver everywhere, this is an attempt to hack around it. It's unclear if it actually works.
 # A long term fix would either use the plus-sign notation everywhere (which is not semver conform), or properly use
 # semver version and expect everywhere that 1.2.3+dev.42 < 1.2.3.
-sed -i -e 's/-dev/+dev/' $VERSION_FILE
+sed -i -e "s/-dev/+dev${RELEASE_VERSION_SUFFIX}/" $VERSION_FILE
 
-version=$(cat $VERSION_FILE)${RELEASE_VERSION_SUFFIX}
+version=$(cat $VERSION_FILE)
 cd git-bits-service-release
 
 bosh2 -n sync-blobs --parallel 10
