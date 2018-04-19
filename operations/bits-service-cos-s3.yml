@@ -6,6 +6,7 @@
     fog_connection: &cos-config
       aws_access_key_id: "((blobstore_access_key_id))"
       aws_secret_access_key: "((blobstore_secret_access_key))"
+      provider: "aws"
       region: "((aws_region))"
       host: "((cos_host))"
 - type: replace
