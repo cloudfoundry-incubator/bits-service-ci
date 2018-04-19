@@ -4,15 +4,10 @@
   value:
     directory_key: "((resource_directory_key))"
     fog_connection: &cos-config
-      provider: "AWS"
       aws_access_key_id: "((blobstore_access_key_id))"
       aws_secret_access_key: "((blobstore_secret_access_key))"
       region: "((aws_region))"
-      aws_signature_version: "((aws_signature_version))"
-      connection_options:
-          ssl_version: "((cos_ssl_version))"
       host: "((cos_host))"
-      scheme: "((cos_scheme))"
 - type: replace
   path: /instance_groups/name=api/jobs/name=bits-service/properties/bits-service/buildpacks
   value:
