@@ -1496,6 +1496,14 @@ groups:
   - deploy-and-test-cf-blobstore-local
   - run-system-tests-bitsgo-WEBDAV
   - deploy-bitsgo-with-WEBDAV
+- name: bitsgo
+  jobs:
+  - run-bitsgo-unit-tests
+  - deploy-bitsgo-with-WEBDAV
+  - create-and-upload-bitsgo-release
+  - bump-bits-service-release-bitsgo
+  - run-system-tests-bitsgo-WEBDAV
+
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
