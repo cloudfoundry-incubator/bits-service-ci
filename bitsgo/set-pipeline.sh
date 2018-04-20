@@ -44,6 +44,7 @@ elif [ "$1" == "openstack" ]; then
   export openstack_username=$(lpass show "Shared-Flintstone"/"Bluemix Swift" --username)
   export openstack_api_key=$(lpass show "Shared-Flintstone"/"Bluemix Swift" --password)
   export openstack_temp_url_key=$(lpass show "Shared-Flintstone"/"Bluemix Swift Temp-Url-Key" --password)
+  export openstack_domain_id=$(lpass show "Shared-Flintstone"/"Bluemix Swift Temp-Url-Key" --username)
   export resource_directory_key=cf-bits
   export buildpack_directory_key=cf-bits
   export droplet_directory_key=cf-bits
