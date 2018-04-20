@@ -70,16 +70,10 @@ jobs:
     params:
       repository: out-state
       rebase: true
-  - aggregate:
-    - task: Deploy cf
-      file: 1-click/tasks/bosh-deploy.yml
-      params:
-        BOSH_LITE_NAME: ((bosh_lite_name))
-    # TODO: Do we want to keep this here? This task makes the pipline less generally useful.
-    - task: Check system_domain DNS
-      file: 1-click/tasks/check-dns.yml
-      params:
-        BOSH_LITE_NAME: ((bosh_lite_name))
+  - task: Deploy cf
+    file: 1-click/tasks/bosh-deploy.yml
+    params:
+      BOSH_LITE_NAME: ((bosh_lite_name))
 
 - name:  run-cf-smoke-tests-in-((bosh_lite_name))
   serial: true
