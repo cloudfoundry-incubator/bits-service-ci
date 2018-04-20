@@ -1,0 +1,11 @@
+extra_args: |
+  -o cf-deployment/operations/experimental/bits-service.yml
+  -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
+  -o ci-tasks/operations/bits-service-openstack.yml
+  -v openstack_username=$openstack_username
+  -v openstack_api_key=$openstack_api_key
+  -v openstack_temp_url_key=$openstack_temp_url_key
+  -v resource_directory_key=$resource_directory_key
+  -v buildpack_directory_key=$buildpack_directory_key
+  -v droplet_directory_key=$droplet_directory_key
+  -v app_package_directory_key=$app_package_directory_key

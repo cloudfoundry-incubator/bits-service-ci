@@ -40,6 +40,14 @@ elif [ "$1" == "cos-s3" ]; then
   export buildpack_directory_key=cf-bits
   export droplet_directory_key=cf-bits
   export app_package_directory_key=cf-bits
+elif [ "$1" == "openstack" ]; then
+  export openstack_username=$(lpass show "Shared-Flintstone"/"Bluemix Swift" --username)
+  export openstack_api_key=$(lpass show "Shared-Flintstone"/"Bluemix Swift" --password)
+  export openstack_temp_url_key=$(lpass show "Shared-Flintstone"/"Bluemix Swift Temp-Url-Key" --password)
+  export resource_directory_key=cf-bits
+  export buildpack_directory_key=cf-bits
+  export droplet_directory_key=cf-bits
+  export app_package_directory_key=cf-bits
 fi
 
 eval "echo \"$(cat $1.yml)\"" > extra_args.yml
