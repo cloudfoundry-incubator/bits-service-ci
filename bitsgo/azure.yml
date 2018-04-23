@@ -2,8 +2,9 @@ extra_args: |
   -o cf-deployment/operations/experimental/bits-service.yml
   -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
   -o ci-tasks/operations/bits-service-azure.yml
-  -v azure_storage_account_name=$azure_storage_account_name
-  -v azure_storage_access_key=$azure_storage_access_key
+  -v blobstore_storage_account_name=$azure_storage_account_name
+  -v blobstore_storage_access_key=$azure_storage_access_key
+  -v environment=AzureCloud
   -v resource_directory_key=$resource_directory_key
   -v buildpack_directory_key=$buildpack_directory_key
   -v droplet_directory_key=$droplet_directory_key
