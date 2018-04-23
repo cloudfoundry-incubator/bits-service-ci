@@ -49,6 +49,14 @@ elif [ "$1" == "openstack" ]; then
   export buildpack_directory_key=cf-bits
   export droplet_directory_key=cf-bits
   export app_package_directory_key=cf-bits
+elif [ "$1" == "azure" ]; then
+  export azure_storage_account_name=$(lpass show "Shared-Bluemix"/Azure --username)
+  export azure_storage_access_key=$(lpass show "Shared-Bluemix"/Azure --password)
+  export environment=AzureCloud
+  export resource_directory_key=cf-bits
+  export buildpack_directory_key=cf-bits
+  export droplet_directory_key=cf-bits
+  export app_package_directory_key=cf-bits
 fi
 
 eval "echo \"$(cat $1.yml)\"" > extra_args.yml
