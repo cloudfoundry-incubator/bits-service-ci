@@ -13,6 +13,8 @@ outputs:
 
 params:
   BRANCH: master
+  UPSTREAM_BRANCH:
+  FORK_BRANCH:
 
 run:
   path: ci-tasks/scripts/sync-repo.sh
