@@ -1,3 +1,0 @@
-properties:
-  cc:
-    default_to_diego_backend: false
