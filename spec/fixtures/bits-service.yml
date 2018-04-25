@@ -6,8 +6,8 @@
     release: bits-service
     properties:
       bits-service:
-        private_endpoint: &private_endpoint https://bits-service.service.cf.internal
-        public_endpoint: &public_endpoint https://bits-service.((system_domain))
+        private_endpoint: &private_endpoint https://bits.service.cf.internal
+        public_endpoint: &public_endpoint https://bits.((system_domain))
         secret: "((bits_service_secret))"
         signing_users:
           - username: admin
@@ -28,7 +28,7 @@
     tls_port: 443
     registration_interval: 20s
     uris:
-      - bits-service.((system_domain))
+      - bits.((system_domain))
     server_cert_domain_san: *public_endpoint
     tags:
       component: bits-service
@@ -69,9 +69,9 @@
     name: bits_service_ssl
     type: certificate
     options:
-      common_name:  bits-service.service.cf.internal
+      common_name:  bits.service.cf.internal
       alternative_names:
-      - bits-service.service.cf.internal
+      - bits.service.cf.internal
       - "((system_domain))"
       - "*.((system_domain))"
       ca: service_cf_internal_ca

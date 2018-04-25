@@ -11,7 +11,7 @@ export CC_API="api.$(cat vars-store/environments/softlayer/director/${ENVIRONMEN
 export CC_PASSWORD=$(bosh2 int vars-store/environments/softlayer/director/${ENVIRONMENT_NAME}/cf-deployment/vars.yml --path /cf_admin_password)
 export CC_USER=admin
 
-echo "$(cat vars-store/environments/softlayer/director/${ENVIRONMENT_NAME}/ip) bits-service.service.cf.internal" >> /etc/hosts
+echo "$(cat vars-store/environments/softlayer/director/${ENVIRONMENT_NAME}/ip) bits.service.cf.internal" >> /etc/hosts
 
 cd bits-service-release
 

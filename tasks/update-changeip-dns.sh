@@ -19,5 +19,5 @@ curl -vvv -u $CHANGE_IP_USER:$CHANGE_IP_PASSWORD \
     grep '200 Successful Update'
 
 curl -vvv -u $CHANGE_IP_USER:$CHANGE_IP_PASSWORD \
-    "https://nic.ChangeIP.com/nic/update?hostname=bits-service.cf-deployment.dynamic-dns.net&ip=$bits_service_ip" | \
+    "https://nic.ChangeIP.com/nic/update?hostname=bits.cf-deployment.dynamic-dns.net&ip=$bits_service_ip" | \
     grep '200 Successful Update'
