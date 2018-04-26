@@ -35,6 +35,8 @@ fly \
   -v slack-webhook="${slack_webhook}" \
   -v private-yml="${private_yml}" \
   -v changeip-username="${changeip_username}" \
-  -v changeip-password="${changeip_password}"
+  -v changeip-password="${changeip_password}" \
+  -v openstack_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test openstack' --notes)" \
+  -v cos_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test cos' --notes)"
 
 fly -t ${target} expose-pipeline --pipeline bits-service
