@@ -58,13 +58,8 @@ elif [ "$1" == "azure" ]; then
   export droplet_directory_key=cf-bits
   export app_package_directory_key=cf-bits
 elif [ "$1" == "google-service-account" ]; then
-  private_key_id=$(lpass show "Shared-Flintstone"/GCP-Service-Account --username)
-  private_key=$(lpass show "Shared-Flintstone"/GCP-Service-Account --password)
-  client_email=$(lpass show "Shared-Flintstone"/GCP-Service-Account-Client --username)
-  client_id=$(lpass show "Shared-Flintstone"/GCP-Service-Account-Client --password)
-  export gcs_service_account_json_key="\"{   \\\"type\\\": \\\"service_account\\\",   \\\"project_id\\\": \\\"petergtz\\\",   \\\"private_key_id\\\": \\\"${private_key_id}\\\",   \\\"private_key\\\": \\\"${private_key}\\\",   \\\"client_email\\\": \\\"${client_email}\\\",   \\\"client_id\\\": \\\"${client_id}\\\",   \\\"auth_uri\\\": \\\"https://accounts.google.com/o/oauth2/auth\\\",   \\\"token_uri\\\": \\\"https://accounts.google.com/o/oauth2/token\\\",   \\\"auth_provider_x509_cert_url\\\": \\\"https://www.googleapis.com/oauth2/v1/certs\\\",   \\\"client_x509_cert_url\\\": \\\"https://www.googleapis.com/robot/v1/metadata/x509/${client_email}\\\" }\""
   export gcs_project=petergtz
-  export gcs_service_account_email=$client_email
+  export gcs_service_account_email=$(lpass show "Shared-Flintstone"/GCP-Service-Account-Client --username)
   export resource_directory_key=pego-blobstore
   export buildpack_directory_key=pego-blobstore
   export droplet_directory_key=pego-blobstore
