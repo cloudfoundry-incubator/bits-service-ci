@@ -58,6 +58,35 @@ jobs:
     file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
   on_failure: *notify
 
+- name: run-bitsgo-contract-integration-test-openstack
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: openstack
+      INTEGRATION_TEST_SETUP: ((openstack_integration_test_config))
+  on_failure: *notify
+
+
+- name: run-bitsgo-contract-integration-test-cos
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: S3
+      INTEGRATION_TEST_SETUP: ((cos_integration_test_config))
+  on_failure: *notify
+
 - name: bump-bits-service-release
   serial: true
   plan:
@@ -80,7 +109,11 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - get: bitsgo
+      passed:
+        - run-bitsgo-contract-integration-test-cos
+        - run-bitsgo-contract-integration-test-openstack
+      trigger: true
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: bits-service-release-bitsgo }
   - task: Bump bits-service-release-bitsgo
@@ -1503,6 +1536,8 @@ groups:
   - create-and-upload-bitsgo-release
   - bump-bits-service-release-bitsgo
   - run-system-tests-bitsgo-WEBDAV
+  - run-bitsgo-contract-integration-test-openstack
+  - run-bitsgo-contract-integration-test-cos
 
 - name: bits-service
   jobs:
