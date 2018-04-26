@@ -15,4 +15,4 @@ params:
  BLOBSTORE_TYPE: undefined
 
 run:
-  path: ci-tasks/tasks/run-bitsgo-contract-integration-tests.sh
+  path: ci-tasks/tasks/run-bits-contract-integration-tests.sh

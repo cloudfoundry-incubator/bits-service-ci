@@ -5,7 +5,6 @@ export CONFIG=/tmp/integration_test.yml
 
 export GOPATH=$(mktemp -d)
 export PATH=$GOPATH/bin:$PATH
-echo "debug GOPATH: ${GOPATH}"
 
 #update GO Version
 sudo rm -rf /usr/local/go
@@ -18,7 +17,6 @@ mkdir -p $GOPATH/src/github.com/petergtz $GOPATH/bin $GOPATH/pkg
 cp -a bitsgo $GOPATH/src/github.com/petergtz
 cd $GOPATH/src/github.com/petergtz/bitsgo
 
-ls -al
 glide install
 pushd vendor/github.com/onsi/ginkgo/ginkgo
     go install
