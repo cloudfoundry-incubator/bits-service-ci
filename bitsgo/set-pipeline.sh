@@ -13,6 +13,7 @@ if [ -z $1 ]; then
     - cos-s3
     - webdav
     - google-service-account
+    - google-s3
     - azure
 EOF
   exit 1
@@ -64,6 +65,13 @@ elif [ "$1" == "google-service-account" ]; then
   export buildpack_directory_key=pego-blobstore
   export droplet_directory_key=pego-blobstore
   export app_package_directory_key=pego-blobstore
+elif [ "$1" == "google-s3" ]; then
+  export google_storage_access_key_id=$(lpass show "Shared-Flintstone"/GCP-S3-API-Key --username)
+  export google_storage_secret_access_key=$(lpass show "Shared-Flintstone"/GCP-S3-API-Key --password)
+  export resource_directory_key=pego-test
+  export buildpack_directory_key=pego-test
+  export droplet_directory_key=pego-test
+  export app_package_directory_key=pego-test
 fi
 
 eval "echo \"$(cat $1.yml)\"" > extra_args.yml
