@@ -173,24 +173,24 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bits-service-release-version, params: { pre: dev } }
+    - { get: bits-service-release-bitsgo-version, params: { pre: dev } }
     - { get: bits-service-release-bitsgo, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci }
-  - put: bits-service-release-version
-    params: { file: bits-service-release-version/version }
+  - put: bits-service-release-bitsgo-version
+    params: { file: bits-service-release-bitsgo-version/version }
   - task: Create release
     file: ci-tasks/tasks/create-bits-release.yml
     params:
       VERSION_FILE: bits-service-release-version/version
-      RELEASE_VERSION_SUFFIX: '-bitsgo'
     input_mapping:
       git-bits-service-release: bits-service-release-bitsgo
+      bits-service-release-version: bits-service-release-bitsgo-version
   - put: bits-service-release-bitsgo-tarball
     params: { file: releases/*.tgz }
   - put: bits-service-release-bitsgo
     params:
       repository: bits-service-release-bitsgo
-      tag: bits-service-release-version/version
+      tag: bits-service-release-bitsgo-version/version
       only_tag: true
   on_failure: *notify
 
@@ -380,7 +380,7 @@ jobs:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-bitsgo-tarball, passed: [create-and-upload-bitsgo-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-bitsgo-release] }
+    - { get: bits-service-release-bitsgo-version, passed: [create-and-upload-bitsgo-release] }
     - { get: bits-service-release-bitsgo, passed: [create-and-upload-bitsgo-release], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
@@ -416,7 +416,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-bitsgo-tarball, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-bitsgo-with-WEBDAV] }
+    - { get: bits-service-release-bitsgo-version, passed: [deploy-bitsgo-with-WEBDAV] }
     - { get: bits-service-release-bitsgo, passed: [deploy-bitsgo-with-WEBDAV] }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-deployment-vars }
@@ -1844,6 +1844,16 @@ resources:
     file: version/bits-service-release/version
     private_key: {{github-private-key}}
     initial_version: 0.0.0-dev.2
+
+- name: bits-service-release-bitsgo-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
+    branch: metadata
+    file: version/bits-service-release-bitsgo/version
+    private_key: {{github-private-key}}
+    initial_version: 2.0.0-dev.1
 
 - name: cf-bosh1-deployment-events
   type: semver
