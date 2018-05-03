@@ -9,6 +9,8 @@ cd $(dirname $0)
 ./bitsgo/set-pipeline.sh local
 ./bitsgo/set-pipeline.sh azure
 ./bitsgo/set-pipeline.sh openstack
+./bitsgo/set-pipeline.sh google-s3
+./bitsgo/set-pipeline.sh google-service-account
 ./bitsgo-cc-updater/set-pipeline.sh
 ./blobstore-local/set-pipeline.sh
 ./docker/set-pipeline.sh
