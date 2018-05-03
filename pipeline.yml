@@ -200,9 +200,9 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
@@ -210,7 +210,7 @@ jobs:
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
-      bits-service-deployment-manifest-generation-tools: bits-service-release
+      bits-service-deployment-manifest-generation-tools: (( grab switch.bits-service-release ))
       bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -232,7 +232,9 @@ jobs:
       params: &sl-bits-service-deployment-params
         manifest: manifests/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
-        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
+        releases:
+          - "capi-release-tarball/*.tgz"
+          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
         no_redact: true
   on_failure: *notify
 
@@ -241,9 +243,9 @@ jobs:
   serial_groups: [bits-deployment-s3]
   plan:
   - aggregate:
-    - { get: bits-service-release-tarball, passed: [deploy-with-S3], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-S3] }
-    - { get: bits-service-release, passed: [deploy-with-S3] }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-S3], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-S3] }
+    - { get: (( grab switch.bits-service-release )), passed: [deploy-with-S3] }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-deployment-vars }
     - { get: bits-service-s3-sl-deployment-events, passed: [deploy-with-S3], trigger: true }
@@ -251,7 +253,7 @@ jobs:
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
-      bits-service-system-test-source: bits-service-release
+      bits-service-system-test-source: (( grab switch.bits-service-release ))
       deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -265,9 +267,9 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
@@ -275,7 +277,7 @@ jobs:
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
-      bits-service-deployment-manifest-generation-tools: bits-service-release
+      bits-service-deployment-manifest-generation-tools: (( grab switch.bits-service-release ))
       bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -298,9 +300,9 @@ jobs:
   serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
-    - { get: bits-service-release-tarball, passed: [deploy-with-LOCAL], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-LOCAL] }
-    - { get: bits-service-release, passed: [deploy-with-LOCAL]}
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-LOCAL], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-LOCAL] }
+    - { get: (( grab switch.bits-service-release )), passed: [deploy-with-LOCAL]}
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-deployment-vars }
     - { get: bits-service-local-sl-deployment-events, passed: [deploy-with-LOCAL], trigger: true }
@@ -308,7 +310,7 @@ jobs:
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
-      bits-service-system-test-source: bits-service-release
+      bits-service-system-test-source: (( grab switch.bits-service-release ))
       deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -322,9 +324,9 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
@@ -332,7 +334,7 @@ jobs:
   - task: Create deployment manifest
     file: ci-tasks/tasks/create-bits-manifest.yml
     input_mapping:
-      bits-service-deployment-manifest-generation-tools: bits-service-release
+      bits-service-deployment-manifest-generation-tools: (( grab switch.bits-service-release ))
       bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -355,9 +357,9 @@ jobs:
   serial_groups: [bits-deployment-webdav]
   plan:
   - aggregate:
-    - { get: bits-service-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-WEBDAV] }
-    - { get: bits-service-release, passed: [deploy-with-WEBDAV] }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-WEBDAV], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-WEBDAV] }
+    - { get: (( grab switch.bits-service-release )), passed: [deploy-with-WEBDAV] }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: git-deployment-vars }
     - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-with-WEBDAV], trigger: true }
@@ -365,7 +367,7 @@ jobs:
     attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
-      bits-service-system-test-source: bits-service-release
+      bits-service-system-test-source: (( grab switch.bits-service-release ))
       deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -439,9 +441,9 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
@@ -482,7 +484,9 @@ jobs:
       params:
         manifest: cf-with-bits-service-enabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
-        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
+        releases:
+          - 'capi-release-tarball/*.tgz'
+          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
         no_redact: true
   - task: Update change-ip
     file: ci-tasks/tasks/update-changeip-dns.yml
@@ -496,7 +500,7 @@ jobs:
     attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
     input_mapping:
-      bits-service-system-test-source: bits-service-release
+      bits-service-system-test-source: (( grab switch.bits-service-release ))
       deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
@@ -536,26 +540,27 @@ jobs:
         - deploy-and-test-cf-blobstore-local
       trigger: true
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: bits-service-release-tarball, passed: *acceptance-tests-passed, trigger: true }
-    - { get: bits-service-release-version, passed: *acceptance-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: *acceptance-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: *acceptance-tests-passed }
   - aggregate:
     - task: Publish release tarball URLs
       file: ci-tasks/tasks/publish-release-tarball-urls.yml
       params:
-        RELEASE_TARBALL_DIRS: capi-release-tarball bits-service-release-tarball
+        RELEASE_TARBALL_DIRS: (( concat "capi-release-tarball " switch.bits-service-release-tarball ))
     - put: bits-service-github-release
       params:
-        name: bits-service-release-version/version
-        tag: bits-service-release-version/version
-        globs: [ "bits-service-release-tarball/*.tgz" ]
+        name: (( concat switch.bits-service-release-version "/version" ))
+        tag: (( concat switch.bits-service-release-version "/version" ))
+        globs:
+          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
   on_failure: *notify
 
 - name: Publish Final Release
   plan:
   - aggregate:
-    - get: bits-service-release
+    - get: (( grab switch.bits-service-release ))
       passed: *acceptance-tests-passed
-    - get: bits-service-release-version
+    - get: (( grab switch.bits-service-release-version ))
       passed:
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
@@ -567,23 +572,23 @@ jobs:
   - task: Promote Release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
-      release-version: bits-service-release-version
-      release-git-repo: bits-service-release
+      release-version: (( grab switch.bits-service-release-version ))
+      release-git-repo: (( grab switch.bits-service-release ))
     params:
       PRIVATE_YML_CONTENT: {{private-yml}}
   - do:
-    - put: bits-service-release
+    - put: (( grab switch.bits-service-release ))
       params:
         repository: release-git-repo-final
-        tag: bits-service-release-version/version
+        tag: (( concat switch.bits-service-release-version "/version" ))
         rebase: true
     - put: bits-service-github-final-release
       params:
-        name: bits-service-release-version/version
-        tag: bits-service-release-version/version
+        name: (( concat switch.bits-service-release-version "/version" ))
+        tag: (( concat switch.bits-service-release-version "/version" ))
         globs: [ "release-tarball/*.tgz" ]
-    - put: bits-service-release-version
-      params: { file: bits-service-release-version/version }
+    - put: (( grab switch.bits-service-release-version ))
+      params: { file: (( concat switch.bits-service-release-version "/version" )) }
 
   - task: Calculate Digest of Final Release
     file: ci-tasks/tasks/calculate-digest.yml
@@ -598,7 +603,7 @@ jobs:
   # - task: Update Opsfile
   #   file: ci-tasks/tasks/update-opsfile.yml
   #   input_mapping:
-  #     release-version: bits-service-release-version
+  #     release-version: (( grab switch.bits-service-release-version ))
   #     cf-deployment: cf-deployment-develop
   #     digests: release-digest
   #   output_mapping:
@@ -606,7 +611,7 @@ jobs:
   # - task: Commit Updates
   #   file: ci-tasks/tasks/commit-updates.yml
   #   input_mapping:
-  #     release-version: bits-service-release-version
+  #     release-version: (( grab switch.bits-service-release-version ))
   #     source-repo: cf-deployment-updated
   #   output_mapping:
   #     committed-repo: cf-deployment-committed
@@ -650,21 +655,21 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - get: bits-service-release-tarball
+    - get: (( grab switch.bits-service-release-tarball ))
       passed: &run-system-tests-passed
         - run-system-tests-LOCAL
         - run-system-tests-S3
         - run-system-tests-WEBDAV
         - deploy-and-test-with-s3-cf-softlayer
       trigger: true
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, trigger: true }
-    - { get: bits-service-release, passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
     - { get: run-after-midnight, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
@@ -703,7 +708,9 @@ jobs:
       params: &params-aws-deployment-bits-service-disabled
         manifest: cf-with-bits-service-disabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
-        releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
+        releases:
+          - "capi-release-tarball/*.tgz"
+          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
         no_redact: true
   - attempts: 3
     aggregate:
@@ -736,7 +743,7 @@ jobs:
         file: ci-tasks/tasks/run-performance-tests.yml
         input_mapping:
           deployment-vars: git-deployment-vars
-          bits-service-release: bits-service-release
+          bits-service-release: (( grab switch.bits-service-release ))
         params: &aws-bits-service-disabled-run-perf-tests-params
           DEPLOYMENT_NAME: cf
           ENVIRONMENT_NAME: aws
@@ -760,7 +767,7 @@ jobs:
         file: ci-tasks/tasks/run-performance-tests.yml
         input_mapping:
           deployment-vars: git-deployment-vars
-          bits-service-release: bits-service-release
+          bits-service-release: (( grab switch.bits-service-release ))
         params:
           <<: *aws-bits-service-disabled-run-perf-tests-params
           PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1_v3-push
@@ -780,14 +787,14 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-    - { get: bits-service-release-tarball, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-and-test-cf-diego-aws] }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
     - { get: cf-deployment-develop, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-    - { get: bits-service-release, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: run-after-midnight, passed: [deploy-and-test-cf-diego-aws], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
@@ -834,7 +841,7 @@ jobs:
         file: ci-tasks/tasks/run-performance-tests.yml
         input_mapping:
           deployment-vars: git-deployment-vars
-          bits-service-release: bits-service-release
+          bits-service-release: (( grab switch.bits-service-release ))
         params: &aws-bits-service-enabled-run-perf-tests-params
           DEPLOYMENT_NAME: cf
           ENVIRONMENT_NAME: aws
@@ -858,7 +865,7 @@ jobs:
         file: ci-tasks/tasks/run-performance-tests.yml
         input_mapping:
           deployment-vars: git-deployment-vars
-          bits-service-release: bits-service-release
+          bits-service-release: (( grab switch.bits-service-release ))
         params:
           <<: *aws-bits-service-enabled-run-perf-tests-params
           PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1_v3-push
@@ -877,14 +884,14 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true}
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: *run-system-tests-passed, trigger: true}
+    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-smoke-tests, trigger: true }
-    - { get: bits-service-release, passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
     - { get: run-after-midnight, trigger: true }
     - { get: blobstore-local-bosh-lite-ready-for-deployment-events, trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
@@ -912,7 +919,7 @@ jobs:
     - do:
       - task: merge release tarballs
         file: ci-tasks/tasks/merge-resources.yml
-        input_mapping: { a: capi-release-tarball, b: bits-service-release-tarball }
+        input_mapping: { a: capi-release-tarball, b: (( grab switch.bits-service-release-tarball )) }
         output_mapping: { merged: releases }
       - task: make blobstore-local-cf-deployment
         file: ci-tasks/tasks/bosh-deploy.yml
@@ -1028,8 +1035,8 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -1037,7 +1044,7 @@ jobs:
     - { get: bosh1-recreation-events, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: git-deployment-vars }
-    - { get: bits-service-release, passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1072,13 +1079,15 @@ jobs:
     params: &params-deployment-bits-service-disabled
       manifest: cf-with-bits-service-disabled/manifest.yml
       stemcells: ["stemcell/stemcell.tgz"]
-      releases: ["capi-release-tarball/*.tgz", "bits-service-release-tarball/*.tgz"]
+      releases:
+        - "capi-release-tarball/*.tgz"
+        - (( concat switch.bits-service-release-tarball "/*.tgz" ))
       no_redact: true
   - task: Run migration preparation tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: &migration-tests-input-mappings
-      bits-service-release: bits-service-release
+      bits-service-release: (( grab switch.bits-service-release ))
       deployment-vars: git-deployment-vars
     params: &boshlite1-bsmt-preparation-params
       test_suite: preparation
@@ -1132,13 +1141,13 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [migration-bosh1 (S3)], trigger: true }
-    - { get: bits-service-release-tarball, passed: [migration-bosh1 (S3)], trigger: true}
-    - { get: bits-service-release-version, passed: [migration-bosh1 (S3)] }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [migration-bosh1 (S3)], trigger: true}
+    - { get: (( grab switch.bits-service-release-version )), passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: cf-deployment-develop, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
-    - { get: bits-service-release, passed: [migration-bosh1 (S3)], trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1219,8 +1228,8 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: *run-system-tests-passed, trigger: true }
-    - { get: bits-service-release-version, passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -1228,7 +1237,7 @@ jobs:
     - { get: bosh2-recreation-events, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: git-deployment-vars }
-    - { get: bits-service-release, passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1302,13 +1311,13 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
-    - { get: bits-service-release-tarball, passed: [migration-bosh2 (webdav)], trigger: true }
-    - { get: bits-service-release-version, passed: [migration-bosh2 (webdav)] }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci }
     - { get: cf-deployment-develop, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
-    - { get: bits-service-release, passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
