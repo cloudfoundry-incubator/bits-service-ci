@@ -48,7 +48,7 @@ jobs:
       passed: [ update-cloud-config-((bosh_lite_name)) ]
     - get: state
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment, resource: cf-deployment-bitsgo}
+    - { get: cf-deployment, resource: cf-deployment-bitsgo, trigger: true }
     - { get: bits-service-release-bitsgo-tarball, trigger: true }
   - task: detect-stemcell
     file: 1-click/tasks/detect-stemcell.yml
