@@ -17,11 +17,16 @@ private_yml=$(lpass show "Shared-Flintstone/private.yml" --notes)
 changeip_username=$(lpass show "Shared-Flintstone"/"changeip.com" --username)
 changeip_password=$(lpass show "Shared-Flintstone"/"changeip.com" --password)
 
+switch=switch-ruby.yml
+if [ "$1" == "bitsgo" ]; then
+  switch=switch-bitsgo.yml
+fi
+
 fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c pipeline.yml \
+  -c <(spruce --concourse merge pipeline.yml $switch) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
   -v github-private-key="${github_ssh_key}" \

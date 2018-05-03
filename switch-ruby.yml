@@ -1,0 +1,5 @@
+switch:
+  bits-service-release-tarball: bits-service-release-tarball
+  bits-service-release-version: bits-service-release-version
+  bits-service-release: bits-service-release
+  create-and-upload-release: create-and-upload-release
