@@ -463,6 +463,7 @@ jobs:
       CF_DOMAIN: {{sl-cf1-domain}}
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
+        -o ci-tasks/operations/bits-service-scale-to-one-az.yml
       VARIABLES: >
         -v aws_region={{s3-blobstore-region}}
         -v blobstore_access_key_id={{s3-blobstore-access-key-id}}
