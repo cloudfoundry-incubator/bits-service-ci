@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-export GOPATH=$(mktemp -d)
+export GOPATH=$(readlink -f go)
 export PATH=$GOPATH/bin:$PATH
 
 mkdir -p $GOPATH/src/github.com/petergtz $GOPATH/bin $GOPATH/pkg

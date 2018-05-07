@@ -12,3 +12,6 @@ inputs:
 
 run:
   path: ci-tasks/scripts/run-bitsgo-unit-tests.sh
+
+caches:
+- path: go/src/github.com/petergtz/bitsgo/vendor
