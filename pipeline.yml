@@ -902,6 +902,7 @@ jobs:
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
+        -o ci-tasks/operations/bits-service-scale-to-one-az.yml
         -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   - aggregate:
     - put: git-deployment-vars
