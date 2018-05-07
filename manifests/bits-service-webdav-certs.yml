@@ -1,19 +1,40 @@
-properties:
-  bits-service:
-    buildpacks:
-      webdav_config:
-        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
-    droplets:
-      webdav_config:
-        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
-    packages:
-      webdav_config:
-        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
-    app_stash:
-      webdav_config:
-        ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
-  blobstore:
-    tls:
-      cert:  (( file "standalone-blobstore-certs/server.crt"	))
-      private_key:  (( file "standalone-blobstore-certs/server.key"	))
-      ca_cert: (( file "standalone-blobstore-certs/server-ca.crt"	))
+- type: replace
+  path: /properties?/bits-service/buildpacks/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+- type: replace
+  path: /properties?/bits-service/droplets/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+- type: replace
+  path: /properties?/bits-service/packages/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+- type: replace
+  path: /properties?/bits-service/app_stash/webdav_config/ca_cert
+  value: ((blobstore_ssl.ca))
+- type: replace
+  path: /properties?/blobstore/tls
+  value:
+    cert: ((blobstore_ssl.certificate))
+    private_key: ((blobstore_ssl.private_key))
+    ca_cert: ((blobstore_ssl.ca))
+
+- type: replace
+  path: /variables?/name=blobstore_ssl
+  value:
+    name: blobstore_ssl
+    type: certificate
+    options:
+      common_name: not_configured
+      alternative_names:
+      - blobstore.10.175.96.245.xip.io
+      - '*.10.175.96.245.xip.io'
+      - 10.175.96.245.xip.io
+      ca: default_ca
+
+- type: replace
+  path: /variables?/name=default_ca
+  value:
+    name: default_ca
+    options:
+      common_name: ca
+      is_ca: true
+    type: certificate
