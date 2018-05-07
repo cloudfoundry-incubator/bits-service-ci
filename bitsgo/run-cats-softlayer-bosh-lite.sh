@@ -2,9 +2,6 @@
 
 set -e -x
 
-. ci-tasks/scripts/start-collectd.sh
-start_collectd
-
 mkdir -p gopath/src/github.com/cloudfoundry
 cp -r acceptance-tests gopath/src/github.com/cloudfoundry/cf-acceptance-tests
 
@@ -55,9 +52,6 @@ export CONFIG="$(readlink -nf config.json)"
 export CF_DIAL_TIMEOUT
 export CF_COLOR=false
 
-# export CF_PLUGIN_HOME=$(mktemp -d)
-# cf install-plugin /var/vcap/packages/cli-network-policy-plugin/plugin/network-policy-plugin-linux64 -f
-
 cd gopath/src/github.com/cloudfoundry/cf-acceptance-tests
 
 echo '################################################################################################################'
@@ -66,23 +60,5 @@ echo CONFIG=$CONFIG
 env | sort
 echo '################################################################################################################'
 
-# _count is needed because Bluemix Logmet/Grafana does not roll up sparse
-# metrics correctly, when the range is >24h.
-printf "run-cats-$BITS_SERVICE_ENABLEMENT-started_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
-
-set +e
 bin/test -slowSpecThreshold=120 -randomizeAllSpecs \
   -nodes="${NODES}" -skipPackage=helpers -keepGoing -noisyPendings=false -noisySkippings=false
-EXIT_CODE=$?
-set -e
-
-if [[ $EXIT_CODE -eq 0 ]]; then
-  printf "run-cats-$BITS_SERVICE_ENABLEMENT-succeeded_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
-else
-  printf "run-cats-$BITS_SERVICE_ENABLEMENT-failed_count:1|c" | socat -t 0 - UDP:127.0.0.1:8125
-fi
-
-# Wait for collectd to send final metrics
-sleep 90
-
-exit $EXIT_CODE
