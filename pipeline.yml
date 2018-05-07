@@ -111,6 +111,7 @@ jobs:
   - aggregate:
     - get: bitsgo
       passed:
+        - run-bitsgo-unit-tests
         - run-bitsgo-contract-integration-test-cos
         - run-bitsgo-contract-integration-test-openstack
       trigger: true
