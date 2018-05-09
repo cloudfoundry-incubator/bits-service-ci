@@ -244,6 +244,7 @@ jobs:
   serial_groups: [bits-deployment-s3]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [deploy-with-S3], trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-S3], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-S3] }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-with-S3] }
@@ -301,6 +302,7 @@ jobs:
   serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [deploy-with-LOCAL], trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-LOCAL], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-LOCAL] }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-with-LOCAL]}
@@ -358,6 +360,7 @@ jobs:
   serial_groups: [bits-deployment-webdav]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-WEBDAV], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-WEBDAV] }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-with-WEBDAV] }
@@ -539,6 +542,10 @@ jobs:
         - migration-backwards-bosh1
         - migration-backwards-bosh2
         - deploy-and-test-cf-blobstore-local
+        - run-system-tests-S3
+        - run-system-tests-LOCAL
+        - run-system-tests-WEBDAV
+        - deploy-and-test-with-s3-cf-softlayer
       trigger: true
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: *acceptance-tests-passed, trigger: true }
@@ -562,10 +569,7 @@ jobs:
     - get: (( grab switch.bits-service-release ))
       passed: *acceptance-tests-passed
     - get: (( grab switch.bits-service-release-version ))
-      passed:
-        - enable-BITS-SERVICE-diego-and-run-CATs
-        - migration-backwards-bosh1
-        - migration-backwards-bosh2
+      passed: *acceptance-tests-passed
       params: { bump: minor }
     - get: ci-tasks
       resource: git-bits-service-ci
@@ -656,21 +660,15 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - get: (( grab switch.bits-service-release-tarball ))
-      passed: &run-system-tests-passed
-        - run-system-tests-LOCAL
-        - run-system-tests-S3
-        - run-system-tests-WEBDAV
-        - deploy-and-test-with-s3-cf-softlayer
-      trigger: true
-    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: git-cf-acceptance-tests, trigger: true }
-    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: run-after-midnight, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
@@ -885,14 +883,14 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: (( grab switch.bits-service-release-tarball )), passed: *run-system-tests-passed, trigger: true}
-    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true}
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))],}
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-smoke-tests, trigger: true }
-    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: run-after-midnight, trigger: true }
     - { get: blobstore-local-bosh-lite-ready-for-deployment-events, trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
@@ -1036,8 +1034,8 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: (( grab switch.bits-service-release-tarball )), passed: *run-system-tests-passed, trigger: true }
-    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -1045,7 +1043,7 @@ jobs:
     - { get: bosh1-recreation-events, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: git-deployment-vars }
-    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1229,8 +1227,8 @@ jobs:
   plan:
   - aggregate:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: (( grab switch.bits-service-release-tarball )), passed: *run-system-tests-passed, trigger: true }
-    - { get: (( grab switch.bits-service-release-version )), passed: *run-system-tests-passed }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))],trigger: true }
+    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))], }
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
@@ -1238,7 +1236,7 @@ jobs:
     - { get: bosh2-recreation-events, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: git-deployment-vars }
-    - { get: (( grab switch.bits-service-release )), passed: *run-system-tests-passed, trigger: true }
+    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
