@@ -5,9 +5,6 @@ extra_args: |
   -v blobstore_access_key_id=$blobstore_access_key_id
   -v blobstore_secret_access_key=$blobstore_secret_access_key
   -v aws_region=$aws_region
-  -v aws_signature_version=$aws_signature_version
-  -v cos_ssl_version=$cos_ssl_version
-  -v cos_scheme=$cos_scheme
   -v cos_host=$cos_host
   -v resource_directory_key=$resource_directory_key
   -v buildpack_directory_key=$buildpack_directory_key
