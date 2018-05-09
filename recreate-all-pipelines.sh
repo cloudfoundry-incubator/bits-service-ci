@@ -2,7 +2,7 @@
 
 cd $(dirname $0)
 
-./set-pipeline.sh
+./set-pipeline.sh bitsgo
 ./bitsgo/set-pipeline.sh webdav
 ./bitsgo/set-pipeline.sh aws-s3
 ./bitsgo/set-pipeline.sh cos-s3
