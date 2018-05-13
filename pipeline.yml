@@ -553,8 +553,10 @@ jobs:
   - aggregate:
     - task: Publish release tarball URLs
       file: ci-tasks/tasks/publish-release-tarball-urls.yml
+      input_mapping:
+        bits-service-release-tarball: (( grab switch.bits-service-release-tarball ))
       params:
-        RELEASE_TARBALL_DIRS: (( concat "capi-release-tarball " switch.bits-service-release-tarball ))
+        RELEASE_TARBALL_DIRS: capi-release-tarball bits-service-release-tarball
     - put: bits-service-github-release
       params:
         name: (( concat switch.bits-service-release-version "/version" ))
