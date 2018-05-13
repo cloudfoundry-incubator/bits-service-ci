@@ -33,7 +33,7 @@ resources:
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
   serial: true
-  serial_groups: [ cf_deployment ]
+  serial_groups: [ bosh-lite ]
   plan:
   - aggregate:
     - { get: 1-click }
@@ -67,7 +67,7 @@ jobs:
 
 - name:  Run CC Updater tests
   serial: true
-  serial_groups: [ cf_deployment ]
+  serial_groups: [ bosh-lite ]
   plan:
   - aggregate:
     - { get: 1-click }
