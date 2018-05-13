@@ -30,4 +30,4 @@ cat >config.json <<EOF
 EOF
 export CONFIG="$(readlink -nf config.json)"
 
-bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose -v -progress -keepGoing $test_suite
+bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose -keepGoing $test_suite
