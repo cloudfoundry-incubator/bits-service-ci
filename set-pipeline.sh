@@ -42,6 +42,10 @@ fly \
   -v changeip-username="${changeip_username}" \
   -v changeip-password="${changeip_password}" \
   -v openstack_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test openstack' --notes)" \
-  -v cos_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test cos' --notes)"
+  -v cos_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test cos' --notes)" \
+  -v s3_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test s3' --notes)" \
+  -v azure_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test azure' --notes)" \
+  -v google_gcp_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test google gcp' --notes)" \
+  -v google_s3_integration_test_config="$(lpass show 'Shared-Flintstone'/'contract integration test google s3' --notes)" \
 
 fly -t ${target} expose-pipeline --pipeline bits-service

@@ -87,6 +87,62 @@ jobs:
       INTEGRATION_TEST_SETUP: ((cos_integration_test_config))
   on_failure: *notify
 
+- name: run-bitsgo-contract-integration-test-s3
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: S3
+      INTEGRATION_TEST_SETUP: ((s3_integration_test_config))
+  on_failure: *notify
+
+- name: run-bitsgo-contract-integration-test-azure
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: AZURE
+      INTEGRATION_TEST_SETUP: ((azure_integration_test_config))
+  on_failure: *notify
+
+- name: run-bitsgo-contract-integration-test-google-gcp
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: GCP
+      INTEGRATION_TEST_SETUP: ((google_gcp_integration_test_config))
+  on_failure: *notify
+
+- name: run-bitsgo-contract-integration-test-google-s3
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: S3
+      INTEGRATION_TEST_SETUP: ((google_s3_integration_test_config))
+  on_failure: *notify
+
 - name: bump-bits-service-release
   serial: true
   plan:
@@ -112,8 +168,12 @@ jobs:
     - get: bitsgo
       passed:
         - run-bitsgo-unit-tests
-        - run-bitsgo-contract-integration-test-cos
         - run-bitsgo-contract-integration-test-openstack
+        - run-bitsgo-contract-integration-test-cos
+        - run-bitsgo-contract-integration-test-s3
+        - run-bitsgo-contract-integration-test-azure
+        - run-bitsgo-contract-integration-test-google-gcp
+        - run-bitsgo-contract-integration-test-google-s3
       trigger: true
     - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
     - { get: bits-service-release-bitsgo }
@@ -1569,6 +1629,10 @@ groups:
   - run-system-tests-bitsgo-WEBDAV
   - run-bitsgo-contract-integration-test-openstack
   - run-bitsgo-contract-integration-test-cos
+  - run-bitsgo-contract-integration-test-s3
+  - run-bitsgo-contract-integration-test-azure
+  - run-bitsgo-contract-integration-test-google-gcp
+  - run-bitsgo-contract-integration-test-google-s3
   - Sync cf-deployment fork (bitsgo)
 - name: bits-service
   jobs:
