@@ -1812,14 +1812,14 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
-    branch: master
+    branch: ruby
     private_key: {{github-private-key}}
 
 - name: bits-service-release-bitsgo
   type: git
   source:
-    uri: git@github.com:petergtz/bits-service-release.git
-    branch: master
+    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    branch: bitsgo
     private_key: {{github-private-key}}
 
 - name: bits-service-github-final-release
