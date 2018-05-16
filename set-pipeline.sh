@@ -17,9 +17,9 @@ private_yml=$(lpass show "Shared-Flintstone/private.yml" --notes)
 changeip_username=$(lpass show "Shared-Flintstone"/"changeip.com" --username)
 changeip_password=$(lpass show "Shared-Flintstone"/"changeip.com" --password)
 
-switch=switch-ruby.yml
-if [ "$1" == "bitsgo" ]; then
-  switch=switch-bitsgo.yml
+switch=switch-bitsgo.yml
+if [ "$1" == "ruby" ]; then
+  switch=switch-ruby.yml
 fi
 
 fly \
