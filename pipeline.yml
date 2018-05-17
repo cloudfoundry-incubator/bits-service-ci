@@ -1549,25 +1549,6 @@ jobs:
     - put: cf-deployment-master
       params: { repository: synced-repo, force: true }
 
-- name: Sync cf-deployment fork (bitsgo)
-  plan:
-    - aggregate:
-      - get: cf-deployment-bitsgo
-      - get: cf-deployment-develop
-        trigger: true
-      - get: ci-tasks
-        resource: git-bits-service-ci
-    - task: sync
-      file: ci-tasks/tasks/sync-repo.yml
-      input_mapping:
-        fork-repo: cf-deployment-bitsgo
-        upstream-repo: cf-deployment-develop
-      params:
-        UPSTREAM_BRANCH: develop
-        FORK_BRANCH: bitsgo
-    - put: cf-deployment-bitsgo
-      params: { repository: synced-repo, force: true }
-
 - name: Sync capi-release fork
   plan:
     - aggregate:
@@ -1633,7 +1614,6 @@ groups:
   - run-bitsgo-contract-integration-test-azure
   - run-bitsgo-contract-integration-test-google-gcp
   - run-bitsgo-contract-integration-test-google-s3
-  - Sync cf-deployment fork (bitsgo)
 - name: bits-service
   jobs:
   - run-unit-and-integration-tests
@@ -1773,13 +1753,6 @@ resources:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
 
-- name: cf-deployment-bitsgo
-  type: git
-  source:
-    uri: git@github.com:petergtz/cf-deployment.git
-    branch: bitsgo
-    private_key: {{github-private-key}}
-
 - name: git-deployment-vars
   type: git
   source:
@@ -1819,7 +1792,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
-    branch: bitsgo
+    branch: master
     private_key: {{github-private-key}}
 
 - name: bits-service-github-final-release
