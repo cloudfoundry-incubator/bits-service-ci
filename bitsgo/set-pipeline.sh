@@ -89,6 +89,5 @@ fly \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
 
 fly -t flintstone expose-pipeline --pipeline ${pipeline_name}
-fly -t flintstone unpause-pipeline --pipeline ${pipeline_name}
 
 rm -f extra_args.yml
