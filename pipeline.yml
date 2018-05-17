@@ -752,7 +752,7 @@ jobs:
         -o ci-tasks/operations/disable-bits-service.yml
         -o ci-tasks/operations/scale-diego-cell-instances.yml
       VARIABLES: >
-        -v aws_region={{cf-migration-s3-blobstore-region}}
+        -v aws_region={{cf1-s3-blobstore-region}}
         -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
         -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
         -v resource_directory_key={{cf1-s3-blobstore-bucket-name}}
