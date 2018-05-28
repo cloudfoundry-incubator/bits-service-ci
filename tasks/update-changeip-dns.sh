@@ -12,7 +12,7 @@ bosh2 login
 bosh2 -d cf instances > instances
 
 router_ip=$(grep -E '^router' instances | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
-bits_service_ip=$(grep -E '^api' instances | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+bits_service_ip=$(grep -E '^bits' instances | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
 
 curl -vvv -u $CHANGE_IP_USER:$CHANGE_IP_PASSWORD \
     "https://nic.ChangeIP.com/nic/update?hostname=*.cf-deployment.dynamic-dns.net&ip=$router_ip" | \
