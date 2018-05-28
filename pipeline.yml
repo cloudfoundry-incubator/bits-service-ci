@@ -195,6 +195,7 @@ jobs:
   - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
+    attempts: 3
   on_failure: *notify
 
 - name: Publish gem
