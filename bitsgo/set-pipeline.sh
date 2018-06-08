@@ -86,7 +86,8 @@ fly \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' <(../1-click/generate-bosh-lite-in-sl-manifest.sh ${pipeline_name}-bosh-lite) )" \
   -v bosh_lite_name=${pipeline_name}-bosh-lite \
-  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
+  -v sl_vm_domain=flintstone.ams
 
 fly -t flintstone expose-pipeline --pipeline ${pipeline_name}
 
