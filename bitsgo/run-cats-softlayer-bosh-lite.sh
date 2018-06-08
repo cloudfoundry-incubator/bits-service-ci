@@ -61,4 +61,4 @@ env | sort
 echo '################################################################################################################'
 
 bin/test -slowSpecThreshold=120 -randomizeAllSpecs \
-  -nodes="${NODES}" -skipPackage=helpers -keepGoing -noisyPendings=false -noisySkippings=false
+  -nodes="${NODES}" -skipPackage=helpers -keepGoing -noisyPendings=false -noisySkippings=false -flakeAttempts=2
