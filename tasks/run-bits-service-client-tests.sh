@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-cd $(dirname $0)/../../git-bits-service-client
+cd $(dirname $0)/../../bits-service-client
 
 # work around flaky DNS resolution
 for i in $(seq 1 254); do

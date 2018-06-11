@@ -1,5 +1,5 @@
 resources:
-- name: git-bits-service-ci-base
+- name: bits-service-ci-base
   type: git
   source:
     uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
@@ -25,7 +25,7 @@ jobs:
 - name: create-base-image
   plan:
   - aggregate:
-    - { get: git-bits-service-ci-base, trigger: true }
+    - { get: bits-service-ci-base, trigger: true }
     - { get: cf-cli-release, trigger: true }
   - put: flintstone-ci-image
-    params: { build: git-bits-service-ci-base/docker/base }
+    params: { build: bits-service-ci-base/docker/base }

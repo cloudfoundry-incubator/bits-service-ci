@@ -41,7 +41,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-service-tests.yml
@@ -52,7 +52,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
@@ -63,7 +63,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
@@ -78,7 +78,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
@@ -92,7 +92,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
@@ -106,7 +106,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
@@ -120,7 +120,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
@@ -134,7 +134,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
@@ -148,7 +148,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service, passed: [run-unit-and-integration-tests], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: bits-service-release }
   - task: Bump bits-service-release
     file: ci-tasks/tasks/bump-release.yml
@@ -175,7 +175,7 @@ jobs:
         - run-bitsgo-contract-integration-test-google-gcp
         - run-bitsgo-contract-integration-test-google-s3
       trigger: true
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: bits-service-release-bitsgo }
   - task: Bump bits-service-release-bitsgo
     file: ci-tasks/tasks/bump-release.yml
@@ -191,8 +191,8 @@ jobs:
 - name: run-bits-service-client-tests
   serial: true
   plan:
-  - { get: git-bits-service-client, trigger: true }
-  - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - { get: bits-service-client, trigger: true }
+  - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
     attempts: 3
@@ -201,8 +201,8 @@ jobs:
 - name: Publish gem
   serial: true
   plan:
-  - { get: git-bits-service-client, passed: [run-bits-service-client-tests], trigger: true }
-  - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+  - { get: bits-service-client, passed: [run-bits-service-client-tests], trigger: true }
+  - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Publish to rubygems.org
     file: ci-tasks/tasks/publish-gem.yml
     params:
@@ -216,7 +216,7 @@ jobs:
   - aggregate:
     - { get: bits-service-release-version, params: { pre: dev } }
     - { get: bits-service-release, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
   - put: bits-service-release-version
     params: { file: bits-service-release-version/version }
   - task: Create release
@@ -237,7 +237,7 @@ jobs:
   - aggregate:
     - { get: bits-service-release-bitsgo-version, params: { pre: dev } }
     - { get: bits-service-release-bitsgo, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
   - put: bits-service-release-bitsgo-version
     params: { file: bits-service-release-bitsgo-version/version }
   - task: Create release
@@ -265,7 +265,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
     - { get: bits-service-s3-sl-deployment-events, trigger: true }
@@ -309,7 +309,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-S3], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-S3] }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-with-S3] }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: git-deployment-vars }
     - { get: bits-service-s3-sl-deployment-events, passed: [deploy-with-S3], trigger: true }
   - task: Run tests
@@ -333,7 +333,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
     - { get: bits-service-local-sl-deployment-events, trigger: true }
@@ -367,7 +367,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-LOCAL], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-LOCAL] }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-with-LOCAL]}
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: git-deployment-vars }
     - { get: bits-service-local-sl-deployment-events, passed: [deploy-with-LOCAL], trigger: true }
   - task: Run tests
@@ -391,7 +391,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
     - { get: bits-service-webdav-sl-deployment-events, trigger: true }
@@ -425,7 +425,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-WEBDAV], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-WEBDAV] }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-with-WEBDAV] }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: git-deployment-vars }
     - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-with-WEBDAV], trigger: true }
   - task: Run tests
@@ -449,7 +449,7 @@ jobs:
     - { get: bits-service-release-bitsgo-tarball, passed: [create-and-upload-bitsgo-release], trigger: true }
     - { get: bits-service-release-bitsgo-version, passed: [create-and-upload-bitsgo-release] }
     - { get: bits-service-release-bitsgo, passed: [create-and-upload-bitsgo-release], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true}
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true}
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: git-deployment-vars }
     # - { get: bits-service-webdav-sl-deployment-events, trigger: true }
@@ -485,7 +485,7 @@ jobs:
     - { get: bits-service-release-bitsgo-tarball, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
     - { get: bits-service-release-bitsgo-version, passed: [deploy-bitsgo-with-WEBDAV] }
     - { get: bits-service-release-bitsgo, passed: [deploy-bitsgo-with-WEBDAV] }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: git-deployment-vars }
     # - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
   - task: Run tests
@@ -510,7 +510,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: s3-cf-softlayer-deployment-events, trigger: true }
@@ -579,13 +579,13 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: git-capi-release, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
-    - { get: git-bits-service-client, passed: [Publish gem], trigger: true }
+    - { get: capi-release, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
+    - { get: bits-service-client, passed: [Publish gem], trigger: true }
   - task: Create capi-release tarball
     file: ci-tasks/tasks/create-capi-release.yml
     input_mapping:
-      capi-release: git-capi-release
+      capi-release: capi-release
     params:
       VERSION_FILE: capi-release-version/number
   - put: capi-release-tarball
@@ -608,7 +608,7 @@ jobs:
         - run-system-tests-WEBDAV
         - deploy-and-test-with-s3-cf-softlayer
       trigger: true
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: *acceptance-tests-passed, trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: *acceptance-tests-passed }
   - aggregate:
@@ -635,7 +635,7 @@ jobs:
       passed: *acceptance-tests-passed
       params: { bump: minor }
     - get: ci-tasks
-      resource: git-bits-service-ci
+      resource: bits-service-ci
     - get: cf-deployment-develop
   - task: Promote Release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
@@ -691,7 +691,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: cf-diego-aws-deployment-events, params: { bump: major } }
   - task: delete-deployment
     file: ci-tasks/tasks/delete-deployment.yml
@@ -706,7 +706,7 @@ jobs:
   plan:
   - aggregate:
     - { get: daily-morning-timer, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: s3-cf-softlayer-deployment-events, params: { bump: major } }
   - task: delete-deployment
     file: ci-tasks/tasks/delete-deployment.yml
@@ -727,10 +727,10 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
-    - { get: git-cf-acceptance-tests, trigger: true }
+    - { get: cf-acceptance-tests, trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: run-after-midnight, trigger: true }
   - task: Generate CF deployment manifest with bits-service disabled
@@ -781,7 +781,7 @@ jobs:
       file: ci-tasks/tasks/run-cats.yml
       input_mapping:
         deployment-vars: git-deployment-vars
-        acceptance-tests: git-cf-acceptance-tests
+        acceptance-tests: cf-acceptance-tests
       params: &aws-bits-service-disabled-run-cats-params
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
@@ -852,10 +852,10 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
+    - { get: ci-tasks, resource: bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
     - { get: cf-deployment-develop, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-deployment-vars }
-    - { get: git-cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: run-after-midnight, passed: [deploy-and-test-cf-diego-aws], trigger: true }
   - task: Generate CF deployment manifest with bits-service enabled
@@ -887,7 +887,7 @@ jobs:
       file: ci-tasks/tasks/run-cats.yml
       input_mapping:
         deployment-vars: git-deployment-vars
-        acceptance-tests: git-cf-acceptance-tests
+        acceptance-tests: cf-acceptance-tests
       params:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
@@ -949,7 +949,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true}
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))],}
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-smoke-tests, trigger: true }
@@ -1018,7 +1018,7 @@ jobs:
   plan:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
-      - { get: ci-tasks, resource: git-bits-service-ci }
+      - { get: ci-tasks, resource: bits-service-ci }
       - { get: bits-service-local-sl-deployment-events, params: { bump: major } }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
@@ -1033,7 +1033,7 @@ jobs:
   plan:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
-      - { get: ci-tasks, resource: git-bits-service-ci }
+      - { get: ci-tasks, resource: bits-service-ci }
       - { get: bits-service-webdav-sl-deployment-events, params: { bump: major } }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
@@ -1048,7 +1048,7 @@ jobs:
   plan:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
-      - { get: ci-tasks, resource: git-bits-service-ci }
+      - { get: ci-tasks, resource: bits-service-ci }
       - { get: bits-service-s3-sl-deployment-events, params: { bump: major } }
     - task: delete-deployment
       file: ci-tasks/tasks/delete-deployment.yml
@@ -1064,7 +1064,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - get: cf-bosh1-deployment-events
       params: { bump: major }
   - task: delete-deployment
@@ -1080,7 +1080,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bosh1-recreation-events, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: cf-deployment-develop-cloud-config, trigger: true }
   - task: Update cloud-config
     file: ci-tasks/tasks/update-cloud-config.yml
@@ -1101,7 +1101,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: bosh1-recreation-events, passed: [ update-cloud-config-bosh1 ], trigger: true }
     - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh1 ], trigger: true }
@@ -1206,7 +1206,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [migration-bosh1 (S3)], trigger: true}
     - { get: (( grab switch.bits-service-release-version )), passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: cf-deployment-develop, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
@@ -1257,7 +1257,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: cf-bosh2-deployment-events, params: { bump: major} }
   - task: delete-deployment
     file: ci-tasks/tasks/delete-deployment.yml
@@ -1272,7 +1272,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bosh2-recreation-events, trigger: true }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: cf-deployment-develop-cloud-config, trigger: true }
   - task: Update cloud-config
     file: ci-tasks/tasks/update-cloud-config.yml
@@ -1294,7 +1294,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))], }
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-develop, trigger: true }
     - { get: bosh2-recreation-events, passed: [ update-cloud-config-bosh2 ], trigger: true }
     - { get: cf-deployment-develop-cloud-config, passed: [ update-cloud-config-bosh2 ], trigger: true }
@@ -1376,7 +1376,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-tarball )), passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
-    - { get: ci-tasks, resource: git-bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: cf-deployment-develop, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
@@ -1430,7 +1430,7 @@ jobs:
   - aggregate:
     - { get: daily-morning-timer, trigger: true }
     - get: ci-tasks
-      resource: git-bits-service-ci
+      resource: bits-service-ci
     - get: bosh1-recreation-events
       params: { bump: major }
   - task: recreate-bosh-lite
@@ -1452,7 +1452,7 @@ jobs:
   - aggregate:
     - { get: daily-morning-timer, trigger: true }
     - get: ci-tasks
-      resource: git-bits-service-ci
+      resource: bits-service-ci
     - get: bosh2-recreation-events
       params: { bump: major }
   - task: recreate-bosh-lite
@@ -1472,7 +1472,7 @@ jobs:
   serial: true
   plan:
   - get: ci-tasks
-    resource: git-bits-service-ci
+    resource: bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
@@ -1484,7 +1484,7 @@ jobs:
   serial: true
   plan:
   - get: ci-tasks
-    resource: git-bits-service-ci
+    resource: bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
@@ -1496,7 +1496,7 @@ jobs:
   serial: true
   plan:
   - get: ci-tasks
-    resource: git-bits-service-ci
+    resource: bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
@@ -1508,7 +1508,7 @@ jobs:
   serial: true
   plan:
   - get: ci-tasks
-    resource: git-bits-service-ci
+    resource: bits-service-ci
   - get: nightly-timer
     trigger: true
   - task: cleanup-bosh
@@ -1523,7 +1523,7 @@ jobs:
       - get: cf-deployment-develop-upstream
         trigger: true
       - get: ci-tasks
-        resource: git-bits-service-ci
+        resource: bits-service-ci
     - task: sync
       file: ci-tasks/tasks/sync-repo.yml
       input_mapping:
@@ -1540,7 +1540,7 @@ jobs:
       - get: cf-deployment-master-upstream
         trigger: true
       - get: ci-tasks
-        resource: git-bits-service-ci
+        resource: bits-service-ci
     - task: sync
       file: ci-tasks/tasks/sync-repo.yml
       input_mapping:
@@ -1553,18 +1553,18 @@ jobs:
 - name: Sync capi-release fork
   plan:
     - aggregate:
-      - get: git-capi-release
-      - get: git-capi-release-upstream
+      - get: capi-release
+      - get: capi-release-upstream
         trigger: true
       - get: ci-tasks
-        resource: git-bits-service-ci
+        resource: bits-service-ci
     - task: sync
       file: ci-tasks/tasks/sync-repo.yml
       input_mapping:
-        fork-repo: git-capi-release
-        upstream-repo: git-capi-release-upstream
+        fork-repo: capi-release
+        upstream-repo: capi-release-upstream
       params: { BRANCH: master }
-    - put: git-capi-release
+    - put: capi-release
       params: { repository: synced-repo, force: true }
 
 groups:
@@ -1712,7 +1712,7 @@ resources:
     <<: *s3-resource
     regexp: capi-release/capi-(.*).tgz
 
-- name: git-bits-service-ci
+- name: bits-service-ci
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
@@ -1775,7 +1775,7 @@ resources:
     uri: https://github.com/petergtz/bitsgo.git
     private_key: {{github-private-key}}
 
-- name: git-bits-service-client
+- name: bits-service-client
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-client.git
@@ -1805,20 +1805,20 @@ resources:
     release: true
     drafts: true
 
-- name: git-capi-release-upstream
+- name: capi-release-upstream
   type: git
   source:
     uri: https://github.com/cloudfoundry/capi-release.git
     branch: master
 
-- name: git-capi-release
+- name: capi-release
   type: git
   source:
     uri: git@github.com:petergtz/capi-release.git
     branch: master
     private_key: {{github-private-key}}
 
-- name: git-cf-acceptance-tests
+- name: cf-acceptance-tests
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-acceptance-tests.git

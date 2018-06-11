@@ -4,7 +4,7 @@ platform: linux
 image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
 
 inputs:
-  - name: git-bits-service-ci
+  - name: bits-service-ci
   - name: releases
 
 params:
@@ -14,4 +14,4 @@ params:
   RELEASE_FILE:
 
 run:
-  path: git-bits-service-ci/scripts/upload-release.sh
+  path: bits-service-ci/scripts/upload-release.sh

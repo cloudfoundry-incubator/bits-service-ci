@@ -20,7 +20,7 @@ resources:
     private: false
     regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
 
-- name: git-cf-acceptance-tests
+- name: cf-acceptance-tests
   type: git
   source:
     uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
@@ -121,14 +121,14 @@ jobs:
         passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ]
       - { get: state }
       - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-      - { get: git-cf-acceptance-tests, trigger: true }
+      - { get: cf-acceptance-tests, trigger: true }
       - { get: bits-service-release-bitsgo-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
     - task: Run CATs
       file: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.yml
       attempts: 3
       input_mapping:
         deployment-vars: state
-        acceptance-tests: git-cf-acceptance-tests
+        acceptance-tests: cf-acceptance-tests
       params:
         ENVIRONMENT_NAME: ((bosh_lite_name))
         BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))

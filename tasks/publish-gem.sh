@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 latest_rubygems_version=$(gem search bits_service_client --all --pre --no-verbose | sed 's/bits_service_client (\([^,]*\).*/\1/')
-new_version=$(grep VERSION git-bits-service-client/lib/bits_service_client/version.rb | sed 's/.*VERSION = //' | sed "s/'//g")
+new_version=$(grep VERSION bits-service-client/lib/bits_service_client/version.rb | sed 's/.*VERSION = //' | sed "s/'//g")
 if [ "$latest_rubygems_version" == "$new_version" ]; then
   echo "rubygems version ($latest_rubygems_version) is the same as the one in the git repo ($new_version). Exiting."
   exit 0
@@ -30,7 +30,7 @@ gem_credentials_path=~/.gem/credentials
 echo "$RUBYGEMS_API_KEY" > $gem_credentials_path
 chmod 0600 $gem_credentials_path
 
-cd git-bits-service-client
+cd bits-service-client
 bundle config --global silence_root_warning 1
 bundle install
 
