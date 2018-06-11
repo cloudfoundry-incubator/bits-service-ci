@@ -1487,15 +1487,11 @@ groups:
   - Sync cf-deployment fork (master)
   - Sync capi-release fork
   - deploy-and-test-cf-blobstore-local
-  - run-system-tests-bitsgo-WEBDAV
-  - deploy-bitsgo-with-WEBDAV
 - name: bitsgo
   jobs:
   - run-bitsgo-unit-tests
-  - deploy-bitsgo-with-WEBDAV
   - create-and-upload-bitsgo-release
   - bump-bits-service-release-bitsgo
-  - run-system-tests-bitsgo-WEBDAV
   - run-bitsgo-contract-integration-test-openstack
   - run-bitsgo-contract-integration-test-cos
   - run-bitsgo-contract-integration-test-s3
@@ -1746,12 +1742,6 @@ resources:
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-webdav
-
-- name: bosh-deployment-bitsgo-webdav
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
-    deployment: bitsgo-webdav
 
 - name: bosh-deployment-bits-service-s3
   type: bosh2-deployment
