@@ -101,22 +101,6 @@ jobs:
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
 
-- name: Show CF login summary for ((bosh_lite_name))
-  plan:
-  - aggregate:
-    - { get: 1-click }
-    - get: state
-    - get: ((bosh_lite_name))-cf-deployment-events
-      passed: [ deploy-cf-in-((bosh_lite_name)) ]
-      trigger: true
-    - get: ((bosh_lite_name))-ready-for-deployment-events
-      trigger: true
-      passed: [ deploy-cf-in-((bosh_lite_name)) ]
-  - task: Show Summary
-    file: 1-click/tasks/show-cf-summary.yml
-    params:
-      BOSH_LITE_NAME: ((bosh_lite_name))
-
 - name: run-CATs-in-((bosh_lite_name))
   serial: true
   serial_groups: [ ((bosh_lite_name)) ]

@@ -16,4 +16,3 @@ groups:
       - recreate-((bosh_lite_name))
       - clean-up-((bosh_lite_name))
       - delete-((bosh_lite_name))
-      - Show CF login summary for ((bosh_lite_name))
