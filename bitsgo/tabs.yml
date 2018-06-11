@@ -1,0 +1,19 @@
+groups:
+  - (( defer merge ))
+  - name: infrastructure
+    jobs:
+      - (( defer append ))
+      - delete-((bosh_lite_name))-cf-deployment
+      - Show BOSH summary for ((bosh_lite_name))
+      - update-cloud-config-((bosh_lite_name))
+      - cancel-cf-deployment-task-in-((bosh_lite_name))
+      - recreate-((bosh_lite_name))
+      - clean-up-((bosh_lite_name))
+      - delete-((bosh_lite_name))
+  - name: all
+    jobs:
+      - (( defer append ))
+      - Show CF login summary for ((bosh_lite_name))
+      - run-CATs-in-((bosh_lite_name))
+      - deploy-cf-in-((bosh_lite_name))
+      - run-cf-smoke-tests-in-((bosh_lite_name))

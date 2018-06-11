@@ -26,7 +26,7 @@ fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c <(spruce --concourse merge pipeline.yml $switch) \
+  -c <(spruce --concourse merge pipeline.yml $switch <(bitsgo/set-pipeline.sh aws-s3 -)) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
   -v github-private-key="${github_ssh_key}" \
