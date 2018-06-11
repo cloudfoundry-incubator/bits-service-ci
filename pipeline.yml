@@ -37,16 +37,6 @@ notify: &notify
 
 jobs:
 # BITS-SERVICE
-- name: run-unit-and-integration-tests
-  plan:
-  - aggregate:
-    - { get: bits-service, trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-  - task: Run tests
-    attempts: 3
-    file: ci-tasks/tasks/run-service-tests.yml
-  on_failure: *notify
-
 - name: run-bitsgo-unit-tests
   serial: true
   plan:
@@ -57,7 +47,6 @@ jobs:
     attempts: 3
     file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
   on_failure: *notify
-
 - name: run-bitsgo-contract-integration-test-openstack
   serial: true
   plan:
@@ -143,24 +132,6 @@ jobs:
       INTEGRATION_TEST_SETUP: ((google_s3_integration_test_config))
   on_failure: *notify
 
-- name: bump-bits-service-release
-  serial: true
-  plan:
-  - aggregate:
-    - { get: bits-service, passed: [run-unit-and-integration-tests], trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: bits-service-release }
-  - task: Bump bits-service-release
-    file: ci-tasks/tasks/bump-release.yml
-    input_mapping:
-      git-repo: bits-service-release
-      git-sub-repo: bits-service
-    params:
-      SUB_MODULE_PATH: src/bits-service
-  - put: bits-service-release
-    params: {repository: bumped/git-repo}
-  on_failure: *notify
-
 - name: bump-bits-service-release-bitsgo
   serial: true
   plan:
@@ -208,27 +179,6 @@ jobs:
     params:
       GIT_PRIVATE_KEY: {{github-private-key}}
       RUBYGEMS_API_KEY: {{rubygems-api-key}}
-  on_failure: *notify
-
-- name: create-and-upload-release
-  serial: true
-  plan:
-  - aggregate:
-    - { get: bits-service-release-version, params: { pre: dev } }
-    - { get: bits-service-release, trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci }
-  - put: bits-service-release-version
-    params: { file: bits-service-release-version/version }
-  - task: Create release
-    file: ci-tasks/tasks/create-bits-release.yml
-    params: { VERSION_FILE: bits-service-release-version/version }
-  - put: bits-service-release-tarball
-    params: { file: releases/*.tgz }
-  - put: bits-service-release
-    params:
-      repository: bits-service-release
-      tag: bits-service-release-version/version
-      only_tag: true
   on_failure: *notify
 
 - name: create-and-upload-bitsgo-release
@@ -438,66 +388,6 @@ jobs:
       <<: *sl-bosh-params
       BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
       DEPLOYMENT_NAME: bits-service-webdav
-  on_failure: *notify
-
-- name: deploy-bitsgo-with-WEBDAV
-  serial: true
-  serial_groups: [bitsgo-deployment-webdav]
-  plan:
-  - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-bitsgo-tarball, passed: [create-and-upload-bitsgo-release], trigger: true }
-    - { get: bits-service-release-bitsgo-version, passed: [create-and-upload-bitsgo-release] }
-    - { get: bits-service-release-bitsgo, passed: [create-and-upload-bitsgo-release], trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true}
-    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
-    - { get: git-deployment-vars }
-    # - { get: bits-service-webdav-sl-deployment-events, trigger: true }
-  - task: Create deployment manifest
-    file: ci-tasks/tasks/create-bits-manifest.yml
-    input_mapping:
-      bits-service-deployment-manifest-generation-tools: bits-service-release-bitsgo
-      bits-service-private-config: git-deployment-vars
-    params:
-      <<: *sl-bosh-params
-      BLOBSTORE_TYPE: webdav
-      BITS_SERVICE_JOB_IP: &bitsgo_job_ip_webdav 10.175.96.248
-      BLOBSTORE_JOB_IP: 10.175.96.249
-      DEPLOYMENT_NAME: bitsgo-webdav
-      ADDITIONAL_ARGS: ../ci-tasks/operations/override-deployment-name.yml ../ci-tasks/operations/bitsgo-webdav-certs.yml
-  - aggregate:
-    - put: git-deployment-vars
-      params:
-        rebase: true
-        repository: updated/bits-service-private-config
-    - put: bosh-deployment-bitsgo-webdav
-      attempts: 3
-      params:
-        <<: *sl-bits-service-deployment-params
-        releases: ["capi-release-tarball/*.tgz", "bits-service-release-bitsgo-tarball/*.tgz"]
-  on_failure: *notify
-
-- name: run-system-tests-bitsgo-WEBDAV
-  serial: true
-  serial_groups: [bitsgo-deployment-webdav]
-  plan:
-  - aggregate:
-    - { get: bits-service-release-bitsgo-tarball, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
-    - { get: bits-service-release-bitsgo-version, passed: [deploy-bitsgo-with-WEBDAV] }
-    - { get: bits-service-release-bitsgo, passed: [deploy-bitsgo-with-WEBDAV] }
-    - { get: ci-tasks, resource: bits-service-ci }
-    - { get: git-deployment-vars }
-    # - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-bitsgo-with-WEBDAV], trigger: true }
-  - task: Run tests
-    attempts: 3
-    file: ci-tasks/tasks/run-release-tests.yml
-    input_mapping:
-      bits-service-system-test-source: bits-service-release-bitsgo
-      deployment-vars: git-deployment-vars
-    params:
-      <<: *sl-bosh-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bitsgo_job_ip_webdav
-      DEPLOYMENT_NAME: bitsgo-webdav
   on_failure: *notify
 
 - name: deploy-and-test-with-s3-cf-softlayer
@@ -1570,11 +1460,9 @@ jobs:
 groups:
 - name: all
   jobs:
-  - run-unit-and-integration-tests
   - run-bits-service-client-tests
   - run-bitsgo-unit-tests
   - Publish gem
-  - create-and-upload-release
   - create-and-upload-bitsgo-release
   - deploy-with-S3
   - deploy-with-LOCAL
@@ -1590,7 +1478,6 @@ groups:
   - migration-bosh2 (webdav)
   - migration-backwards-bosh1
   - migration-backwards-bosh2
-  - bump-bits-service-release
   - bump-bits-service-release-bitsgo
   - Publish Dev Release
   - Publish Final Release
@@ -1617,8 +1504,7 @@ groups:
   - run-bitsgo-contract-integration-test-google-s3
 - name: bits-service
   jobs:
-  - run-unit-and-integration-tests
-  - create-and-upload-release
+  - create-and-upload-bitsgo-release
   - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
@@ -1626,7 +1512,6 @@ groups:
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
-  - bump-bits-service-release
 - name: bits-service-client
   jobs:
   - run-bits-service-client-tests
@@ -1634,7 +1519,6 @@ groups:
 - name: capi-release
   jobs:
   - create-capi-release
-  - create-and-upload-release
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
   - Publish Dev Release
@@ -1690,21 +1574,15 @@ resources:
   type: bosh-io-stemcell
   source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent }
 
-- name: bits-service-release-tarball
+- name: bits-service-release-bitsgo-tarball
   type: s3
   source: &s3-resource
     access_key_id: {{s3-blobstore-access-key-id}}
     secret_access_key: {{s3-blobstore-secret-access-key}}
     bucket: ci-bits-service-artifacts
     region_name: eu-west-1
-    regexp: bits-service-release/bits-service-(.*).tgz
-    private: false
-
-- name: bits-service-release-bitsgo-tarball
-  type: s3
-  source:
-    <<: *s3-resource
     regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
+    private: false
 
 - name: capi-release-tarball
   type: s3
@@ -1762,13 +1640,6 @@ resources:
     private_key: {{github-private-key}}
     disable_ci_skip: true
 
-- name: bits-service
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry-incubator/bits-service.git
-    branch: master
-    path: ["lib/*", "spec/*", "vendor/*", "app.rb", "config.rb", "Gemfile.lock"]
-
 - name: bitsgo
   type: git
   source:
@@ -1780,13 +1651,6 @@ resources:
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-client.git
     branch: master
-    private_key: {{github-private-key}}
-
-- name: bits-service-release
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
-    branch: ruby
     private_key: {{github-private-key}}
 
 - name: bits-service-release-bitsgo
@@ -1910,16 +1774,6 @@ resources:
     file: version/capi-release/version
     private_key: {{github-private-key}}
     initial_version: 1.41.0-dev.1
-
-- name: bits-service-release-version
-  type: semver
-  source:
-    driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: metadata
-    file: version/bits-service-release/version
-    private_key: {{github-private-key}}
-    initial_version: 0.0.0-dev.2
 
 - name: bits-service-release-bitsgo-version
   type: semver
