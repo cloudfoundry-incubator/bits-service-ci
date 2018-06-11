@@ -74,7 +74,7 @@ eval "echo \"$(cat $1.yml)\"" > extra_args.yml
 
 if [ "$2" == "-" ]; then
 bosh interpolate \
-  <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml tabs.yml extra_args.yml) \
+  <(spruce --concourse merge --go-patch ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml tabs.yml extra_args.yml) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -v bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username) \
   -v bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password) \
