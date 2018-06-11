@@ -13,8 +13,8 @@ resources:
 - name: bits-service-release-bitsgo-tarball
   type: s3
   source:
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
+    access_key_id: ((s3-blobstore-access-key-id))
+    secret_access_key: ((s3-blobstore-secret-access-key))
     bucket: ci-bits-service-artifacts
     region_name: eu-west-1
     private: false
@@ -31,7 +31,7 @@ resources:
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*"]
 
 jobs:
@@ -131,7 +131,7 @@ jobs:
         acceptance-tests: git-cf-acceptance-tests
       params:
         ENVIRONMENT_NAME: ((bosh_lite_name))
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
+        BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))
+        BLUEMIX_PASSWORD: ((bluemix_cloudfoundry_password))
+        METRICS_API_KEY:  ((ibm_metrics_api_key))
         BITS_SERVICE_ENABLEMENT: ((bosh_lite_name))
