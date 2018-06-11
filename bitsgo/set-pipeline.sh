@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 cd $(dirname $0)
-../fly-login.sh flintstone
 
 if [ -z $1 ]; then
   cat << EOF
@@ -72,6 +71,9 @@ elif [ "$1" == "google-s3" ]; then
 fi
 
 eval "echo \"$(cat $1.yml)\"" > extra_args.yml
+
+
+../fly-login.sh flintstone
 
 # Hack: using sed to work around Concourse limitation. See bosh-create-env.sh for more details.
 fly \
