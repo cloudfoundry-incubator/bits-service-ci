@@ -1495,27 +1495,17 @@ groups:
   - Sync cf-deployment fork (master)
   - Sync capi-release fork
   - deploy-and-test-cf-blobstore-local
-- name: bitsgo
+- name: release
   jobs:
-  - run-bitsgo-unit-tests
-  - create-and-upload-bitsgo-release
   - bump-bits-service-release-bitsgo
-  - run-bitsgo-contract-integration-test-openstack
-  - run-bitsgo-contract-integration-test-cos
-  - run-bitsgo-contract-integration-test-s3
+  - create-and-upload-bitsgo-release
   - run-bitsgo-contract-integration-test-azure
+  - run-bitsgo-contract-integration-test-cos
   - run-bitsgo-contract-integration-test-google-gcp
   - run-bitsgo-contract-integration-test-google-s3
-- name: bits-service
-  jobs:
-  - create-and-upload-bitsgo-release
-  - deploy-with-S3
-  - deploy-with-LOCAL
-  - deploy-with-WEBDAV
-  - deploy-and-test-with-s3-cf-softlayer
-  - run-system-tests-S3
-  - run-system-tests-LOCAL
-  - run-system-tests-WEBDAV
+  - run-bitsgo-contract-integration-test-openstack
+  - run-bitsgo-contract-integration-test-s3
+  - run-bitsgo-unit-tests
 - name: bits-service-client
   jobs:
   - run-bits-service-client-tests

@@ -1,6 +1,12 @@
 groups:
   - (( defer merge ))
-  - name: infrastructure
+  - name: bosh-lites
+    jobs:
+      - (( defer append ))
+      - run-CATs-in-((bosh_lite_name))
+      - deploy-cf-in-((bosh_lite_name))
+      - run-cf-smoke-tests-in-((bosh_lite_name))
+  - name: infrastructure-bosh-lites
     jobs:
       - (( defer append ))
       - delete-((bosh_lite_name))-cf-deployment
@@ -11,9 +17,3 @@ groups:
       - clean-up-((bosh_lite_name))
       - delete-((bosh_lite_name))
       - Show CF login summary for ((bosh_lite_name))
-  - name: all
-    jobs:
-      - (( defer append ))
-      - run-CATs-in-((bosh_lite_name))
-      - deploy-cf-in-((bosh_lite_name))
-      - run-cf-smoke-tests-in-((bosh_lite_name))
