@@ -70,11 +70,12 @@ elif [ "$1" == "google-s3" ]; then
   export app_package_directory_key=pego-test
 fi
 
-eval "echo \"$(cat $1.yml)\"" > extra_args.yml
+extra_args_file=$(mktemp)
+eval "echo \"$(cat $1.yml)\"" > $extra_args_file
 
 if [ "$2" == "-" ]; then
 bosh interpolate \
-  <(spruce --concourse merge --go-patch ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml tabs.yml extra_args.yml) \
+  <(spruce merge --go-patch ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml tabs.yml $extra_args_file) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -v bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username) \
   -v bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password) \
@@ -85,7 +86,7 @@ bosh interpolate \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
   -v sl_vm_domain=flintstone.ams
 
-  rm -f extra_args.yml
+  rm -f $extra_args_file
   exit 0
 fi
 
@@ -96,7 +97,7 @@ fly \
   -t flintstone \
   set-pipeline \
   -p ${pipeline_name} \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml extra_args.yml) \
+  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml $extra_args_file) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -v bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username) \
   -v bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password) \
@@ -109,4 +110,4 @@ fly \
 
 fly -t flintstone expose-pipeline --pipeline ${pipeline_name}
 
-rm -f extra_args.yml
+rm -f $extra_args_file
