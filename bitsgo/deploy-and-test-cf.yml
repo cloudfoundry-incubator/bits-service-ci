@@ -37,9 +37,10 @@ resources:
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
   serial: true
-  serial_groups: [ bosh-lite ]
+  serial_groups: [ ((bosh_lite_name)) ]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - get: 1-click
     - get: ((bosh_lite_name))-cf-deployment-events
       trigger: true
@@ -49,7 +50,9 @@ jobs:
     - get: state
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment, resource: cf-deployment-bitsgo, trigger: true }
-    - { get: bits-service-release-bitsgo-tarball, trigger: true }
+    - { get: bits-service-release-bitsgo-tarball, passed: [ create-and-upload-bitsgo-release ], trigger: true }
+    - { get: bits-service-release-bitsgo-version, passed: [ create-and-upload-bitsgo-release ] }
+    - { get: bits-service-release-bitsgo, passed: [ create-and-upload-bitsgo-release ] }
   - task: detect-stemcell
     file: 1-click/tasks/detect-stemcell.yml
   - task: bosh upload-release bits-service
@@ -77,9 +80,10 @@ jobs:
 
 - name:  run-cf-smoke-tests-in-((bosh_lite_name))
   serial: true
-  serial_groups: [ bosh-lite ]
+  serial_groups: [ ((bosh_lite_name)) ]
   plan:
   - aggregate:
+    - { get: capi-release-tarball, passed: [deploy-cf-in-((bosh_lite_name))], trigger: true }
     - get: 1-click
     - get: ((bosh_lite_name))-cf-deployment-events
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
@@ -89,7 +93,9 @@ jobs:
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
     - get: state
     - get: cf-smoke-tests
-    - { get: bits-service-release-bitsgo-tarball, passed: [deploy-cf-in-((bosh_lite_name))], trigger: true }
+    - { get: bits-service-release-bitsgo-tarball, passed: [ deploy-cf-in-((bosh_lite_name)) ], trigger: true }
+    - { get: bits-service-release-bitsgo-version, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
+    - { get: bits-service-release-bitsgo, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
   - task: Run smoke-tests
     file: 1-click/tasks/run-smoke-tests.yml
     params:
@@ -113,9 +119,10 @@ jobs:
 
 - name: run-CATs-in-((bosh_lite_name))
   serial: true
-  serial_groups: [ bosh-lite ]
+  serial_groups: [ ((bosh_lite_name)) ]
   plan:
     - aggregate:
+      - { get: capi-release-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
       - get: ((bosh_lite_name))-ready-for-deployment-events
         trigger: true
         passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ]
@@ -123,6 +130,8 @@ jobs:
       - { get: ci-tasks, resource: bits-service-ci, trigger: true }
       - { get: cf-acceptance-tests, trigger: true }
       - { get: bits-service-release-bitsgo-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
+      - { get: bits-service-release-bitsgo-version, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ] }
+      - { get: bits-service-release-bitsgo, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ] }
     - task: Run CATs
       file: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.yml
       attempts: 3

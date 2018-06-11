@@ -26,7 +26,16 @@ fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c <(spruce --concourse merge pipeline.yml $switch) \
+  -c <(spruce --concourse merge pipeline.yml $switch \
+    <(bitsgo/set-pipeline.sh aws-s3 -) \
+    <(bitsgo/set-pipeline.sh cos-s3 -) \
+    <(bitsgo/set-pipeline.sh azure -) \
+    <(bitsgo/set-pipeline.sh google-s3 -) \
+    <(bitsgo/set-pipeline.sh google-service-account -) \
+    <(bitsgo/set-pipeline.sh local -) \
+    <(bitsgo/set-pipeline.sh openstack -) \
+    <(bitsgo/set-pipeline.sh webdav -) \
+    ) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
   -v github-private-key="${github_ssh_key}" \

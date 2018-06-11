@@ -497,6 +497,14 @@ jobs:
         - run-system-tests-LOCAL
         - run-system-tests-WEBDAV
         - deploy-and-test-with-s3-cf-softlayer
+        - run-CATs-in-bitsgo-aws-s3-bosh-lite
+        - run-CATs-in-bitsgo-cos-s3-bosh-lite
+        - run-CATs-in-bitsgo-azure-bosh-lite
+        - run-CATs-in-bitsgo-google-s3-bosh-lite
+        - run-CATs-in-bitsgo-google-service-account-bosh-lite
+        - run-CATs-in-bitsgo-local-bosh-lite
+        - run-CATs-in-bitsgo-openstack-bosh-lite
+        - run-CATs-in-bitsgo-webdav-bosh-lite
       trigger: true
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: *acceptance-tests-passed, trigger: true }
