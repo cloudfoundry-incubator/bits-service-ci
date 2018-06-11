@@ -2,7 +2,7 @@ resources:
 - name: bits-service-release-bitsgo
   type: git
   source:
-    uri: git@github.com:petergtz/bits-service-release.git
+    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
     branch: master
     private_key: {{github-private-key}}
 

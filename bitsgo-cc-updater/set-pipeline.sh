@@ -17,7 +17,8 @@ fly \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
   -v bosh-manifest="$(sed -e 's/((/_(_(/g' /tmp/bosh-lite-in-sl.yml )" \
   -v bosh_lite_name='cc-updater-bosh-lite' \
-  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
+  -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
+  -v sl_vm_domain='flintstone.ams'
 
 rm -f /tmp/bosh-lite-in-sl.yml
 
