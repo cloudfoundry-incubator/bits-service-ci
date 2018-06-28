@@ -2,7 +2,6 @@
 
 mkdir -p "deployment-vars/environments/${ENVIRONMENT_NAME}"
 deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml)
-director_uuid=$(bosh -t "${BOSH_TARGET}" status --uuid)
 
 if [ "$CF_DOMAIN" == "" ]; then
   CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).xip.io
@@ -39,8 +38,6 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   -v deployment_name="${DEPLOYMENT_NAME}" \
   ${iaas} \
   -v system_domain="${CF_DOMAIN}" \
-  -o ci-tasks/operations/director-uuid.yml \
-  -v director_uuid="${director_uuid}" \
   -o ci-tasks/operations/stemcell-version.yml \
   -v stemcell_version="latest" \
   -o ci-tasks/operations/global-env-property.yml \

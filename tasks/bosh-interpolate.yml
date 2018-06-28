@@ -13,7 +13,6 @@ outputs:
 - name: updated
 
 params:
-  BOSH_TARGET:
   DEPLOYMENT_NAME:
   ENVIRONMENT_NAME:
   IAAS:
