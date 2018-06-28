@@ -9,7 +9,7 @@ else
 fi
 
 if [ "$CF_DOMAIN" == "" ]; then
-  CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).xip.io
+  CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).nip.io
 fi
 
 # TODO: (ae, pego) Get rid of '-o'??
