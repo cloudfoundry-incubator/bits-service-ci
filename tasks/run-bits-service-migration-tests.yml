@@ -9,16 +9,13 @@ inputs:
 - name: deployment-vars
 
 params:
-  SSH_CONNECTION_STRING: unconfigured
-  SSH_KEY: unconfigured
-  REMOTE_HOST: unconfigured
   CF_DOMAIN: unconfigured
   test_suite: unconfigured
-  DEPLOYMENT_VARS_FILE: unconfigured
+  ENVIRONMENT_NAME: unconfigured
   BSMT_PERSISTENT_ORG: unconfigured
   BSMT_PERSISTENT_SPACE: unconfigured
-  noColorFlag: 
-  verbose: 
+  noColorFlag:
+  verbose:
   DEBUG:
 
 run:
