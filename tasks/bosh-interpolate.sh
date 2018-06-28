@@ -1,7 +1,12 @@
 #!/bin/bash -ex
 
-mkdir -p "deployment-vars/environments/${ENVIRONMENT_NAME}"
-deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml)
+if [[ "${ENVIRONMENT_NAME}" == 'aws' ]] ||
+   [[ "${ENVIRONMENT_NAME}" == 'blobstore-local' ]] ||
+   [[ "${ENVIRONMENT_NAME}" == 'softlayer' ]]; then
+  deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml)
+else
+  deployment_vars=$(readlink -f deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml)
+fi
 
 if [ "$CF_DOMAIN" == "" ]; then
   CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).xip.io
