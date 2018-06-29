@@ -39,7 +39,7 @@ jobs:
     - { get: bitsgo, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
   on_failure: *notify
 - name: run-bitsgo-contract-integration-test-openstack
@@ -49,7 +49,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: openstack
@@ -64,7 +64,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: S3
@@ -78,7 +78,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: S3
@@ -92,7 +92,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: AZURE
@@ -106,7 +106,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: GCP
@@ -120,7 +120,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: S3
@@ -161,7 +161,7 @@ jobs:
   - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
-    attempts: 3
+    #attempts: 3
   on_failure: *notify
 
 - name: Publish gem
@@ -235,7 +235,7 @@ jobs:
         rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-s3
-      attempts: 3
+      #attempts: 3
       params: &sl-bits-service-deployment-params
         manifest: manifests/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
@@ -258,7 +258,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-s3-sl-deployment-events, passed: [deploy-with-S3], trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
@@ -299,7 +299,7 @@ jobs:
         rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-local
-      attempts: 3
+      #attempts: 3
       params: *sl-bits-service-deployment-params
   on_failure: *notify
 
@@ -316,7 +316,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-local-sl-deployment-events, passed: [deploy-with-LOCAL], trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
@@ -357,7 +357,7 @@ jobs:
         rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-webdav
-      attempts: 3
+      #attempts: 3
       params: *sl-bits-service-deployment-params
   on_failure: *notify
 
@@ -374,7 +374,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-with-WEBDAV], trigger: true }
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
@@ -430,7 +430,7 @@ jobs:
         rebase: true
         repository: updated/deployment-vars
     - put: softlayer-cf-deployment
-      attempts: 2
+      #attempts: 2
       params:
         manifest: cf-with-bits-service-enabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
@@ -447,7 +447,7 @@ jobs:
       CHANGE_IP_USER: {{changeip-username}}
       CHANGE_IP_PASSWORD: {{changeip-password}}
   - task: Run tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
@@ -661,7 +661,7 @@ jobs:
         rebase: true
         repository: updated/deployment-vars
     - put: aws-diego-deployment
-      attempts: 2
+      #attempts: 2
       params: &params-aws-deployment-bits-service-disabled
         manifest: cf-with-bits-service-disabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
@@ -669,8 +669,8 @@ jobs:
           - "capi-release-tarball/*.tgz"
           - (( concat switch.bits-service-release-tarball "/*.tgz" ))
         no_redact: true
-  - attempts: 3
-    aggregate:
+  # - attempts: 3
+  - aggregate:
     - &aws-bits-service-disabled-run-cats
       task: Run CATs
       file: ci-tasks/tasks/run-cats.yml
@@ -716,8 +716,8 @@ jobs:
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
-  - attempts: 3
-    aggregate:
+  # - attempts: 3
+  - aggregate:
     - *aws-bits-service-disabled-run-cats
     - do:
       - task: Run performance tests (v3-push)
@@ -772,12 +772,12 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - put: aws-diego-deployment
-    attempts: 2
+    #attempts: 2
     params: &params-aws-deployment-bits-service-enabled
       <<: *params-aws-deployment-bits-service-disabled
       manifest: cf-with-bits-service-enabled/manifest.yml
-  - attempts: 3
-    aggregate:
+  # - attempts: 3
+  - aggregate:
     - &aws-bits-service-enabled-run-cats
       task: Run CATs
       file: ci-tasks/tasks/run-cats.yml
@@ -815,8 +815,8 @@ jobs:
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
-  - attempts: 3
-    aggregate:
+  # - attempts: 3
+  - aggregate:
     - *aws-bits-service-enabled-run-cats
     - do:
       - task: Run performance tests (v3-push)
@@ -881,7 +881,7 @@ jobs:
         output_mapping: { merged: releases }
       - task: make blobstore-local-cf-deployment
         file: ci-tasks/tasks/bosh-deploy.yml
-        attempts: 2
+        #attempts: 2
         input_mapping:
           stemcells: stemcell
           vars-store: git-deployment-vars
@@ -890,7 +890,7 @@ jobs:
           DEPLOYMENT_NAME: cf
           VARS_STORE_FILE: environments/softlayer/director/blobstore-local-bosh-lite/vars.yml
   - task: Run Smoke Tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-smoke-tests.yml
     input_mapping:
       deployment-vars: git-deployment-vars
@@ -1007,7 +1007,7 @@ jobs:
   - &make-migration-s3-deployment
     task:  Make deployment
     file: ci-tasks/tasks/bosh-deploy.yml
-    attempts: 2
+    #attempts: 2
     input_mapping:
       stemcells: stemcell
       vars-store: git-deployment-vars
@@ -1016,7 +1016,7 @@ jobs:
       DEPLOYMENT_NAME: cf
       VARS_STORE_FILE: environments/softlayer/director/migration-s3-bosh-lite/vars.yml
   - task: Run migration preparation tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: &migration-tests-input-mappings
       bits-service-release: (( grab switch.bits-service-release ))
@@ -1045,7 +1045,7 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - task: Run migration verification tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: *migration-tests-input-mappings
     params: &boshlite1-bsmt-verification-params
@@ -1078,7 +1078,7 @@ jobs:
       repository: updated/deployment-vars
   - *make-migration-s3-deployment
   - task: Run migration preparation tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: *migration-tests-input-mappings
     params: *boshlite1-bsmt-preparation-params
@@ -1094,7 +1094,7 @@ jobs:
       repository: updated/deployment-vars
   - *make-migration-s3-deployment
   - task: Run migration verification tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: *migration-tests-input-mappings
     params: *boshlite1-bsmt-verification-params
@@ -1139,7 +1139,7 @@ jobs:
   - &make-migration-webdav-deployment
     task:  Make deployment
     file: ci-tasks/tasks/bosh-deploy.yml
-    attempts: 2
+    #attempts: 2
     input_mapping:
       stemcells: stemcell
       vars-store: git-deployment-vars
@@ -1148,7 +1148,7 @@ jobs:
       DEPLOYMENT_NAME: cf
       VARS_STORE_FILE: environments/softlayer/director/migration-webdav-bosh-lite/vars.yml
   - task: Run migration preparation tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: *migration-tests-input-mappings
     params: &boshlite2-bsmt-preparation-params
@@ -1171,7 +1171,7 @@ jobs:
       repository: updated/deployment-vars
   - *make-migration-webdav-deployment
   - task: Run migration verification tests
-    attempts: 3
+    #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     input_mapping: *migration-tests-input-mappings
     params: &boshlite2-bsmt-verification-params
@@ -1205,7 +1205,7 @@ jobs:
   - *make-migration-webdav-deployment
   - task: Run migration preparation tests
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
-    attempts: 3
+    #attempts: 3
     input_mapping: *migration-tests-input-mappings
     params: *boshlite2-bsmt-preparation-params
   - task: Generate CF deployment manifest with bits-service disabled
@@ -1221,7 +1221,7 @@ jobs:
   - *make-migration-webdav-deployment
   - task: Run migration verification tests
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
-    attempts: 3
+    #attempts: 3
     input_mapping: *migration-tests-input-mappings
     params: *boshlite2-bsmt-verification-params
   on_failure: *notify
