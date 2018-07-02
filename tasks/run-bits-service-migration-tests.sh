@@ -10,7 +10,7 @@ export GOPATH=$PWD/bits-service-release
 export PATH=${GOPATH}/bin:${PATH}
 
 cf_admin_password=$( \
-  bosh2 int deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}/cf-deployment/vars.yml \
+  bosh2 int deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml \
   --path /cf_admin_password
 )
 CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).nip.io
