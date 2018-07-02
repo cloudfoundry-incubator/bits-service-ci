@@ -5,7 +5,7 @@ if [[ "${ENVIRONMENT_NAME}" == 'aws' ]] ||
    [[ "${ENVIRONMENT_NAME}" == 'softlayer' ]]; then
   deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml)
 else
-  deployment_vars=$(readlink -f deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml)
+  deployment_vars="deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml"
 fi
 
 if [ "$CF_DOMAIN" == "" ]; then
