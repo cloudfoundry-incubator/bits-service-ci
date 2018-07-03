@@ -1072,6 +1072,7 @@ jobs:
       cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     params: *bosh-interpolate-boshlite1-bits-service-enabled
+  - *merge-release-tarballs
   - put: git-deployment-vars
     params:
       rebase: true
@@ -1198,6 +1199,7 @@ jobs:
       cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     params: *bosh-interpolate-boshlite2-bits-service-enabled
+  - *merge-release-tarballs
   - put: git-deployment-vars
     params:
       rebase: true
