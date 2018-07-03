@@ -39,7 +39,7 @@ jobs:
     - { get: bitsgo, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
   on_failure: *notify
 - name: run-bitsgo-contract-integration-test-openstack
@@ -49,7 +49,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: openstack
@@ -64,7 +64,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: S3
@@ -78,7 +78,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: S3
@@ -92,7 +92,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: AZURE
@@ -106,7 +106,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: GCP
@@ -120,7 +120,7 @@ jobs:
     - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
     params:
       BLOBSTORE_TYPE: S3
@@ -161,7 +161,7 @@ jobs:
   - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     file: ci-tasks/tasks/run-bits-service-client-tests.yml
-    #attempts: 3
+    attempts: 3
   on_failure: *notify
 
 - name: Publish gem
@@ -430,7 +430,7 @@ jobs:
         rebase: true
         repository: updated/deployment-vars
     - put: softlayer-cf-deployment
-      #attempts: 2
+      attempts: 2
       params:
         manifest: cf-with-bits-service-enabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
@@ -661,7 +661,7 @@ jobs:
         rebase: true
         repository: updated/deployment-vars
     - put: aws-diego-deployment
-      #attempts: 2
+      attempts: 2
       params: &params-aws-deployment-bits-service-disabled
         manifest: cf-with-bits-service-disabled/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
@@ -772,7 +772,7 @@ jobs:
       rebase: true
       repository: updated/deployment-vars
   - put: aws-diego-deployment
-    #attempts: 2
+    attempts: 2
     params: &params-aws-deployment-bits-service-enabled
       <<: *params-aws-deployment-bits-service-disabled
       manifest: cf-with-bits-service-enabled/manifest.yml
@@ -890,7 +890,7 @@ jobs:
           DEPLOYMENT_NAME: cf
           VARS_STORE_FILE: environments/softlayer/director/blobstore-local-bosh-lite/vars.yml
   - task: Run Smoke Tests
-    #attempts: 3
+    # attempts: 3
     file: ci-tasks/tasks/run-smoke-tests.yml
     input_mapping:
       deployment-vars: git-deployment-vars
@@ -1007,7 +1007,7 @@ jobs:
   - &make-migration-s3-deployment
     task:  Make deployment
     file: ci-tasks/tasks/bosh-deploy.yml
-    #attempts: 2
+    # attempts: 2
     input_mapping:
       stemcells: stemcell
       vars-store: git-deployment-vars
