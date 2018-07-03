@@ -1023,7 +1023,7 @@ jobs:
       deployment-vars: git-deployment-vars
     params: &boshlite1-bsmt-preparation-params
       test_suite: preparation
-      ENVIRONMENT_NAME: migration-s3-bosh-lite
+      ENVIRONMENT_NAME: migration-s3
       BSMT_PERSISTENT_ORG: BSMT-persistent-org
       BSMT_PERSISTENT_SPACE: BSMT-persistent-space
   - task: Generate CF deployment manifest with bits-service enabled
@@ -1123,7 +1123,7 @@ jobs:
     params: &bosh-interpolate-boshlite2-bits-service-disabled
       BOSH_TARGET: {{bosh2-target}}
       DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: bosh2
+      ENVIRONMENT_NAME: migration-webdav
       BLOBSTORE_TYPE: webdav
       IAAS: bosh-lite
       OPERATIONS: >
@@ -1153,7 +1153,7 @@ jobs:
     input_mapping: *migration-tests-input-mappings
     params: &boshlite2-bsmt-preparation-params
       <<: *boshlite1-bsmt-preparation-params
-      ENVIRONMENT_NAME: migration-webdav-bosh-lite
+      ENVIRONMENT_NAME: migration-webdav
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
