@@ -13,5 +13,5 @@ bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     -o ~/workspace/bosh-deployment/bosh-lite-runc.yml \
     -o ~/workspace/bosh-deployment/jumpbox-user.yml \
     -o ~/workspace/1-click-bosh-lite-pipeline/operations/add-etc-hosts-entry.yml \
-    -o ~/workspace/1-click-bosh-lite-pipeline/operations/increase-max-speed.yml
-
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/increase-max-speed.yml \
+    -o ~/workspace/1-click-bosh-lite-pipeline/operations/disable-virtual-delete-vms.yml
