@@ -33,7 +33,7 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/fog_connection?
   value: &blobstore-properties
     provider: local
-    local_root: /var/vcap/store/bits
+    local_root: /var/vcap/nfs
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/fog_connection?
