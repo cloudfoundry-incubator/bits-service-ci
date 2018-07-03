@@ -235,7 +235,7 @@ jobs:
         rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-s3
-      #attempts: 3
+      attempts: 3
       params: &sl-bits-service-deployment-params
         manifest: manifests/manifest.yml
         stemcells: ["stemcell/stemcell.tgz"]
@@ -258,7 +258,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-s3-sl-deployment-events, passed: [deploy-with-S3], trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
@@ -299,7 +299,7 @@ jobs:
         rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-local
-      #attempts: 3
+      attempts: 3
       params: *sl-bits-service-deployment-params
   on_failure: *notify
 
@@ -316,7 +316,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-local-sl-deployment-events, passed: [deploy-with-LOCAL], trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
@@ -357,7 +357,7 @@ jobs:
         rebase: true
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-webdav
-      #attempts: 3
+      attempts: 3
       params: *sl-bits-service-deployment-params
   on_failure: *notify
 
@@ -374,7 +374,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-with-WEBDAV], trigger: true }
   - task: Run tests
-    #attempts: 3
+    attempts: 3
     file: ci-tasks/tasks/run-release-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
