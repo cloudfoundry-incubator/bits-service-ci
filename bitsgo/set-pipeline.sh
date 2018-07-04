@@ -14,6 +14,7 @@ if [ -z $1 ]; then
     - google-service-account
     - google-s3
     - azure
+    - alibaba
 EOF
   exit 1
 fi
@@ -68,6 +69,14 @@ elif [ "$1" == "google-s3" ]; then
   export buildpack_directory_key=pego-test
   export droplet_directory_key=pego-test
   export app_package_directory_key=pego-test
+elif [ "$1" == "alibaba" ]; then
+  export alibaba_access_key_id=$(lpass show "Shared-Flintstone"/Alibaba-Cloud-Storage-API-Key --username)
+  export alibaba_secret_access_key=$(lpass show "Shared-Flintstone"/Alibaba-Cloud-Storage-API-Key --password)
+  export alibaba_endpoint=oss-eu-central-1.aliyuncs.com
+  export resource_directory_key=cf-bits
+  export buildpack_directory_key=cf-bits
+  export droplet_directory_key=cf-bits
+  export app_package_directory_key=cf-bits
 fi
 
 extra_args_file=$(mktemp)
