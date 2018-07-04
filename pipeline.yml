@@ -127,6 +127,20 @@ jobs:
       INTEGRATION_TEST_SETUP: ((google_s3_integration_test_config))
   on_failure: *notify
 
+- name: run-bitsgo-contract-integration-test-alibaba
+  serial: true
+  plan:
+  - aggregate:
+    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-bits-contract-integration-tests.yml
+    params:
+      BLOBSTORE_TYPE: alibaba
+      INTEGRATION_TEST_SETUP: ((alibaba_integration_test_config))
+  on_failure: *notify
+
 - name: bump-bits-service-release-bitsgo
   serial: true
   plan:
