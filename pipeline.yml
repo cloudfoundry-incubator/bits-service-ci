@@ -1069,7 +1069,7 @@ jobs:
     - { get: cf-deployment-develop, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
-    - { get: bits-service-migration-tests, trigger: true}
+    - { get: bits-service-migration-tests, passed: [migration-bosh1 (S3)], trigger: true}
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1198,7 +1198,7 @@ jobs:
     - { get: cf-deployment-develop, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
-    - { get: bits-service-migration-tests, trigger: true}
+    - { get: bits-service-migration-tests, passed: [migration-bosh2 (webdav)], trigger: true}
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
