@@ -987,51 +987,53 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: bits-service-migration-tests, trigger: true}
-  - task: Generate CF deployment manifest with bits-service disabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    params: &bosh-interpolate-boshlite1-bits-service-disabled
-      DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: migration-s3
-      BLOBSTORE_TYPE: s3
-      IAAS: bosh-lite
-      OPERATIONS: >
-        -o cf-deployment/operations/scale-to-one-az.yml
-        -o cf-deployment/operations/use-external-blobstore.yml
-        -o cf-deployment/operations/use-s3-blobstore.yml
-        -o ci-tasks/operations/disable-bits-service.yml
-        -o ci-tasks/operations/bits-service-scale-to-one-az.yml
-        -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
-      VARIABLES: >
-        -v aws_region={{cf-migration-s3-blobstore-region}}
-        -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
-        -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
-        -v resource_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v buildpack_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v droplet_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-        -v app_package_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-  - &merge-release-tarballs
-    task: Merge release tarballs
-    file: ci-tasks/tasks/merge-resources.yml
-    input_mapping: { a: capi-release-tarball, b: (( grab switch.bits-service-release-tarball )) }
-    output_mapping: { merged: releases }
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - &make-migration-s3-deployment
-    task:  Make deployment
-    file: ci-tasks/tasks/bosh-deploy.yml
-    # attempts: 2
-    input_mapping:
-      stemcells: stemcell
-      vars-store: git-deployment-vars
-    params: &params-
-      HOSTS_ENTRY_FILE: environments/softlayer/director/migration-s3-bosh-lite/hosts
-      DEPLOYMENT_NAME: cf
-      VARS_STORE_FILE: environments/softlayer/director/migration-s3-bosh-lite/vars.yml
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service disabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params: &bosh-interpolate-boshlite1-bits-service-disabled
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: migration-s3
+        BLOBSTORE_TYPE: s3
+        IAAS: bosh-lite
+        OPERATIONS: >
+          -o cf-deployment/operations/scale-to-one-az.yml
+          -o cf-deployment/operations/use-external-blobstore.yml
+          -o cf-deployment/operations/use-s3-blobstore.yml
+          -o ci-tasks/operations/disable-bits-service.yml
+          -o ci-tasks/operations/bits-service-scale-to-one-az.yml
+          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+        VARIABLES: >
+          -v aws_region={{cf-migration-s3-blobstore-region}}
+          -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
+          -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
+          -v resource_directory_key={{cf-migration-s3-blobstore-bucket-name}}
+          -v buildpack_directory_key={{cf-migration-s3-blobstore-bucket-name}}
+          -v droplet_directory_key={{cf-migration-s3-blobstore-bucket-name}}
+          -v app_package_directory_key={{cf-migration-s3-blobstore-bucket-name}}
+    - &merge-release-tarballs
+      task: Merge release tarballs
+      file: ci-tasks/tasks/merge-resources.yml
+      input_mapping: { a: capi-release-tarball, b: (( grab switch.bits-service-release-tarball )) }
+      output_mapping: { merged: releases }
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - &make-migration-s3-deployment
+      task:  Make deployment
+      file: ci-tasks/tasks/bosh-deploy.yml
+      # attempts: 2
+      input_mapping:
+        stemcells: stemcell
+        vars-store: git-deployment-vars
+      params: &params-
+        HOSTS_ENTRY_FILE: environments/softlayer/director/migration-s3-bosh-lite/hosts
+        DEPLOYMENT_NAME: cf
+        VARS_STORE_FILE: environments/softlayer/director/migration-s3-bosh-lite/vars.yml
   - task: Run migration preparation tests
     #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
@@ -1056,11 +1058,12 @@ jobs:
         -o cf-deployment/operations/use-s3-blobstore.yml
         -o ci-tasks/operations/bits-service-scale-to-one-az.yml
         -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
-  - *make-migration-s3-deployment
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
+  - aggregate:
+    - *make-migration-s3-deployment
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
   - task: Run migration verification tests
     #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
@@ -1084,18 +1087,20 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
     - { get: bits-service-migration-tests, passed: [migration-bosh1 (S3)], trigger: true}
-  - task: Generate CF deployment manifest with bits-service enabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    params: *bosh-interpolate-boshlite1-bits-service-enabled
-  - *merge-release-tarballs
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - *make-migration-s3-deployment
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service enabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params: *bosh-interpolate-boshlite1-bits-service-enabled
+    - *merge-release-tarballs
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - *make-migration-s3-deployment
   - task: Run migration preparation tests
     #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
@@ -1107,11 +1112,12 @@ jobs:
       cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     params: *bosh-interpolate-boshlite1-bits-service-disabled
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - *make-migration-s3-deployment
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - *make-migration-s3-deployment
   - task: Run migration verification tests
     #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
@@ -1135,38 +1141,40 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: bits-service-migration-tests, trigger: true}
-  - task: Generate CF deployment manifest with bits-service disabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    params: &bosh-interpolate-boshlite2-bits-service-disabled
-      BOSH_TARGET: {{bosh2-target}}
-      DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: migration-webdav
-      BLOBSTORE_TYPE: webdav
-      IAAS: bosh-lite
-      OPERATIONS: >
-        -o cf-deployment/operations/scale-to-one-az.yml
-        -o ci-tasks/operations/disable-bits-service.yml
-        -o ci-tasks/operations/bits-service-scale-to-one-az.yml
-        -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
-  - *merge-release-tarballs
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - &make-migration-webdav-deployment
-    task:  Make deployment
-    file: ci-tasks/tasks/bosh-deploy.yml
-    #attempts: 2
-    input_mapping:
-      stemcells: stemcell
-      vars-store: git-deployment-vars
-    params:
-      HOSTS_ENTRY_FILE: environments/softlayer/director/migration-webdav-bosh-lite/hosts
-      DEPLOYMENT_NAME: cf
-      VARS_STORE_FILE: environments/softlayer/director/migration-webdav-bosh-lite/vars.yml
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service disabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params: &bosh-interpolate-boshlite2-bits-service-disabled
+        BOSH_TARGET: {{bosh2-target}}
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: migration-webdav
+        BLOBSTORE_TYPE: webdav
+        IAAS: bosh-lite
+        OPERATIONS: >
+          -o cf-deployment/operations/scale-to-one-az.yml
+          -o ci-tasks/operations/disable-bits-service.yml
+          -o ci-tasks/operations/bits-service-scale-to-one-az.yml
+          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+    - *merge-release-tarballs
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - &make-migration-webdav-deployment
+      task:  Make deployment
+      file: ci-tasks/tasks/bosh-deploy.yml
+      #attempts: 2
+      input_mapping:
+        stemcells: stemcell
+        vars-store: git-deployment-vars
+      params:
+        HOSTS_ENTRY_FILE: environments/softlayer/director/migration-webdav-bosh-lite/hosts
+        DEPLOYMENT_NAME: cf
+        VARS_STORE_FILE: environments/softlayer/director/migration-webdav-bosh-lite/vars.yml
   - task: Run migration preparation tests
     #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
@@ -1185,11 +1193,12 @@ jobs:
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/bits-service-scale-to-one-az.yml
         -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - *make-migration-webdav-deployment
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - *make-migration-webdav-deployment
   - task: Run migration verification tests
     #attempts: 3
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
@@ -1213,18 +1222,20 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: bits-service-migration-tests, passed: [migration-bosh2 (webdav)], trigger: true}
-  - task: Generate CF deployment manifest with bits-service enabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    params: *bosh-interpolate-boshlite2-bits-service-enabled
-  - *merge-release-tarballs
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - *make-migration-webdav-deployment
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service enabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params: *bosh-interpolate-boshlite2-bits-service-enabled
+    - *merge-release-tarballs
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - *make-migration-webdav-deployment
   - task: Run migration preparation tests
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     #attempts: 3
@@ -1236,11 +1247,12 @@ jobs:
       cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     params: *bosh-interpolate-boshlite2-bits-service-disabled
-  - put: git-deployment-vars
-    params:
-      rebase: true
-      repository: updated/deployment-vars
-  - *make-migration-webdav-deployment
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - *make-migration-webdav-deployment
   - task: Run migration verification tests
     file: ci-tasks/tasks/run-bits-service-migration-tests.yml
     #attempts: 3
