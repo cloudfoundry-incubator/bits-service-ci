@@ -972,6 +972,7 @@ jobs:
     - { get: migration-s3-bosh-lite-ready-for-deployment-events, trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: bits-service-migration-tests, trigger: true}
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1068,6 +1069,7 @@ jobs:
     - { get: cf-deployment-develop, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
+    - { get: bits-service-migration-tests, trigger: true}
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1118,6 +1120,7 @@ jobs:
     - { get: migration-webdav-bosh-lite-ready-for-deployment-events, trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
+    - { get: bits-service-migration-tests, trigger: true}
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1195,6 +1198,7 @@ jobs:
     - { get: cf-deployment-develop, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: bits-service-migration-tests, trigger: true}
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
@@ -1522,6 +1526,13 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: bits-service-migration-tests
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-migration-tests.git
     branch: master
     private_key: {{github-private-key}}
 
