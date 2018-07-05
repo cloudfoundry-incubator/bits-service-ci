@@ -151,7 +151,9 @@ jobs:
     params:
       SUB_MODULE_PATH: src/github.com/petergtz/bitsgo
   - put: bits-service-release-bitsgo
-    params: {repository: bumped/git-repo}
+    params:
+      repository: bumped/git-repo
+      rebase: true
   on_failure: *notify
 
 - name: run-bits-service-client-tests
