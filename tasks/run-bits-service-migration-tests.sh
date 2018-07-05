@@ -15,7 +15,7 @@ cf_admin_password=$( \
 )
 CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).nip.io
 
-cd bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-migration-tests
+cd bits-service-migration-tests
 
 cat >config.json <<EOF
 {
