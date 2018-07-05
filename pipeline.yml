@@ -1400,6 +1400,7 @@ groups:
   - run-bitsgo-contract-integration-test-google-s3
   - run-bitsgo-contract-integration-test-openstack
   - run-bitsgo-contract-integration-test-s3
+  - run-bitsgo-contract-integration-test-alibaba
   - run-bitsgo-unit-tests
 - name: bits-service-client
   jobs:
