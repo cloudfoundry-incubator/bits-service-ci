@@ -6,19 +6,23 @@ if [ -n "$DEBUG" ]; then
   go version
 fi
 
-mkdir -p gopath/src/github.com/cloudfoundry-incubator
-mkdir gopath/pkg gopath/bin
-cp -a bits-service-migration-tests gopath/src/github.com/cloudfoundry-incubator
-export GOPATH=$PWD/gopath
-export PATH=${GOPATH}/bin:${PATH}
-
 cf_admin_password=$( \
   bosh2 int deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml \
   --path /cf_admin_password
 )
 CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).nip.io
 
-cd gopath/src/github.com/cloudfoundry-incubator/bits-service-migration-tests
+export GOPATH=$(mktemp -d)
+export PATH=$GOPATH/bin:$PATH
+
+mkdir -p $GOPATH/src/github.com/cloudfoundry-incubator $GOPATH/bin $GOPATH/pkg
+cp -a bits-service-migration-tests $GOPATH/src/github.com/cloudfoundry-incubator
+cd $GOPATH/src/github.com/cloudfoundry-incubator/bits-service-migration-tests
+
+glide install
+pushd vendor/github.com/onsi/ginkgo/ginkgo
+    go install
+popd
 
 cat >config.json <<EOF
 {
@@ -37,4 +41,4 @@ cat >config.json <<EOF
 EOF
 export CONFIG="$(readlink -nf config.json)"
 
-bin/test -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose -keepGoing $test_suite
+ginkgo -r $noColorFlag -slowSpecThreshold=120 -randomizeAllSpecs $verbose -keepGoing $test_suite
