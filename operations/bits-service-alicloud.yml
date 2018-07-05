@@ -4,6 +4,7 @@
   value:
     directory_key: "((resource_directory_key))"
     fog_connection: &alicloud-config
+      provider: aliyun
       aliyun_accesskey_id: "((alibaba_access_key_id))"
       aliyun_accesskey_secret: "((alibaba_secret_access_key))"
       aliyun_oss_endpoint: "((alibaba_endpoint))"
