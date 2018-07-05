@@ -23,9 +23,6 @@ EOT
 export CONFIG=$PWD/bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-performance-tests/integration_aws_config.json
 export GOPATH=$PWD/bits-service-release
 export PATH=$GOPATH/bin:$PATH
-pushd bits-service-release/src/github.com/onsi/ginkgo/ginkgo
-  go install
-popd
 
 cp -a deployment-vars/. deployment-vars-out
 export PERFORMANCE_TEST_METRICS_CSV_FILE=$(readlink -f deployment-vars-out/${PERFORMANCE_TEST_METRICS_PREFIX}-metrics.csv)
@@ -33,6 +30,9 @@ export PERFORMANCE_TEST_SHOULD_USE_V3_PUSH
 echo "PERFORMANCE_TEST_SHOULD_USE_V3_PUSH: $PERFORMANCE_TEST_SHOULD_USE_V3_PUSH"
 pushd bits-service-release/src/github.com/cloudfoundry-incubator/bits-service-performance-tests
   glide install
+  pushd vendor/github.com/onsi/ginkgo/ginkgo
+    go install
+  popd
   ginkgo
 popd
 
