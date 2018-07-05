@@ -35,6 +35,7 @@ fly \
     <(bitsgo/set-pipeline.sh local -) \
     <(bitsgo/set-pipeline.sh openstack -) \
     <(bitsgo/set-pipeline.sh webdav -) \
+     <(bitsgo/set-pipeline.sh alibaba -) \
     ) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
