@@ -6,7 +6,10 @@ if [ -n "$DEBUG" ]; then
   go version
 fi
 
-export GOPATH=$PWD/bits-service-release
+mkdir -p gopath/src/github.com/cloudfoundry-incubator
+mkdir gopath/pkg gopath/bin
+cp -a bits-service-migration-tests gopath/src/github.com/cloudfoundry-incubator
+export GOPATH=$PWD/gopath
 export PATH=${GOPATH}/bin:${PATH}
 
 cf_admin_password=$( \
@@ -15,7 +18,7 @@ cf_admin_password=$( \
 )
 CF_DOMAIN=$(cat deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/hosts | cut -d ' ' -f1 ).nip.io
 
-cd bits-service-migration-tests
+cd gopath/src/github.com/cloudfoundry-incubator/bits-service-migration-tests
 
 cat >config.json <<EOF
 {
