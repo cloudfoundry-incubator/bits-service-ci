@@ -987,6 +987,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: bits-service-migration-tests, trigger: true}
+    - { get: 1-click, trigger: true}
   - aggregate:
     - task: Generate CF deployment manifest with bits-service disabled
       file: ci-tasks/tasks/bosh-interpolate.yml
@@ -1087,6 +1088,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
     - { get: bits-service-migration-tests, passed: [migration-bosh1 (S3)], trigger: true}
+    - { get: 1-click, trigger: true}
   - aggregate:
     - task: Generate CF deployment manifest with bits-service enabled
       file: ci-tasks/tasks/bosh-interpolate.yml
@@ -1155,9 +1157,9 @@ jobs:
         BLOBSTORE_TYPE: webdav
         IAAS: bosh-lite
         OPERATIONS: >
-          -o cf-deployment/operations/use-compiled-releases.yml \
-          -o cf-deployment/operations/experimental/use-bosh-dns.yml \
-          -o 1-click/operations/add-dns-alias-internal-public-access-entry.yml \
+          -o cf-deployment/operations/use-compiled-releases.yml
+          -o cf-deployment/operations/experimental/use-bosh-dns.yml
+          -o 1-click/operations/add-dns-alias-internal-public-access-entry.yml
           -o cf-deployment/operations/scale-to-one-az.yml
           -o ci-tasks/operations/disable-bits-service.yml
           -o ci-tasks/operations/bits-service-scale-to-one-az.yml
