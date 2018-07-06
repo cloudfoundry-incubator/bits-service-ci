@@ -1196,6 +1196,9 @@ jobs:
     params: &bosh-interpolate-boshlite2-bits-service-enabled
       <<: *bosh-interpolate-boshlite2-bits-service-disabled
       OPERATIONS: >
+        -o cf-deployment/operations/use-compiled-releases.yml
+        -o cf-deployment/operations/experimental/use-bosh-dns.yml
+        -o 1-click/operations/add-dns-alias-internal-public-access-entry.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/bits-service-scale-to-one-az.yml
         -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
@@ -1228,6 +1231,7 @@ jobs:
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: bits-service-migration-tests, passed: [migration-bosh2 (webdav)], trigger: true}
+    - { get: 1-click, trigger: true}
   - aggregate:
     - task: Generate CF deployment manifest with bits-service enabled
       file: ci-tasks/tasks/bosh-interpolate.yml
