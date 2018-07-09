@@ -154,6 +154,7 @@ jobs:
         - run-bitsgo-contract-integration-test-azure
         - run-bitsgo-contract-integration-test-google-gcp
         - run-bitsgo-contract-integration-test-google-s3
+        - run-bitsgo-contract-integration-test-alibaba
       trigger: true
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: bits-service-release-bitsgo }
