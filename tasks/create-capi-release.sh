@@ -13,6 +13,9 @@ prerelease_version=$(\
 sed \
   -i capi-release/src/cloud_controller_ng/Gemfile.lock \
   -e "s/bits_service_client .*/bits_service_client ($prerelease_version)/"
+sed \
+  -i capi-release/src/cloud_controller_ng/Gemfile \
+  -e "s/'bits_service_client.*/'bits_service_client', '$prerelease_version'/"
 
 cd capi-release
 
