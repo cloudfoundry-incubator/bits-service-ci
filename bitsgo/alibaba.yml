@@ -2,6 +2,7 @@ extra_args: |
   -o cf-deployment/operations/experimental/bits-service.yml
   -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
   -o ci-tasks/operations/bits-service-alicloud.yml
+  -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   -v alibaba_access_key_id=$alibaba_access_key_id
   -v alibaba_secret_access_key=$alibaba_secret_access_key
   -v alibaba_endpoint=$alibaba_endpoint
