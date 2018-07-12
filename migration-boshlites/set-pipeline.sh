@@ -14,7 +14,7 @@ for name in {migration-s3-bosh-lite,migration-webdav-bosh-lite}; do
     -p $name \
     -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml) \
     -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-    -v bosh-manifest="$(sed -e 's/((/_(_(/g' /tmp/bosh-lite-in-sl.yml )" \
+    --var-file=bosh-manifest=/tmp/bosh-lite-in-sl.yml \
     -v bosh_lite_name=$name \
     -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
     -v sl_vm_domain=flintstone.ams

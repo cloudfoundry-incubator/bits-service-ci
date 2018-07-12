@@ -11,7 +11,7 @@ fly \
   -p $full_name \
   -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ~/workspace/1-click-bosh-lite-pipeline/deploy-and-test-cf.yml) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  -v bosh-manifest="$(sed -e 's/((/_(_(/g' <(./generate-bosh-lite-in-sl-manifest.sh $full_name) )" \
+  --var-file=bosh-manifest=<(./generate-bosh-lite-in-sl-manifest.sh $full_name) \
   -v bosh_lite_name=$full_name \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git'
 
