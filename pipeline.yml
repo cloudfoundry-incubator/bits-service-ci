@@ -1,26 +1,26 @@
 sl-bosh-params: &sl-bosh-params
-  BOSH_TARGET: {{sl-bosh-target}}
-  BOSH_USERNAME: {{sl-bosh-username}}
-  BOSH_PASSWORD: {{sl-bosh-password}}
+  BOSH_TARGET: ((sl-bosh-target))
+  BOSH_USERNAME: ((sl-bosh-username))
+  BOSH_PASSWORD: ((sl-bosh-password))
   ENVIRONMENT_NAME: softlayer
-  DIRECTOR_IP: {{sl-bosh-director-ip}}
-  DIRECTOR_NAME: {{sl-bosh-director-name}}
+  DIRECTOR_IP: ((sl-bosh-director-ip))
+  DIRECTOR_NAME: ((sl-bosh-director-name))
 
 bosh2-params: &bosh2-params
-  BOSH_TARGET: {{bosh2-target}}
-  BOSH_USERNAME: {{bosh2-username}}
-  BOSH_PASSWORD: {{bosh2-password}}
+  BOSH_TARGET: ((bosh2-target))
+  BOSH_USERNAME: ((bosh2-username))
+  BOSH_PASSWORD: ((bosh2-password))
 
 aws-bosh-params: &aws-bosh-params
-  BOSH_TARGET: {{aws-bosh-target}}
-  BOSH_USERNAME: {{aws-bosh-username}}
-  BOSH_PASSWORD: {{aws-bosh-password}}
+  BOSH_TARGET: ((aws-bosh-target))
+  BOSH_USERNAME: ((aws-bosh-username))
+  BOSH_PASSWORD: ((aws-bosh-password))
 
 # TODO these params coud be deduced from bits-service-private-config
 blobstore-local-bosh-params: &blobstore-local-bosh-params
-  BOSH_TARGET: {{blobstore-local-bosh-target}}
-  BOSH_USERNAME: {{blobstore-local-bosh-username}}
-  BOSH_PASSWORD: {{blobstore-local-bosh-password}}
+  BOSH_TARGET: ((blobstore-local-bosh-target))
+  BOSH_USERNAME: ((blobstore-local-bosh-username))
+  BOSH_PASSWORD: ((blobstore-local-bosh-password))
 
 notify: &notify
   put: slack
@@ -189,8 +189,8 @@ jobs:
   - task: Publish to rubygems.org
     file: ci-tasks/tasks/publish-gem.yml
     params:
-      GIT_PRIVATE_KEY: {{github-private-key}}
-      RUBYGEMS_API_KEY: {{rubygems-api-key}}
+      GIT_PRIVATE_KEY: ((github-private-key))
+      RUBYGEMS_API_KEY: ((rubygems-api-key))
   on_failure: *notify
 
 - name: create-and-upload-bitsgo-release
@@ -238,10 +238,10 @@ jobs:
       bits-service-private-config: git-deployment-vars
     params:
       <<: *sl-bosh-params
-      BITS_DIRECTORY_KEY: {{s3-blobstore-bucket-name}}
-      BITS_AWS_REGION: {{s3-blobstore-region}}
-      AWS_ACCESS_KEY_ID: {{s3-blobstore-access-key-id}}
-      AWS_SECRET_ACCESS_KEY: {{s3-blobstore-secret-access-key}}
+      BITS_DIRECTORY_KEY: ((s3-blobstore-bucket-name))
+      BITS_AWS_REGION: ((s3-blobstore-region))
+      AWS_ACCESS_KEY_ID: ((s3-blobstore-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((s3-blobstore-secret-access-key))
       BLOBSTORE_TYPE: s3
       BITS_SERVICE_JOB_IP: &bits_service_job_ip_s3 10.175.96.246
       BLOBSTORE_JOB_IP: 10.175.96.247
@@ -424,23 +424,23 @@ jobs:
     output_mapping:
       manifests: cf-with-bits-service-enabled
     params:
-      BOSH_TARGET: {{sl-bosh-target}}
+      BOSH_TARGET: ((sl-bosh-target))
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: softlayer
       BLOBSTORE_TYPE: s3
       IAAS: softlayer
-      CF_DOMAIN: {{sl-cf1-domain}}
+      CF_DOMAIN: ((sl-cf1-domain))
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/bits-service-scale-to-one-az.yml
       VARIABLES: >
-        -v aws_region={{s3-blobstore-region}}
-        -v blobstore_access_key_id={{s3-blobstore-access-key-id}}
-        -v blobstore_secret_access_key={{s3-blobstore-secret-access-key}}
-        -v resource_directory_key={{cf2-s3-blobstore-bucket-name}}
-        -v buildpack_directory_key={{cf2-s3-blobstore-bucket-name}}
-        -v droplet_directory_key={{cf2-s3-blobstore-bucket-name}}
-        -v app_package_directory_key={{cf2-s3-blobstore-bucket-name}}
+        -v aws_region="((s3-blobstore-region))"
+        -v blobstore_access_key_id="((s3-blobstore-access-key-id))"
+        -v blobstore_secret_access_key="((s3-blobstore-secret-access-key))"
+        -v resource_directory_key="((cf2-s3-blobstore-bucket-name))"
+        -v buildpack_directory_key="((cf2-s3-blobstore-bucket-name))"
+        -v droplet_directory_key="((cf2-s3-blobstore-bucket-name))"
+        -v app_package_directory_key="((cf2-s3-blobstore-bucket-name))"
   - aggregate:
     - put: git-deployment-vars
       params:
@@ -461,8 +461,8 @@ jobs:
       deployment-vars: git-deployment-vars
     params:
       <<: *sl-bosh-params
-      CHANGE_IP_USER: {{changeip-username}}
-      CHANGE_IP_PASSWORD: {{changeip-password}}
+      CHANGE_IP_USER: ((changeip-username))
+      CHANGE_IP_PASSWORD: ((changeip-password))
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
@@ -473,7 +473,7 @@ jobs:
       <<: *sl-bosh-params
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: softlayer
-      CF_DOMAIN: {{sl-cf1-domain}}
+      CF_DOMAIN: ((sl-cf1-domain))
   on_failure: *notify
 
 # CAPI-RELEASE
@@ -554,7 +554,7 @@ jobs:
       release-version: (( grab switch.bits-service-release-version ))
       release-git-repo: (( grab switch.bits-service-release ))
     params:
-      PRIVATE_YML_CONTENT: {{private-yml}}
+      PRIVATE_YML_CONTENT: ((private-yml))
   - do:
     - put: (( grab switch.bits-service-release ))
       params:
@@ -652,12 +652,12 @@ jobs:
     output_mapping:
       manifests: cf-with-bits-service-disabled
     params: &bosh-interpolate-aws-bits-service-disabled
-      BOSH_TARGET: {{aws-bosh-target}}
+      BOSH_TARGET: ((aws-bosh-target))
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: aws
       BLOBSTORE_TYPE: s3
       IAAS: aws
-      CF_DOMAIN: {{aws-cf1-domain}}
+      CF_DOMAIN: ((aws-cf1-domain))
       OPERATIONS: >
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-external-blobstore.yml
@@ -665,13 +665,13 @@ jobs:
         -o ci-tasks/operations/disable-bits-service.yml
         -o ci-tasks/operations/scale-diego-cell-instances.yml
       VARIABLES: >
-        -v aws_region={{cf1-s3-blobstore-region}}
-        -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
-        -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
-        -v resource_directory_key={{cf1-s3-blobstore-bucket-name}}
-        -v buildpack_directory_key={{cf1-s3-blobstore-bucket-name}}
-        -v droplet_directory_key={{cf1-s3-blobstore-bucket-name}}
-        -v app_package_directory_key={{cf1-s3-blobstore-bucket-name}}
+        -v aws_region="((cf1-s3-blobstore-region))"
+        -v blobstore_access_key_id="((cf-migration-s3-blobstore-access-key-id))"
+        -v blobstore_secret_access_key="((cf-migration-s3-blobstore-secret-access-key))"
+        -v resource_directory_key="((cf1-s3-blobstore-bucket-name))"
+        -v buildpack_directory_key="((cf1-s3-blobstore-bucket-name))"
+        -v droplet_directory_key="((cf1-s3-blobstore-bucket-name))"
+        -v app_package_directory_key="((cf1-s3-blobstore-bucket-name))"
   - aggregate:
     - put: git-deployment-vars
       params:
@@ -698,10 +698,10 @@ jobs:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: aws
-        CF_DOMAIN: {{aws-cf1-domain}}
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
+        CF_DOMAIN: ((aws-cf1-domain))
+        BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))
+        BLUEMIX_PASSWORD: ((bluemix_cloudfoundry_password))
+        METRICS_API_KEY:  ((ibm_metrics_api_key))
         BITS_SERVICE_ENABLEMENT: without-bits-service
       on_failure: &inform-pipeline-operator-diego-aws-cats
         task: inform-pipeline-operator
@@ -721,10 +721,10 @@ jobs:
         params: &aws-bits-service-disabled-run-perf-tests-params
           DEPLOYMENT_NAME: cf
           ENVIRONMENT_NAME: aws
-          BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-          BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-          METRICS_API_KEY:  {{ibm_metrics_api_key}}
-          CF_DOMAIN: {{aws-cf1-domain}}
+          BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))
+          BLUEMIX_PASSWORD: ((bluemix_cloudfoundry_password))
+          METRICS_API_KEY:  ((ibm_metrics_api_key))
+          CF_DOMAIN: ((aws-cf1-domain))
           PERFORMANCE_TEST_METRICS_PREFIX: bits-service_disabled_CCs_1
           LOOP_COUNT: 20
       - task: Copy and commit new metrics
@@ -805,10 +805,10 @@ jobs:
         <<: *aws-bosh-params
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: aws
-        CF_DOMAIN: {{aws-cf1-domain}}
-        BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-        BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-        METRICS_API_KEY:  {{ibm_metrics_api_key}}
+        CF_DOMAIN: ((aws-cf1-domain))
+        BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))
+        BLUEMIX_PASSWORD: ((bluemix_cloudfoundry_password))
+        METRICS_API_KEY:  ((ibm_metrics_api_key))
         BITS_SERVICE_ENABLEMENT: with-bits-service
       on_failure: *inform-pipeline-operator-diego-aws-cats
     - do:
@@ -820,10 +820,10 @@ jobs:
         params: &aws-bits-service-enabled-run-perf-tests-params
           DEPLOYMENT_NAME: cf
           ENVIRONMENT_NAME: aws
-          BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-          BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-          METRICS_API_KEY:  {{ibm_metrics_api_key}}
-          CF_DOMAIN: {{aws-cf1-domain}}
+          BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))
+          BLUEMIX_PASSWORD: ((bluemix_cloudfoundry_password))
+          METRICS_API_KEY:  ((ibm_metrics_api_key))
+          CF_DOMAIN: ((aws-cf1-domain))
           PERFORMANCE_TEST_METRICS_PREFIX: bits-service_enabled_CCs_1
           LOOP_COUNT: 20
       - task: Copy and commit new metrics
@@ -875,7 +875,7 @@ jobs:
       cf-deployment: cf-deployment-develop
       deployment-vars: git-deployment-vars
     params:
-      BOSH_TARGET: {{blobstore-local-bosh-target}}
+      BOSH_TARGET: ((blobstore-local-bosh-target))
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: blobstore-local
       BLOBSTORE_TYPE: local
@@ -1008,13 +1008,13 @@ jobs:
           -o ci-tasks/operations/bits-service-scale-to-one-az.yml
           -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
         VARIABLES: >
-          -v aws_region={{cf-migration-s3-blobstore-region}}
-          -v blobstore_access_key_id={{cf-migration-s3-blobstore-access-key-id}}
-          -v blobstore_secret_access_key={{cf-migration-s3-blobstore-secret-access-key}}
-          -v resource_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-          -v buildpack_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-          -v droplet_directory_key={{cf-migration-s3-blobstore-bucket-name}}
-          -v app_package_directory_key={{cf-migration-s3-blobstore-bucket-name}}
+          -v aws_region="((cf-migration-s3-blobstore-region))"
+          -v blobstore_access_key_id="((cf-migration-s3-blobstore-access-key-id))"
+          -v blobstore_secret_access_key="((cf-migration-s3-blobstore-secret-access-key))"
+          -v resource_directory_key="((cf-migration-s3-blobstore-bucket-name))"
+          -v buildpack_directory_key="((cf-migration-s3-blobstore-bucket-name))"
+          -v droplet_directory_key="((cf-migration-s3-blobstore-bucket-name))"
+          -v app_package_directory_key="((cf-migration-s3-blobstore-bucket-name))"
     - &merge-release-tarballs
       task: Merge release tarballs
       file: ci-tasks/tasks/merge-resources.yml
@@ -1152,7 +1152,7 @@ jobs:
         cf-deployment: cf-deployment-develop
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-boshlite2-bits-service-disabled
-        BOSH_TARGET: {{bosh2-target}}
+        BOSH_TARGET: ((bosh2-target))
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: migration-webdav
         BLOBSTORE_TYPE: webdav
@@ -1285,9 +1285,9 @@ jobs:
     file: ci-tasks/tasks/recreate-bosh-lite.yml
     params:
       SSH_CONNECTION_STRING: root@10.155.171.3
-      SSH_KEY: {{github-private-key}}
-      BOSH_USERNAME: {{bosh-username}}
-      BOSH_PASSWORD: {{bosh-password}}
+      SSH_KEY: ((github-private-key))
+      BOSH_USERNAME: ((bosh-username))
+      BOSH_PASSWORD: ((bosh-password))
       BOSH_DIRECTOR_IP: 192.168.50.4
       VAGRANT_GATEWAY: 192.168.50.1
   - put: bosh1-recreation-events
@@ -1307,9 +1307,9 @@ jobs:
     file: ci-tasks/tasks/recreate-bosh-lite.yml
     params:
       SSH_CONNECTION_STRING: root@10.155.171.22
-      SSH_KEY: {{github-private-key}}
-      BOSH_USERNAME: {{bosh2-username}}
-      BOSH_PASSWORD: {{bosh2-password}}
+      SSH_KEY: ((github-private-key))
+      BOSH_USERNAME: ((bosh2-username))
+      BOSH_PASSWORD: ((bosh2-password))
       BOSH_DIRECTOR_IP: 192.168.50.4
       VAGRANT_GATEWAY: 192.168.50.1
   - put: bosh2-recreation-events
@@ -1475,7 +1475,7 @@ resources:
 - name: slack
   type: slack-notification
   source:
-    url: {{slack-webhook}}
+    url: ((slack-webhook))
 
 - name: aws-stemcell
   type: bosh-io-stemcell
@@ -1492,8 +1492,8 @@ resources:
 - name: bits-service-release-bitsgo-tarball
   type: s3
   source: &s3-resource
-    access_key_id: {{s3-blobstore-access-key-id}}
-    secret_access_key: {{s3-blobstore-secret-access-key}}
+    access_key_id: ((s3-blobstore-access-key-id))
+    secret_access_key: ((s3-blobstore-secret-access-key))
     bucket: ci-bits-service-artifacts
     region_name: eu-west-1
     regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
@@ -1510,7 +1510,7 @@ resources:
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
 
 - name: cf-deployment-develop
@@ -1518,7 +1518,7 @@ resources:
   source:
     uri: git@github.com:petergtz/cf-deployment.git
     branch: develop
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: cf-deployment-develop-upstream
   type: git
@@ -1531,7 +1531,7 @@ resources:
   source:
     uri: git@github.com:petergtz/cf-deployment.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: cf-deployment-master-upstream
   type: git
@@ -1544,42 +1544,42 @@ resources:
   source:
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
     disable_ci_skip: true
 
 - name: bitsgo
   type: git
   source:
     uri: https://github.com/petergtz/bitsgo.git
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: bits-service-client
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-client.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: bits-service-release-bitsgo
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: bits-service-migration-tests
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-migration-tests.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: bits-service-github-final-release
   type: github-release
   source:
     owner: cloudfoundry-incubator
     repository: bits-service-release
-    access_token: {{github-access-token}}
+    access_token: ((github-access-token))
     release: true
     drafts: true
 
@@ -1594,7 +1594,7 @@ resources:
   source:
     uri: git@github.com:petergtz/capi-release.git
     branch: master
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: cf-acceptance-tests
   type: git
@@ -1623,21 +1623,21 @@ resources:
 - name: aws-diego-deployment
   type: bosh-deployment
   source:
-    target: {{aws-bosh-target}}
-    username: {{aws-bosh-username}}
-    password: {{aws-bosh-password}}
+    target: ((aws-bosh-target))
+    username: ((aws-bosh-username))
+    password: ((aws-bosh-password))
     deployment: cf
 
 - name: bosh-deployment-bits-service-local
   type: bosh2-deployment
   source: &sl-bosh-deployment-source
-    target: {{sl-bosh-target}}
-    username: {{sl-bosh-username}}
-    password: {{sl-bosh-password}}
-    client: {{sl-bosh-username}}
-    client_secret: {{sl-bosh-password}}
+    target: ((sl-bosh-target))
+    username: ((sl-bosh-username))
+    password: ((sl-bosh-password))
+    client: ((sl-bosh-username))
+    client_secret: ((sl-bosh-password))
     deployment: bits-service-local
-    ca_cert: {{sl-bosh-ca-cert}}
+    ca_cert: ((sl-bosh-ca-cert))
 
 - name: bosh-deployment-bits-service-webdav
   type: bosh2-deployment
@@ -1664,7 +1664,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     file: version/capi-release/version
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
     initial_version: 1.41.0-dev.1
 
 - name: bits-service-release-bitsgo-version
@@ -1674,7 +1674,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: metadata
     file: version/bits-service-release-bitsgo/version
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
     initial_version: 2.0.0-dev.1
 
 - name: cf-bosh1-deployment-events
@@ -1684,7 +1684,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: events
     file: events/cf-bosh1/deployment-deleted
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: cf-bosh2-deployment-events
   type: semver
@@ -1699,7 +1699,7 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: events
     file: events/bosh1/recreated
-    private_key: {{github-private-key}}
+    private_key: ((github-private-key))
 
 - name: bosh2-recreation-events
   type: semver
@@ -1763,7 +1763,7 @@ resources:
   source:
     owner: cloudfoundry-incubator
     repository: bits-service-release
-    access_token: {{github-access-token}}
+    access_token: ((github-access-token))
     release: false
     pre_release: true
 

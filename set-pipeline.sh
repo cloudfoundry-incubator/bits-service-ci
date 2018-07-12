@@ -26,7 +26,7 @@ fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c <(spruce --concourse merge pipeline.yml $switch \
+  -c <(spruce merge pipeline.yml $switch \
     <(bitsgo/set-pipeline.sh aws-s3 -) \
     <(bitsgo/set-pipeline.sh cos-s3 -) \
     <(bitsgo/set-pipeline.sh azure -) \

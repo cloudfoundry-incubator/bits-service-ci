@@ -106,7 +106,7 @@ fly \
   -t flintstone \
   set-pipeline \
   -p ${pipeline_name} \
-  -c <(spruce --concourse merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml $extra_args_file) \
+  -c <(spruce merge ~/workspace/1-click-bosh-lite-pipeline/template.yml ../1-click/recreate-bosh-lite-every-morning.yml deploy-and-test-cf.yml $extra_args_file) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -v bluemix_cloudfoundry_username=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --username) \
   -v bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password) \

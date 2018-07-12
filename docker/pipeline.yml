@@ -11,9 +11,9 @@ resources:
   type: docker-image
   source:
     repository: flintstonecf/ci
-    email: {{dockerhub-email}}
-    username: {{dockerhub-username}}
-    password: {{dockerhub-password}}
+    email: ((dockerhub-email))
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
 
 - name: cf-cli-release
   type: github-release

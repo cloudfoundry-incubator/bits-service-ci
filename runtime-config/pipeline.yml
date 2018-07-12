@@ -9,21 +9,21 @@ resources:
     source:
       uri: git@github.com:petergtz/collectd-boshrelease.git
       branch: package-mtlj-plugin
-      private_key: {{github-private-key}}
+      private_key: ((github-private-key))
 
   - name: ci-tasks
     type: git
     source:
       uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
       branch: master
-      private_key: {{github-private-key}}
+      private_key: ((github-private-key))
       paths: ["runtime-config/tasks/*", "runtime-config/templates/*"]
 
   - name: collectd-release-tarball
     type: s3
     source:
-      access_key_id: {{s3-blobstore-access-key-id}}
-      secret_access_key: {{s3-blobstore-secret-access-key}}
+      access_key_id: ((s3-blobstore-access-key-id))
+      secret_access_key: ((s3-blobstore-secret-access-key))
       bucket: ci-bits-service-artifacts
       region_name: eu-west-1
       private: false
@@ -32,17 +32,17 @@ resources:
   - name: bosh-aws-runtime-config
     type: bosh-config
     source:
-      target: {{aws-bosh-target}}
-      username: {{aws-bosh-username}}
-      password: {{aws-bosh-password}}
+      target: ((aws-bosh-target))
+      username: ((aws-bosh-username))
+      password: ((aws-bosh-password))
       type: runtime-config
 
   - name: bosh-softlayer-runtime-config
     type: bosh-config
     source:
-      target: {{softlayer-bosh-target}}
-      username: {{softlayer-bosh-username}}
-      password: {{softlayer-bosh-password}}
+      target: ((softlayer-bosh-target))
+      username: ((softlayer-bosh-username))
+      password: ((softlayer-bosh-password))
       type: runtime-config
 
 jobs:
@@ -75,9 +75,9 @@ jobs:
       ci-tasks: ci-tasks
     output_mapping: { runtime-config: runtime-config-aws }
     params: &params
-      BLUEMIX_USERNAME: {{bluemix_cloudfoundry_username}}
-      BLUEMIX_PASSWORD: {{bluemix_cloudfoundry_password}}
-      METRICS_API_KEY: {{ibm_metrics_api_key}}
+      BLUEMIX_USERNAME: ((bluemix_cloudfoundry_username))
+      BLUEMIX_PASSWORD: ((bluemix_cloudfoundry_password))
+      METRICS_API_KEY: ((ibm_metrics_api_key))
       IAAS: aws
   - task: Generate collectd runtime config file (softlayer)
     file: ci-tasks/runtime-config/tasks/generate-collectd-runtime-config.yml
