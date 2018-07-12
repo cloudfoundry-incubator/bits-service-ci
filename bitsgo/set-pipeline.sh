@@ -112,7 +112,7 @@ fly \
   -v bluemix_cloudfoundry_password=$(lpass show "Shared-Flintstone"/"Bluemix Cloud Foundry User" --password) \
   -v ibm_metrics_api_key=$(lpass show "Shared-Flintstone"/"IBM Metrics API Key" --password) \
   -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes --sync=no)" \
-  --var-file=bosh-manifest=<(../1-click/generate-bosh-lite-in-sl-manifest.sh ${pipeline_name}-bosh-lite) \
+  -v bosh-manifest="$(sed -e 's/((/_(_(/g' <(../1-click/generate-bosh-lite-in-sl-manifest.sh ${pipeline_name}-bosh-lite) )" \
   -v bosh_lite_name=${pipeline_name}-bosh-lite \
   -v state_git_repo='git@github.com:cloudfoundry/bits-service-private-config.git' \
   -v sl_vm_domain=flintstone.ams
