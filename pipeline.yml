@@ -157,7 +157,7 @@ jobs:
         - run-bitsgo-contract-integration-test-alibaba
       trigger: true
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: bits-service-release-bitsgo }
+    - { get: bits-service-release-bitsgo, params: { clean_tags: true } }
   - task: Bump bits-service-release-bitsgo
     file: ci-tasks/tasks/bump-release.yml
     input_mapping:
@@ -198,7 +198,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-bitsgo-version, params: { pre: dev } }
-    - { get: bits-service-release-bitsgo, trigger: true }
+    - { get: bits-service-release-bitsgo, trigger: true, params: { clean_tags: true } }
     - { get: ci-tasks, resource: bits-service-ci }
   - put: bits-service-release-bitsgo-version
     params: { file: bits-service-release-bitsgo-version/version }
