@@ -1419,6 +1419,13 @@ groups:
   - Sync cf-deployment fork (master)
   - Sync capi-release fork
   - deploy-and-test-cf-blobstore-local
+  - run-bitsgo-contract-integration-test-azure
+  - run-bitsgo-contract-integration-test-cos
+  - run-bitsgo-contract-integration-test-google-gcp
+  - run-bitsgo-contract-integration-test-google-s3
+  - run-bitsgo-contract-integration-test-openstack
+  - run-bitsgo-contract-integration-test-s3
+  - run-bitsgo-contract-integration-test-alibaba
 - name: release
   jobs:
   - bump-bits-service-release-bitsgo
@@ -1438,9 +1445,8 @@ groups:
 - name: capi-release
   jobs:
   - create-capi-release
-  - deploy-and-test-cf-diego-aws
-  - enable-BITS-SERVICE-diego-and-run-CATs
-  - Publish Dev Release
+  - Publish gem
+  - run-bits-service-client-tests
 - name: migration
   jobs:
   - migration-backwards-bosh1
