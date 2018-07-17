@@ -498,7 +498,7 @@ jobs:
     params: { file: capi-release-version/number }
   on_failure: *notify
 
-- name: Publish Dev Release
+- name: Testing done
   plan:
   - aggregate:
     - get: capi-release-tarball
@@ -524,6 +524,16 @@ jobs:
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: *acceptance-tests-passed, trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: *acceptance-tests-passed }
+    - { get: bits-service-release-bitsgo, passed: *acceptance-tests-passed }
+
+- name: Publish Dev Release
+  plan:
+  - aggregate:
+    - get: capi-release-tarball
+      passed: [ Testing done ]
+    - { get: ci-tasks, resource: bits-service-ci }
+    - { get: (( grab switch.bits-service-release-tarball )), passed: [ Testing done ] }
+    - { get: (( grab switch.bits-service-release-version )), passed: [ Testing done ] }
   - aggregate:
     - task: Publish release tarball URLs
       file: ci-tasks/tasks/publish-release-tarball-urls.yml
@@ -543,13 +553,13 @@ jobs:
   plan:
   - aggregate:
     - get: (( grab switch.bits-service-release ))
-      passed: *acceptance-tests-passed
+      passed: [ Testing done ]
     - get: (( grab switch.bits-service-release-version ))
-      passed: *acceptance-tests-passed
+      passed: [ Testing done ]
       params: { bump: minor }
     - get: ci-tasks
       resource: bits-service-ci
-    - get: cf-deployment-develop
+    # - get: cf-deployment-develop
   - task: Promote Release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
@@ -1425,6 +1435,7 @@ groups:
   - migration-backwards-bosh1
   - migration-backwards-bosh2
   - bump-bits-service-release-bitsgo
+  - Testing done
   - Publish Dev Release
   - Publish Final Release
   - Sync cf-deployment fork (develop)
