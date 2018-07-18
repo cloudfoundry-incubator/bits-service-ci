@@ -27,15 +27,15 @@ fly \
   set-pipeline \
   -p bits-service \
   -c <(spruce merge pipeline.yml $switch \
-    <(bitsgo/set-pipeline.sh aws-s3 -) \
-    <(bitsgo/set-pipeline.sh cos-s3 -) \
-    <(bitsgo/set-pipeline.sh azure -) \
-    <(bitsgo/set-pipeline.sh google-s3 -) \
-    <(bitsgo/set-pipeline.sh google-service-account -) \
-    <(bitsgo/set-pipeline.sh local -) \
-    <(bitsgo/set-pipeline.sh openstack -) \
-    <(bitsgo/set-pipeline.sh webdav -) \
-     <(bitsgo/set-pipeline.sh alibaba -) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh aws-s3) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh cos-s3) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh azure) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh google-s3) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh google-service-account) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh local) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh openstack) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh webdav) \
+    <(bitsgo/generate-bosh-lite-pipeline-integration.sh alibaba) \
     ) \
   -l <(lpass show "Shared-Flintstone"/ci-config --notes) \
   -l <(lpass show "Shared-Flintstone"/dynu.com --notes) \
