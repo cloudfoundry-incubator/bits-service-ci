@@ -21,7 +21,7 @@ fly -t flintstone set-pipeline \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
   -v ibm_metrics_api_key="${ibm_metrics_api_key}" \
-  -v softlayer-bosh-target="10.175.110.153" \
+  -v softlayer-bosh-target="10.175.143.230" \
   -v softlayer-bosh-username="${softlayer_bosh_username}" \
   -v softlayer-bosh-password="${softlayer_bosh_password}"
 
