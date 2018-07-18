@@ -415,47 +415,49 @@ jobs:
     - { get: cf-deployment-develop, trigger: true }
     - { get: git-deployment-vars }
     - { get: s3-cf-softlayer-deployment-events, trigger: true }
-  - task: Generate CF deployment manifest with bits-service enabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    output_mapping:
-      manifests: cf-with-bits-service-enabled
-    params:
-      BOSH_TARGET: ((sl-bosh-target))
-      DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: softlayer
-      BLOBSTORE_TYPE: s3
-      IAAS: softlayer
-      CF_DOMAIN: ((sl-cf1-domain))
-      OPERATIONS: >
-        -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/use-bosh-dns.yml
-        -o cf-deployment/operations/scale-to-one-az.yml
-        -o ci-tasks/operations/bits-service-scale-to-one-az.yml
-      VARIABLES: >
-        -v aws_region="((s3-blobstore-region))"
-        -v blobstore_access_key_id="((s3-blobstore-access-key-id))"
-        -v blobstore_secret_access_key="((s3-blobstore-secret-access-key))"
-        -v resource_directory_key="((cf2-s3-blobstore-bucket-name))"
-        -v buildpack_directory_key="((cf2-s3-blobstore-bucket-name))"
-        -v droplet_directory_key="((cf2-s3-blobstore-bucket-name))"
-        -v app_package_directory_key="((cf2-s3-blobstore-bucket-name))"
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service enabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params:
+        BOSH_TARGET: ((sl-bosh-target))
+        DEPLOYMENT_NAME: cf
+        ENVIRONMENT_NAME: softlayer
+        BLOBSTORE_TYPE: s3
+        IAAS: softlayer
+        CF_DOMAIN: ((sl-cf1-domain))
+        OPERATIONS: >
+          -o cf-deployment/operations/use-compiled-releases.yml
+          -o cf-deployment/operations/use-bosh-dns.yml
+          -o cf-deployment/operations/scale-to-one-az.yml
+          -o ci-tasks/operations/bits-service-scale-to-one-az.yml
+          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+        VARIABLES: >
+          -v aws_region="((s3-blobstore-region))"
+          -v blobstore_access_key_id="((s3-blobstore-access-key-id))"
+          -v blobstore_secret_access_key="((s3-blobstore-secret-access-key))"
+          -v resource_directory_key="((cf2-s3-blobstore-bucket-name))"
+          -v buildpack_directory_key="((cf2-s3-blobstore-bucket-name))"
+          -v droplet_directory_key="((cf2-s3-blobstore-bucket-name))"
+          -v app_package_directory_key="((cf2-s3-blobstore-bucket-name))"
+    - *merge-release-tarballs
   - aggregate:
     - put: git-deployment-vars
       params:
         rebase: true
         repository: updated/deployment-vars
-    - put: softlayer-cf-deployment
+    - task: softlayer-cf-deployment
+      file: ci-tasks/tasks/bosh-deploy.yml
       attempts: 2
+      input_mapping:
+        stemcells: stemcell
+        vars-store: git-deployment-vars
       params:
-        manifest: cf-with-bits-service-enabled/manifest.yml
-        stemcells: ["stemcell/stemcell.tgz"]
-        releases:
-          - 'capi-release-tarball/*.tgz'
-          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
-        no_redact: true
+        HOSTS_ENTRY_FILE: environments/softlayer/blue-hosts
+        DEPLOYMENT_NAME: cf
+        VARS_STORE_FILE: environments/softlayer/director/blue-vars.yml
   - task: Update change-ip
     file: ci-tasks/tasks/update-changeip-dns.yml
     input_mapping:
@@ -1631,12 +1633,6 @@ resources:
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-s3
-
-- name: softlayer-cf-deployment
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
-    deployment: cf
 
 - name: capi-release-version
   type: semver
