@@ -7,7 +7,6 @@ sl-bosh-params: &sl-bosh-params
   DIRECTOR_NAME: ((sl-bosh-director-name))
 
 bosh2-params: &bosh2-params
-  BOSH_TARGET: ((bosh2-target))
   BOSH_USERNAME: ((bosh2-username))
   BOSH_PASSWORD: ((bosh2-password))
 
@@ -1174,7 +1173,6 @@ jobs:
         cf-deployment: cf-deployment-develop
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-boshlite2-bits-service-disabled
-        BOSH_TARGET: ((bosh2-target))
         DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: migration-webdav
         BLOBSTORE_TYPE: webdav
@@ -1294,50 +1292,6 @@ jobs:
   on_failure: *notify
 
 # Infrastructure
-- name: recreate-bosh-lite-1
-  serial: true
-  plan:
-  - aggregate:
-    - { get: daily-morning-timer, trigger: true }
-    - get: ci-tasks
-      resource: bits-service-ci
-    - get: bosh1-recreation-events
-      params: { bump: major }
-  - task: recreate-bosh-lite
-    file: ci-tasks/tasks/recreate-bosh-lite.yml
-    params:
-      SSH_CONNECTION_STRING: root@10.155.171.3
-      SSH_KEY: ((github-private-key))
-      BOSH_USERNAME: ((bosh-username))
-      BOSH_PASSWORD: ((bosh-password))
-      BOSH_DIRECTOR_IP: 192.168.50.4
-      VAGRANT_GATEWAY: 192.168.50.1
-  - put: bosh1-recreation-events
-    params: { file: bosh1-recreation-events/number }
-  on_failure: *notify
-
-- name: recreate-bosh-lite-2
-  serial: true
-  plan:
-  - aggregate:
-    - { get: daily-morning-timer, trigger: true }
-    - get: ci-tasks
-      resource: bits-service-ci
-    - get: bosh2-recreation-events
-      params: { bump: major }
-  - task: recreate-bosh-lite
-    file: ci-tasks/tasks/recreate-bosh-lite.yml
-    params:
-      SSH_CONNECTION_STRING: root@10.155.171.22
-      SSH_KEY: ((github-private-key))
-      BOSH_USERNAME: ((bosh2-username))
-      BOSH_PASSWORD: ((bosh2-password))
-      BOSH_DIRECTOR_IP: 192.168.50.4
-      VAGRANT_GATEWAY: 192.168.50.1
-  - put: bosh2-recreation-events
-    params: { file: bosh2-recreation-events/number }
-  on_failure: *notify
-
 - name: cleanup-bosh-sl
   serial: true
   plan:
@@ -1478,8 +1432,6 @@ groups:
   - migration-bosh2 (webdav)
 - name: infrastructure
   jobs:
-  - recreate-bosh-lite-1
-  - recreate-bosh-lite-2
   - cleanup-bosh-aws
   - cleanup-bosh-sl
   - manually-delete-cf-diego-aws
@@ -1720,21 +1672,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-bosh2/deployment-deleted
-
-- name: bosh1-recreation-events
-  type: semver
-  source: &recreation-events-source
-    driver: git
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: events
-    file: events/bosh1/recreated
-    private_key: ((github-private-key))
-
-- name: bosh2-recreation-events
-  type: semver
-  source:
-    <<: *recreation-events-source
-    file: events/bosh2/recreated
 
 - name: cf-diego-aws-deployment-events
   type: semver
