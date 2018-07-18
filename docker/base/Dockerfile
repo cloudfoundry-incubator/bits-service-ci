@@ -61,3 +61,5 @@ RUN git config --global user.email "flintstone+cibot@cloudfoundry.org" && \
 
 RUN wget https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.48-linux-amd64 -O /usr/local/bin/bosh2 && \
     chmod +x /usr/local/bin/bosh2
+
+RUN echo "10.175.143.230 director-blue.flinstone.ams" >> /etc/hosts
