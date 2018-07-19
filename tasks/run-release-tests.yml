@@ -18,6 +18,7 @@ params:
   ENVIRONMENT_NAME: unconfigured
   DIRECTOR_NAME: unconfigured
   DIRECTOR_IP: unconfigured
+  VARS_YAML:
 
 run:
   path: ci-tasks/scripts/run-release-tests.sh

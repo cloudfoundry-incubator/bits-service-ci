@@ -1,16 +1,19 @@
 #!/bin/bash -ex
 
-cd $(dirname $0)/../../bits-service-system-test-source
 
 echo "${DIRECTOR_IP} ${DIRECTOR_NAME}" >> /etc/hosts
 
 export BOSH_CLIENT=$BOSH_USERNAME
 export BOSH_CLIENT_SECRET=$BOSH_PASSWORD
 export BOSH_DEPLOYMENT=$DEPLOYMENT_NAME
-export BOSH_ENVIRONMENT=my-env
+export BOSH_ENVIRONMENT=$DIRECTOR_NAME
+if [ "$VARS_YAML" != "" ]; then
+    export BOSH_CA_CERT=$(bosh2 int ${VARS_YAML} --path /director_ssl/ca)
+else
+    export BOSH_CA_CERT=$(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/director/vars.yml --path /director_ssl/ca)
+fi
 
-bosh2 alias-env my-env -e $DIRECTOR_NAME --ca-cert <(bosh2 int ../deployment-vars/environments/${ENVIRONMENT_NAME}/director/vars.yml --path /director_ssl/ca)
-bosh2 login
+cd $(dirname $0)/../../bits-service-system-test-source
 
 bosh2 manifest > manifest.yml
 export BITS_SERVICE_MANIFEST=manifest.yml
