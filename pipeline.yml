@@ -466,6 +466,7 @@ jobs:
       <<: *sl-bosh-params
       CHANGE_IP_USER: ((changeip-username))
       CHANGE_IP_PASSWORD: ((changeip-password))
+      VARS_YAML: deployment-vars/environments/softlayer/director/blue-vars.yml
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
