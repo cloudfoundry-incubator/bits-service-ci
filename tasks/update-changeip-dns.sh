@@ -6,7 +6,12 @@ export BOSH_CLIENT=$BOSH_USERNAME
 export BOSH_CLIENT_SECRET=$BOSH_PASSWORD
 export BOSH_ENVIRONMENT=my-env
 
-bosh2 alias-env my-env -e $DIRECTOR_NAME --ca-cert <(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/director/vars.yml --path /director_ssl/ca)
+if [ "$VARS_YAML" != "" ]; then
+    bosh2 alias-env my-env -e $DIRECTOR_NAME --ca-cert <(bosh2 int ${VARS_YAML} --path /director_ssl/ca)
+else
+    bosh2 alias-env my-env -e $DIRECTOR_NAME --ca-cert <(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/director/vars.yml --path /director_ssl/ca)
+fi
+
 bosh2 login
 
 bosh2 -d cf instances > instances
