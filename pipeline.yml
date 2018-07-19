@@ -5,6 +5,7 @@ sl-bosh-params: &sl-bosh-params
   ENVIRONMENT_NAME: softlayer
   DIRECTOR_IP: ((sl-bosh-director-ip))
   DIRECTOR_NAME: ((sl-bosh-director-name))
+  VARS_YAML: deployment-vars/environments/softlayer/director/blue-vars.yml
 
 bosh2-params: &bosh2-params
   BOSH_USERNAME: ((bosh2-username))
