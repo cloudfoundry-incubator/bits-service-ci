@@ -431,7 +431,6 @@ jobs:
         CF_DOMAIN: ((sl-cf1-domain))
         OPERATIONS: >
           -o cf-deployment/operations/use-compiled-releases.yml
-          -o cf-deployment/operations/use-bosh-dns.yml
           -o cf-deployment/operations/scale-to-one-az.yml
           -o ci-tasks/operations/bits-service-scale-to-one-az.yml
           -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
@@ -675,7 +674,6 @@ jobs:
       CF_DOMAIN: ((aws-cf1-domain))
       OPERATIONS: >
         -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/use-bosh-dns.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-external-blobstore.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
@@ -798,7 +796,6 @@ jobs:
       <<: *bosh-interpolate-aws-bits-service-disabled
       OPERATIONS: >
         -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/use-bosh-dns.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-external-blobstore.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
@@ -902,7 +899,6 @@ jobs:
       # TODO: remove these operations. They are very likely not used, because this is a deployment *with* bits-service.
       OPERATIONS: >
         -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/use-bosh-dns.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/use-local-blobstore.yml
         -o ci-tasks/operations/bits-service-scale-to-one-az.yml
@@ -1023,7 +1019,6 @@ jobs:
         IAAS: bosh-lite
         OPERATIONS: >
           -o cf-deployment/operations/use-compiled-releases.yml
-          -o cf-deployment/operations/use-bosh-dns.yml
           -o cf-deployment/operations/scale-to-one-az.yml
           -o cf-deployment/operations/use-external-blobstore.yml
           -o cf-deployment/operations/use-s3-blobstore.yml
@@ -1079,7 +1074,6 @@ jobs:
       <<: *bosh-interpolate-boshlite1-bits-service-disabled
       OPERATIONS: >
         -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/use-bosh-dns.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o cf-deployment/operations/use-external-blobstore.yml
         -o cf-deployment/operations/use-s3-blobstore.yml
@@ -1183,8 +1177,7 @@ jobs:
         IAAS: bosh-lite
         OPERATIONS: >
           -o cf-deployment/operations/use-compiled-releases.yml
-          -o cf-deployment/operations/use-bosh-dns.yml
-          -o 1-click/operations/add-dns-alias-internal-public-access-entry.yml
+          -o 1-click/operations/add-system-domain-dns-alias.yml
           -o cf-deployment/operations/scale-to-one-az.yml
           -o ci-tasks/operations/disable-bits-service.yml
           -o ci-tasks/operations/bits-service-scale-to-one-az.yml
@@ -1222,8 +1215,7 @@ jobs:
       <<: *bosh-interpolate-boshlite2-bits-service-disabled
       OPERATIONS: >
         -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/use-bosh-dns.yml
-        -o 1-click/operations/add-dns-alias-internal-public-access-entry.yml
+        -o 1-click/operations/add-system-domain-dns-alias.yml
         -o cf-deployment/operations/scale-to-one-az.yml
         -o ci-tasks/operations/bits-service-scale-to-one-az.yml
         -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
