@@ -424,7 +424,6 @@ jobs:
         deployment-vars: git-deployment-vars
       params:
         BOSH_TARGET: ((sl-bosh-target))
-        DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: softlayer
         BLOBSTORE_TYPE: s3
         IAAS: softlayer
@@ -667,7 +666,6 @@ jobs:
       manifests: cf-with-bits-service-disabled
     params: &bosh-interpolate-aws-bits-service-disabled
       BOSH_TARGET: ((aws-bosh-target))
-      DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: aws
       BLOBSTORE_TYPE: s3
       IAAS: aws
@@ -892,7 +890,6 @@ jobs:
       deployment-vars: git-deployment-vars
     params:
       BOSH_TARGET: ((blobstore-local-bosh-target))
-      DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: blobstore-local
       BLOBSTORE_TYPE: local
       IAAS: bosh-lite
@@ -1013,7 +1010,6 @@ jobs:
         cf-deployment: cf-deployment-develop
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-boshlite1-bits-service-disabled
-        DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: migration-s3
         BLOBSTORE_TYPE: s3
         IAAS: bosh-lite
@@ -1171,7 +1167,6 @@ jobs:
         cf-deployment: cf-deployment-develop
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-boshlite2-bits-service-disabled
-        DEPLOYMENT_NAME: cf
         ENVIRONMENT_NAME: migration-webdav
         BLOBSTORE_TYPE: webdav
         IAAS: bosh-lite
