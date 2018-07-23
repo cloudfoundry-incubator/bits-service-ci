@@ -15,7 +15,6 @@ outputs:
 - name: updated
 
 params:
-  DEPLOYMENT_NAME:
   ENVIRONMENT_NAME:
   IAAS:
   BLOBSTORE_TYPE:

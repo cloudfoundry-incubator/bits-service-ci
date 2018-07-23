@@ -3,7 +3,7 @@
 if [[ "${ENVIRONMENT_NAME}" == 'aws' ]] ||
    [[ "${ENVIRONMENT_NAME}" == 'blobstore-local' ]] ||
    [[ "${ENVIRONMENT_NAME}" == 'softlayer' ]]; then
-  deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-${DEPLOYMENT_NAME}.yml)
+  deployment_vars=$(readlink -f deployment-vars/environments/${ENVIRONMENT_NAME}/deployment-vars-cf.yml)
 else
   deployment_vars="deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml"
 fi
@@ -39,8 +39,6 @@ esac
 
 bosh2 interpolate cf-deployment/cf-deployment.yml \
   --vars-store "${deployment_vars}" \
-  -o cf-deployment/operations/rename-deployment.yml \
-  -v deployment_name="${DEPLOYMENT_NAME}" \
   ${iaas} \
   -v system_domain="${CF_DOMAIN}" \
   -o ci-tasks/operations/stemcell-version.yml \
