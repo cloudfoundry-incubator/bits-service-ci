@@ -38,7 +38,7 @@ jobs:
   - aggregate:
     - { get: 1-click }
     - { get: ((bosh_lite_name))-cf-deployment-events, trigger: true }
-    - { get: ((bosh_lite_name))-ready-for-deployment-events, trigger: true, passed: [ update-cloud-config-((bosh_lite_name)) ] }
+    - { get: ((bosh_lite_name))-ready-for-deployment-events, trigger: true, passed: [ update-cloud-and-runtime-config-((bosh_lite_name)) ] }
     - { get: state }
     - { get: cf-deployment, resource: cf-deployment-bitsgo}
     - { get: bits-service-release-bitsgo-tarball, trigger: true }

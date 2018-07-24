@@ -46,7 +46,7 @@ jobs:
       trigger: true
     - get: ((bosh_lite_name))-ready-for-deployment-events
       trigger: true
-      passed: [ update-cloud-config-((bosh_lite_name)) ]
+      passed: [ update-cloud-and-runtime-config-((bosh_lite_name)) ]
     - get: state
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment, resource: cf-deployment-bitsgo, trigger: true }

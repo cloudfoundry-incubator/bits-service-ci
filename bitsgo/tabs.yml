@@ -11,7 +11,7 @@ groups:
       - (( defer append ))
       - delete-((bosh_lite_name))-cf-deployment
       - Show BOSH summary for ((bosh_lite_name))
-      - update-cloud-config-((bosh_lite_name))
+      - update-cloud-and-runtime-config-((bosh_lite_name))
       - cancel-cf-deployment-task-in-((bosh_lite_name))
       - recreate-((bosh_lite_name))
       - clean-up-((bosh_lite_name))
