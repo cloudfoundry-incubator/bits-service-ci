@@ -25,9 +25,9 @@
     options:
       common_name: not_configured
       alternative_names:
-      - blobstore.10.175.96.245.xip.io
-      - '*.10.175.96.245.xip.io'
-      - 10.175.96.245.xip.io
+      - blobstore.10.175.96.245.nip.io
+      - '*.10.175.96.245.nip.io'
+      - 10.175.96.245.nip.io
       ca: default_ca
 
 - type: replace

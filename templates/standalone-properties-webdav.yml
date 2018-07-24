@@ -7,8 +7,8 @@ properties:
       webdav_config: &webdav_config
         username: (( grab properties.blobstore.admin_users.0.username ))
         password: (( grab properties.blobstore.admin_users.0.password ))
-        public_endpoint: (( concat "http://blobstore." instance_groups.blobstore.networks.static.static_ips.0  ".xip.io:" properties.blobstore.port))
-        private_endpoint: (( concat "https://" instance_groups.blobstore.networks.static.static_ips.0 ".xip.io:4443" ))
+        public_endpoint: (( concat "http://blobstore." instance_groups.blobstore.networks.static.static_ips.0  ".nip.io:" properties.blobstore.port))
+        private_endpoint: (( concat "https://" instance_groups.blobstore.networks.static.static_ips.0 ".nip.io:4443" ))
         ca_cert: (( grab properties.blobstore.tls.ca_cert ))
     droplets:
       directory_key: &droplet_directory_key droplets
