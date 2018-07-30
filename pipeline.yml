@@ -658,48 +658,54 @@ jobs:
     - { get: cf-acceptance-tests, trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: run-after-midnight, trigger: true }
-  - task: Generate CF deployment manifest with bits-service disabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    output_mapping:
-      manifests: cf-with-bits-service-disabled
-    params: &bosh-interpolate-aws-bits-service-disabled
-      BOSH_TARGET: ((aws-bosh-target))
-      ENVIRONMENT_NAME: aws
-      BLOBSTORE_TYPE: s3
-      IAAS: aws
-      CF_DOMAIN: ((aws-cf1-domain))
-      OPERATIONS: >
-        -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/scale-to-one-az.yml
-        -o cf-deployment/operations/use-external-blobstore.yml
-        -o cf-deployment/operations/use-s3-blobstore.yml
-        -o ci-tasks/operations/disable-bits-service.yml
-        -o ci-tasks/operations/scale-diego-cell-instances.yml
-      VARIABLES: >
-        -v aws_region="((cf1-s3-blobstore-region))"
-        -v blobstore_access_key_id="((cf-migration-s3-blobstore-access-key-id))"
-        -v blobstore_secret_access_key="((cf-migration-s3-blobstore-secret-access-key))"
-        -v resource_directory_key="((cf1-s3-blobstore-bucket-name))"
-        -v buildpack_directory_key="((cf1-s3-blobstore-bucket-name))"
-        -v droplet_directory_key="((cf1-s3-blobstore-bucket-name))"
-        -v app_package_directory_key="((cf1-s3-blobstore-bucket-name))"
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service disabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params: &bosh-interpolate-aws-bits-service-disabled
+        BOSH_TARGET: ((aws-bosh-target))
+        ENVIRONMENT_NAME: aws
+        BLOBSTORE_TYPE: s3
+        IAAS: aws
+        CF_DOMAIN: ((aws-cf1-domain))
+        OPERATIONS: >
+          -o cf-deployment/operations/use-compiled-releases.yml
+          -o cf-deployment/operations/scale-to-one-az.yml
+          -o cf-deployment/operations/use-external-blobstore.yml
+          -o cf-deployment/operations/use-s3-blobstore.yml
+          -o ci-tasks/operations/disable-bits-service.yml
+          -o ci-tasks/operations/scale-diego-cell-instances.yml
+          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+        VARIABLES: >
+          -v aws_region="((cf1-s3-blobstore-region))"
+          -v blobstore_access_key_id="((cf-migration-s3-blobstore-access-key-id))"
+          -v blobstore_secret_access_key="((cf-migration-s3-blobstore-secret-access-key))"
+          -v resource_directory_key="((cf1-s3-blobstore-bucket-name))"
+          -v buildpack_directory_key="((cf1-s3-blobstore-bucket-name))"
+          -v droplet_directory_key="((cf1-s3-blobstore-bucket-name))"
+          -v app_package_directory_key="((cf1-s3-blobstore-bucket-name))"
+    - *merge-release-tarballs
   - aggregate:
     - put: git-deployment-vars
       params:
         rebase: true
         repository: updated/deployment-vars
-    - put: aws-diego-deployment
+    - &aws-bosh-deploy
+      task: bosh deploy
+      file: ci-tasks/tasks/bosh-deploy.yml
       attempts: 2
-      params: &params-aws-deployment-bits-service-disabled
-        manifest: cf-with-bits-service-disabled/manifest.yml
-        stemcells: ["stemcell/stemcell.tgz"]
-        releases:
-          - "capi-release-tarball/*.tgz"
-          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
-        no_redact: true
+      input_mapping:
+        stemcells: stemcell
+        vars-store: git-deployment-vars
+      params:
+        HOSTS_ENTRY_FILE: environments/aws/bbl-state/hosts
+        DEPLOYMENT_NAME: cf
+        VARS_STORE_FILE: environments/aws/bbl-state/vars/director-vars-store.yml
+        USE_BOSH_ALL_PROXY: true
+        JUMPBOX_VARS_STORE_FILE: environments/aws/bbl-state/vars/jumpbox-vars-store.yml
+        JUMPBOX_VARS_FILE: environments/aws/bbl-state/vars/jumpbox-vars-file.yml
   - attempts: 3
     aggregate:
     - &aws-bits-service-disabled-run-cats
@@ -784,30 +790,27 @@ jobs:
     - { get: cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: run-after-midnight, passed: [deploy-and-test-cf-diego-aws], trigger: true }
-  - task: Generate CF deployment manifest with bits-service enabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-develop
-      deployment-vars: git-deployment-vars
-    output_mapping:
-      manifests: cf-with-bits-service-enabled
-    params: &bosh-interpolate-aws-bits-service-enabled
-      <<: *bosh-interpolate-aws-bits-service-disabled
-      OPERATIONS: >
-        -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/scale-to-one-az.yml
-        -o cf-deployment/operations/use-external-blobstore.yml
-        -o cf-deployment/operations/use-s3-blobstore.yml
-        -o ci-tasks/operations/scale-diego-cell-instances.yml
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service enabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-develop
+        deployment-vars: git-deployment-vars
+      params: &bosh-interpolate-aws-bits-service-enabled
+        <<: *bosh-interpolate-aws-bits-service-disabled
+        OPERATIONS: >
+          -o cf-deployment/operations/use-compiled-releases.yml
+          -o cf-deployment/operations/scale-to-one-az.yml
+          -o cf-deployment/operations/use-external-blobstore.yml
+          -o cf-deployment/operations/use-s3-blobstore.yml
+          -o ci-tasks/operations/scale-diego-cell-instances.yml
+          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+    - *merge-release-tarballs
   - put: git-deployment-vars
     params:
       rebase: true
       repository: updated/deployment-vars
-  - put: aws-diego-deployment
-    attempts: 2
-    params: &params-aws-deployment-bits-service-enabled
-      <<: *params-aws-deployment-bits-service-disabled
-      manifest: cf-with-bits-service-enabled/manifest.yml
+  - *aws-bosh-deploy
   - attempts: 3
     aggregate:
     - &aws-bits-service-enabled-run-cats
@@ -1592,14 +1595,6 @@ resources:
     start: 4:00 AM
     stop: 5:00 AM
     location: Europe/Berlin
-
-- name: aws-diego-deployment
-  type: bosh-deployment
-  source:
-    target: ((aws-bosh-target))
-    username: ((aws-bosh-username))
-    password: ((aws-bosh-password))
-    deployment: cf
 
 - name: bosh-deployment-bits-service-local
   type: bosh2-deployment
