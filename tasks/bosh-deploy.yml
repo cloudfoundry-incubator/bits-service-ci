@@ -14,7 +14,9 @@
     HOSTS_ENTRY_FILE: unconfigured
     DEPLOYMENT_NAME: unconfigured
     VARS_STORE_FILE: unconfigured
-    BOSH_ALL_PROXY_FILE:
+    USE_BOSH_ALL_PROXY: false
+    JUMPBOX_VARS_STORE_FILE: unconfigured # use only when USE_BOSH_ALL_PROXY is true
+    JUMPBOX_VARS_FILE: unconfigured # use only when USE_BOSH_ALL_PROXY is true
     STEMCELL_FILES: '*.tgz'
     RELEASE_FILES: '*.tgz'
     MANIFEST_FILE: manifest.yml
