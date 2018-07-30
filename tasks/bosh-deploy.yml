@@ -14,6 +14,7 @@
     HOSTS_ENTRY_FILE: unconfigured
     DEPLOYMENT_NAME: unconfigured
     VARS_STORE_FILE: unconfigured
+    BOSH_ALL_PROXY_FILE:
     STEMCELL_FILES: '*.tgz'
     RELEASE_FILES: '*.tgz'
     MANIFEST_FILE: manifest.yml
