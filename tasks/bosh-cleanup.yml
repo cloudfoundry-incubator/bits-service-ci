@@ -5,11 +5,15 @@ image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
 
 inputs:
 - name: ci-tasks
+- name: vars-store
 
 params:
-  BOSH_USERNAME:
-  BOSH_PASSWORD:
-  BOSH_TARGET:
+  HOSTS_ENTRY_FILE: unconfigured
+  DEPLOYMENT_NAME: unconfigured
+  VARS_STORE_FILE: unconfigured
+  USE_BOSH_ALL_PROXY: false
+  JUMPBOX_VARS_STORE_FILE: unconfigured # use only when USE_BOSH_ALL_PROXY is true
+  JUMPBOX_VARS_FILE: unconfigured # use only when USE_BOSH_ALL_PROXY is true
 
 run:
   path: ci-tasks/scripts/bosh-cleanup.sh

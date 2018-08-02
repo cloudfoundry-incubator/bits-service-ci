@@ -1,6 +1,5 @@
-#!/bin/bash
+#!/bin/bash -ex
 
-bosh -u x -p x target $BOSH_TARGET
-bosh login $BOSH_USERNAME $BOSH_PASSWORD
-bosh cleanup --all
+. ci-tasks/scripts/bosh-login.sh
 
+bosh2 clean-up --all
