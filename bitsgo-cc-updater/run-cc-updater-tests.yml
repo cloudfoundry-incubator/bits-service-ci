@@ -18,7 +18,7 @@ resources:
   type: git
   source:
     uri: https://github.com/petergtz/cf-deployment.git
-    branch: develop
+    branch: master
 
 - name: bits-service-release-bitsgo-tarball
   type: s3

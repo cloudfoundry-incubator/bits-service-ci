@@ -413,14 +413,14 @@ jobs:
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: stemcell, resource: softlayer-stemcell, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-develop, trigger: true }
+    - { get: cf-deployment-master, trigger: true }
     - { get: git-deployment-vars }
     - { get: s3-cf-softlayer-deployment-events, trigger: true }
   - aggregate:
     - task: Generate CF deployment manifest with bits-service enabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params:
         BOSH_TARGET: ((sl-bosh-target))
@@ -561,7 +561,7 @@ jobs:
       params: { bump: minor }
     - get: ci-tasks
       resource: bits-service-ci
-    # - get: cf-deployment-develop
+    # - get: cf-deployment-master
   - task: Promote Release
     file: ci-tasks/tasks/promote-bits-service-final-release.yml
     input_mapping:
@@ -597,7 +597,7 @@ jobs:
   #   file: ci-tasks/tasks/update-opsfile.yml
   #   input_mapping:
   #     release-version: (( grab switch.bits-service-release-version ))
-  #     cf-deployment: cf-deployment-develop
+  #     cf-deployment: cf-deployment-master
   #     digests: release-digest
   #   output_mapping:
   #     cf-deployment-updated: cf-deployment-updated
@@ -608,7 +608,7 @@ jobs:
   #     source-repo: cf-deployment-updated
   #   output_mapping:
   #     committed-repo: cf-deployment-committed
-  # - put: cf-deployment-develop
+  # - put: cf-deployment-master
   #   params: { repository: cf-deployment-committed }
   on_failure: *notify
 
@@ -653,7 +653,7 @@ jobs:
     - { get: cf-diego-aws-deployment-events, trigger: true}
     - { get: stemcell, resource: aws-stemcell, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-develop, trigger: true }
+    - { get: cf-deployment-master, trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-acceptance-tests, trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
@@ -662,7 +662,7 @@ jobs:
     - task: Generate CF deployment manifest with bits-service disabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-aws-bits-service-disabled
         BOSH_TARGET: ((aws-bosh-target))
@@ -785,7 +785,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [deploy-and-test-cf-diego-aws] }
     - { get: stemcell, resource: aws-stemcell, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, passed: [deploy-and-test-cf-diego-aws], trigger: true}
-    - { get: cf-deployment-develop, passed: [deploy-and-test-cf-diego-aws], trigger: true }
+    - { get: cf-deployment-master, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-acceptance-tests, passed: [deploy-and-test-cf-diego-aws], trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [deploy-and-test-cf-diego-aws], trigger: true }
@@ -794,7 +794,7 @@ jobs:
     - task: Generate CF deployment manifest with bits-service enabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-aws-bits-service-enabled
         <<: *bosh-interpolate-aws-bits-service-disabled
@@ -881,7 +881,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))],}
     - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-develop, trigger: true }
+    - { get: cf-deployment-master, trigger: true }
     - { get: git-deployment-vars }
     - { get: cf-smoke-tests, trigger: true }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
@@ -890,7 +890,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: cf-deployment-develop
+      cf-deployment: cf-deployment-master
       deployment-vars: git-deployment-vars
     params:
       BOSH_TARGET: ((blobstore-local-bosh-target))
@@ -1001,7 +1001,7 @@ jobs:
     - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-develop, trigger: true }
+    - { get: cf-deployment-master, trigger: true }
     - { get: migration-s3-bosh-lite-ready-for-deployment-events, trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
@@ -1011,7 +1011,7 @@ jobs:
     - task: Generate CF deployment manifest with bits-service disabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-boshlite1-bits-service-disabled
         ENVIRONMENT_NAME: migration-s3
@@ -1068,7 +1068,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: cf-deployment-develop
+      cf-deployment: cf-deployment-master
       deployment-vars: git-deployment-vars
     params: &bosh-interpolate-boshlite1-bits-service-enabled
       <<: *bosh-interpolate-boshlite1-bits-service-disabled
@@ -1104,7 +1104,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [migration-bosh1 (S3)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: bits-service-ci }
-    - { get: cf-deployment-develop, passed: [migration-bosh1 (S3)], trigger: true }
+    - { get: cf-deployment-master, passed: [migration-bosh1 (S3)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh1 (S3)], trigger: true }
     - { get: bits-service-migration-tests, passed: [migration-bosh1 (S3)], trigger: true}
@@ -1113,7 +1113,7 @@ jobs:
     - task: Generate CF deployment manifest with bits-service enabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params: *bosh-interpolate-boshlite1-bits-service-enabled
     - *merge-release-tarballs
@@ -1131,7 +1131,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: cf-deployment-develop
+      cf-deployment: cf-deployment-master
       deployment-vars: git-deployment-vars
     params: *bosh-interpolate-boshlite1-bits-service-disabled
   - aggregate:
@@ -1158,7 +1158,7 @@ jobs:
     - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-develop, trigger: true }
+    - { get: cf-deployment-master, trigger: true }
     - { get: migration-webdav-bosh-lite-ready-for-deployment-events, trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
@@ -1168,7 +1168,7 @@ jobs:
     - task: Generate CF deployment manifest with bits-service disabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params: &bosh-interpolate-boshlite2-bits-service-disabled
         ENVIRONMENT_NAME: migration-webdav
@@ -1208,7 +1208,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service enabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: cf-deployment-develop
+      cf-deployment: cf-deployment-master
       deployment-vars: git-deployment-vars
     params: &bosh-interpolate-boshlite2-bits-service-enabled
       <<: *bosh-interpolate-boshlite2-bits-service-disabled
@@ -1243,7 +1243,7 @@ jobs:
     - { get: (( grab switch.bits-service-release-version )), passed: [migration-bosh2 (webdav)] }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: bits-service-ci }
-    - { get: cf-deployment-develop, passed: [migration-bosh2 (webdav)], trigger: true }
+    - { get: cf-deployment-master, passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: git-deployment-vars }
     - { get: (( grab switch.bits-service-release )), passed: [migration-bosh2 (webdav)], trigger: true }
     - { get: bits-service-migration-tests, passed: [migration-bosh2 (webdav)], trigger: true}
@@ -1252,7 +1252,7 @@ jobs:
     - task: Generate CF deployment manifest with bits-service enabled
       file: ci-tasks/tasks/bosh-interpolate.yml
       input_mapping:
-        cf-deployment: cf-deployment-develop
+        cf-deployment: cf-deployment-master
         deployment-vars: git-deployment-vars
       params: *bosh-interpolate-boshlite2-bits-service-enabled
     - *merge-release-tarballs
@@ -1270,7 +1270,7 @@ jobs:
   - task: Generate CF deployment manifest with bits-service disabled
     file: ci-tasks/tasks/bosh-interpolate.yml
     input_mapping:
-      cf-deployment: cf-deployment-develop
+      cf-deployment: cf-deployment-master
       deployment-vars: git-deployment-vars
     params: *bosh-interpolate-boshlite2-bits-service-disabled
   - aggregate:
