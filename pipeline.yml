@@ -504,8 +504,7 @@ jobs:
   - aggregate:
     - get: capi-release-tarball
       passed: &acceptance-tests-passed
-        # TODO uncomment when we have updated the AWS director
-        # - enable-BITS-SERVICE-diego-and-run-CATs
+        - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
         - deploy-and-test-cf-blobstore-local
@@ -897,7 +896,6 @@ jobs:
       ENVIRONMENT_NAME: blobstore-local
       BLOBSTORE_TYPE: local
       IAAS: bosh-lite
-      # TODO: remove these operations. They are very likely not used, because this is a deployment *with* bits-service.
       OPERATIONS: >
         -o cf-deployment/operations/use-compiled-releases.yml
         -o cf-deployment/operations/scale-to-one-az.yml
