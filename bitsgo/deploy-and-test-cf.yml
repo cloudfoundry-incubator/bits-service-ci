@@ -53,30 +53,32 @@ jobs:
     - { get: bits-service-release-bitsgo-tarball, passed: [ create-and-upload-bitsgo-release ], trigger: true }
     - { get: bits-service-release-bitsgo-version, passed: [ create-and-upload-bitsgo-release ] }
     - { get: bits-service-release-bitsgo, passed: [ create-and-upload-bitsgo-release ] }
-  - task: detect-stemcell
-    file: 1-click/tasks/detect-stemcell.yml
-  - task: bosh upload-release bits-service
-    file: 1-click/tasks/bosh-upload-release.yml
-    input_mapping:
-      releases: bits-service-release-bitsgo-tarball
-    params:
-      BOSH_LITE_NAME: ((bosh_lite_name))
-      RELEASE_TARBALL: '*.tgz'
-  - task: Generate cf deployment manifest
-    file: ci-tasks/bitsgo/generate-cf-deployment-manifest.yml
-    input_mapping:
-      ci-tasks: ci-tasks
-    params:
-      BOSH_LITE_NAME: ((bosh_lite_name))
-      EXTRA_ARGS: (( grab extra_args ))
-  - put: state
-    params:
-      repository: out-state
-      rebase: true
-  - task: Deploy cf
-    file: 1-click/tasks/bosh-deploy.yml
-    params:
-      BOSH_LITE_NAME: ((bosh_lite_name))
+  - aggregate:
+    - task: detect-stemcell
+      file: 1-click/tasks/detect-stemcell.yml
+    - task: bosh upload-release bits-service
+      file: 1-click/tasks/bosh-upload-release.yml
+      input_mapping:
+        releases: bits-service-release-bitsgo-tarball
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+        RELEASE_TARBALL: '*.tgz'
+    - task: Generate cf deployment manifest
+      file: ci-tasks/bitsgo/generate-cf-deployment-manifest.yml
+      input_mapping:
+        ci-tasks: ci-tasks
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+        EXTRA_ARGS: (( grab extra_args ))
+  - aggregate:
+    - put: state
+      params:
+        repository: out-state
+        rebase: true
+    - task: Deploy cf
+      file: 1-click/tasks/bosh-deploy.yml
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
 
 - name:  run-cf-smoke-tests-in-((bosh_lite_name))
   serial: true
