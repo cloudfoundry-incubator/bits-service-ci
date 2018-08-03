@@ -7,7 +7,7 @@ image_resource:
   source: { repository: flintstonecf/ci }
 
 inputs:
-- name: bitsgo
+- name: bits-service
 - name: ci-tasks
 
 params:

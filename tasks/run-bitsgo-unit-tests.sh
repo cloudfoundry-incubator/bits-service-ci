@@ -3,8 +3,8 @@
 export GOPATH=$(readlink -f go)
 export PATH=$GOPATH/bin:$PATH
 
-mkdir -p $GOPATH/src/github.com/petergtz $GOPATH/bin $GOPATH/pkg
-cp -a bitsgo $GOPATH/src/github.com/petergtz
+mkdir -p $GOPATH/src/github.com/cloudfoundry-incubator $GOPATH/bin $GOPATH/pkg
+cp -a bits-service $GOPATH/src/github.com/cloudfoundry-incubator
 cd $GOPATH/src/github.com/cloudfoundry-incubator/bits-service
 
 glide install
