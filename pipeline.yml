@@ -453,7 +453,7 @@ jobs:
       input_mapping:
         stemcells: stemcell
         vars-store: git-deployment-vars
-      params:
+      params: &sl-bosh-params-new
         HOSTS_ENTRY_FILE: environments/softlayer/blue-hosts
         DEPLOYMENT_NAME: cf
         VARS_STORE_FILE: environments/softlayer/director/blue-vars.yml
@@ -699,7 +699,7 @@ jobs:
       input_mapping:
         stemcells: stemcell
         vars-store: git-deployment-vars
-      params:
+      params: &aws-bosh-params-new
         HOSTS_ENTRY_FILE: environments/aws/bbl-state/hosts
         DEPLOYMENT_NAME: cf
         VARS_STORE_FILE: environments/aws/bbl-state/vars/director-vars-store.yml
@@ -1290,26 +1290,31 @@ jobs:
 - name: cleanup-bosh-sl
   serial: true
   plan:
-  - get: ci-tasks
-    resource: bits-service-ci
-  - get: nightly-timer
-    trigger: true
+  - aggregate:
+    - get: ci-tasks
+      resource: bits-service-ci
+    - get: nightly-timer
+      trigger: true
+    - get: git-deployment-vars
   - task: cleanup-bosh
     file: ci-tasks/tasks/bosh-cleanup.yml
-    params: *sl-bosh-params
-  on_failure: *notify
+    input_mapping: { vars-store: git-deployment-vars }
+    params: *sl-bosh-params-new
 
 - name: cleanup-bosh-aws
   serial: true
   plan:
-  - get: ci-tasks
-    resource: bits-service-ci
-  - get: nightly-timer
-    trigger: true
+  - aggregate:
+    - get: ci-tasks
+      resource: bits-service-ci
+    - get: nightly-timer
+      trigger: true
+    - get: git-deployment-vars
   - task: cleanup-bosh
     file: ci-tasks/tasks/bosh-cleanup.yml
-    params: *aws-bosh-params
-  on_failure: *notify
+    input_mapping:
+      vars-store: git-deployment-vars
+    params: *aws-bosh-params-new
 
 - name: Sync cf-deployment fork (develop)
   plan:
