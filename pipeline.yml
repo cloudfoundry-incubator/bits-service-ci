@@ -36,7 +36,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, trigger: true }
+    - { get: bits-service, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -46,7 +46,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -61,7 +61,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -75,7 +75,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -89,7 +89,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -103,7 +103,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -117,7 +117,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -131,7 +131,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: bitsgo, passed: [run-bitsgo-unit-tests], trigger: true }
+    - { get: bits-service, passed: [run-bitsgo-unit-tests], trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
@@ -145,7 +145,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: bitsgo
+    - get: bits-service
       passed:
         - run-bitsgo-unit-tests
         - run-bitsgo-contract-integration-test-openstack
@@ -162,9 +162,9 @@ jobs:
     file: ci-tasks/tasks/bump-release.yml
     input_mapping:
       git-repo: bits-service-release-bitsgo
-      git-sub-repo: bitsgo
+      git-sub-repo: bits-service
     params:
-      SUB_MODULE_PATH: src/github.com/petergtz/bitsgo
+      SUB_MODULE_PATH: src/github.com/cloudfoundry-incubator/bits-service
   - put: bits-service-release-bitsgo
     params:
       repository: bumped/git-repo
@@ -1528,10 +1528,10 @@ resources:
     private_key: ((github-private-key))
     disable_ci_skip: true
 
-- name: bitsgo
+- name: bits-service
   type: git
   source:
-    uri: https://github.com/petergtz/bitsgo.git
+    uri: https://github.com/cloudfoundry-incubator/bits-service.git
     private_key: ((github-private-key))
 
 - name: bits-service-client
