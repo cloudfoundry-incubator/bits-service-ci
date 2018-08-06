@@ -4,3 +4,6 @@ extra_args: |
     -o cf-deployment/operations/experimental/bits-service-local.yml
     -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
     -o ci-tasks/operations/bits-service-scale-to-one-az.yml
+    -o cf-deployment/operations/experimental/use-xenial-stemcell.yml
+    -o cf-deployment/operations/experimental/use-compiled-releases-xenial-stemcell.yml
+    -o cf-deployment/operations/disable-log-cache.yml
