@@ -70,15 +70,14 @@ jobs:
       params:
         BOSH_LITE_NAME: ((bosh_lite_name))
         EXTRA_ARGS: (( grab extra_args ))
-  - aggregate:
-    - put: state
-      params:
-        repository: out-state
-        rebase: true
-    - task: Deploy cf
-      file: 1-click/tasks/bosh-deploy.yml
-      params:
-        BOSH_LITE_NAME: ((bosh_lite_name))
+  - put: state
+    params:
+      repository: out-state
+      rebase: true
+  - task: Deploy cf
+    file: 1-click/tasks/bosh-deploy.yml
+    params:
+      BOSH_LITE_NAME: ((bosh_lite_name))
 
 - name:  run-cf-smoke-tests-in-((bosh_lite_name))
   serial: true
