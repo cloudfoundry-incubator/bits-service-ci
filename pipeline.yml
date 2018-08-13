@@ -16,12 +16,6 @@ aws-bosh-params: &aws-bosh-params
   BOSH_USERNAME: ((aws-bosh-username))
   BOSH_PASSWORD: ((aws-bosh-password))
 
-# TODO these params coud be deduced from bits-service-private-config
-blobstore-local-bosh-params: &blobstore-local-bosh-params
-  BOSH_TARGET: ((blobstore-local-bosh-target))
-  BOSH_USERNAME: ((blobstore-local-bosh-username))
-  BOSH_PASSWORD: ((blobstore-local-bosh-password))
-
 notify: &notify
   put: slack
   params:
@@ -507,7 +501,6 @@ jobs:
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
-        - deploy-and-test-cf-blobstore-local
         - run-system-tests-S3
         - run-system-tests-LOCAL
         - run-system-tests-WEBDAV
@@ -868,78 +861,6 @@ jobs:
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
-  on_failure: *notify
-
-- name: deploy-and-test-cf-blobstore-local
-  serial: true
-  serial_groups: [cf-blobstore-local]
-  plan:
-  - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true}
-    - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))],}
-    - { get: stemcell, resource: boshlite-stemcell, trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-master, trigger: true }
-    - { get: git-deployment-vars }
-    - { get: cf-smoke-tests, trigger: true }
-    - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
-    - { get: run-after-midnight, trigger: true }
-    - { get: blobstore-local-bosh-lite-ready-for-deployment-events, trigger: true }
-  - task: Generate CF deployment manifest with bits-service enabled
-    file: ci-tasks/tasks/bosh-interpolate.yml
-    input_mapping:
-      cf-deployment: cf-deployment-master
-      deployment-vars: git-deployment-vars
-    params:
-      BOSH_TARGET: ((blobstore-local-bosh-target))
-      ENVIRONMENT_NAME: blobstore-local
-      BLOBSTORE_TYPE: local
-      IAAS: bosh-lite
-      OPERATIONS: >
-        -o cf-deployment/operations/use-compiled-releases.yml
-        -o cf-deployment/operations/scale-to-one-az.yml
-        -o ci-tasks/operations/use-local-blobstore.yml
-        -o ci-tasks/operations/bits-service-scale-to-one-az.yml
-        -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
-  - aggregate:
-    - put: git-deployment-vars
-      params:
-        repository: updated/deployment-vars
-        rebase: true
-    - do:
-      - task: merge release tarballs
-        file: ci-tasks/tasks/merge-resources.yml
-        input_mapping: { a: capi-release-tarball, b: (( grab switch.bits-service-release-tarball )) }
-        output_mapping: { merged: releases }
-      - task: make blobstore-local-cf-deployment
-        file: ci-tasks/tasks/bosh-deploy.yml
-        attempts: 2
-        input_mapping:
-          stemcells: stemcell
-          vars-store: git-deployment-vars
-        params:
-          HOSTS_ENTRY_FILE: environments/softlayer/director/blobstore-local-bosh-lite/hosts
-          DEPLOYMENT_NAME: cf
-          VARS_STORE_FILE: environments/softlayer/director/blobstore-local-bosh-lite/vars.yml
-  - task: Run Smoke Tests
-    attempts: 3
-    file: ci-tasks/tasks/run-smoke-tests.yml
-    input_mapping:
-      deployment-vars: git-deployment-vars
-    params:
-      <<: *blobstore-local-bosh-params
-      DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: blobstore-local
-    on_failure:
-      task: inform-pipeline-operator
-      file: ci-tasks/tasks/echo.yml
-      params:
-        MESSAGE: |
-            Consider doing a fresh deployment by manually running job
-            [manually-delete-cf-diego-aws]
-            (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/deploy-and-test-cf-blobstore-local)
-
   on_failure: *notify
 
 # delete standalone bits-service deployment
@@ -1393,7 +1314,6 @@ groups:
   - Sync cf-deployment fork (develop)
   - Sync cf-deployment fork (master)
   - Sync capi-release fork
-  - deploy-and-test-cf-blobstore-local
   - run-bitsgo-contract-integration-test-azure
   - run-bitsgo-contract-integration-test-cos
   - run-bitsgo-contract-integration-test-google-gcp
@@ -1686,13 +1606,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/bits-service-webdav-sl-deployment-deleted
-
-- name: blobstore-local-bosh-lite-ready-for-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events-bosh-lites-blobstore-local-bosh-lite-ready
-    uri: git@github.com:cloudfoundry/bits-service-private-config.git
 
 - name: migration-s3-bosh-lite-ready-for-deployment-events
   type: semver
