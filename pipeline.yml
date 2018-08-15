@@ -507,8 +507,8 @@ jobs:
         - deploy-and-test-with-s3-cf-softlayer
         - run-CATs-in-bitsgo-aws-s3-bosh-lite
         - run-CATs-in-bitsgo-cos-s3-bosh-lite
+        - run-CATs-in-bitsgo-azure-bosh-lite
         # TODO uncomment when we have IBM provided accounts
-        # - run-CATs-in-bitsgo-azure-bosh-lite
         # - run-CATs-in-bitsgo-google-s3-bosh-lite
         # - run-CATs-in-bitsgo-google-service-account-bosh-lite
         - run-CATs-in-bitsgo-local-bosh-lite
