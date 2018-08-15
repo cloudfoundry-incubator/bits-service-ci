@@ -63,6 +63,13 @@ jobs:
       params:
         BOSH_LITE_NAME: ((bosh_lite_name))
         RELEASE_TARBALL: '*.tgz'
+    - task: bosh upload-release capi
+      file: 1-click/tasks/bosh-upload-release.yml
+      input_mapping:
+        releases: capi-release-tarball
+      params:
+        BOSH_LITE_NAME: ((bosh_lite_name))
+        RELEASE_TARBALL: '*.tgz'
     - task: Generate cf deployment manifest
       file: ci-tasks/bitsgo/generate-cf-deployment-manifest.yml
       input_mapping:
