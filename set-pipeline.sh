@@ -26,10 +26,11 @@ fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c <(spruce merge pipeline.yml $switch \
+  -c <(spruce merge --go-patch pipeline.yml $switch \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh aws-s3) \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh cos-s3) \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh azure) \
+    bitsgo/azure-morning-timer-exception.yml \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh google-s3) \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh google-service-account) \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh local) \

@@ -1,0 +1,20 @@
+---
+
+# Since our monthly credit for Azure is limited, we don't want to recreate, deploy, and test
+# this env every morning. Therefore, we override this config for Azure only.
+
+- type: replace
+  path: /jobs/name=delete-bitsgo-azure-bosh-lite/plan/get=daily-morning-timer
+  value:
+    get: azure-recreation-timer
+    trigger: true
+- type: replace
+  path: /resources/-
+  value:
+    name: azure-recreation-timer
+    type: time
+    source:
+      days: [Monday, Thursday] # Let's see if this is sufficient. Should we see that the env is broken more often than others, let's recreate more often.
+      start: 4:00 AM
+      stop: 5:00 AM
+      location: Europe/Berlin
