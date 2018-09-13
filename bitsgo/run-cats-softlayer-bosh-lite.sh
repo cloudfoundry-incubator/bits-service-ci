@@ -44,7 +44,8 @@ cat > config.json <<EOF
   "include_windows": false,
   "backend": "diego",
   "include_diego_ssh": false,
-  "skip_diego_unsupported_tests": true
+  "skip_diego_unsupported_tests": true,
+  "use_log_cache": false
 }
 EOF
 export CONFIG="$(readlink -nf config.json)"
