@@ -63,9 +63,10 @@ if [[ "${ENVIRONMENT_NAME}" != 'aws' ]] &&
   deployment_vars=$(readlink -f "deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml")
 fi
 
-REPO_DIR="$(readlink -f deployment-vars)" \
-FILENAME="${deployment_vars}" \
-COMMIT_MESSAGE="Update ${ENVIRONMENT_NAME} deployment vars" \
-./ci-tasks/scripts/commit-file-if-changed.sh
+export PATH=$PATH:$(readlink -f ci-tasks/tasks)
+pushd deployment-vars
+    git add .
+    commit-if-changed.sh "Update ${ENVIRONMENT_NAME} deployment vars"
+popd
 
 cp -r deployment-vars updated/deployment-vars
