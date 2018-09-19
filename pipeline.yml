@@ -670,6 +670,7 @@ jobs:
           -o ci-tasks/operations/disable-bits-service.yml
           -o ci-tasks/operations/scale-diego-cell-instances.yml
           -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+          -o ci-tasks/operations/use-iam-profiles.yml
         VARIABLES: >
           -v aws_region="((cf1-s3-blobstore-region))"
           -v blobstore_access_key_id="((cf-migration-s3-blobstore-access-key-id))"
@@ -797,6 +798,7 @@ jobs:
           -o cf-deployment/operations/use-s3-blobstore.yml
           -o ci-tasks/operations/scale-diego-cell-instances.yml
           -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+          -o ci-tasks/operations/use-iam-profiles.yml
     - *merge-release-tarballs
   - put: git-deployment-vars
     params:
