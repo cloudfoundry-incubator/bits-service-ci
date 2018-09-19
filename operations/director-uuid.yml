@@ -1,4 +1,0 @@
----
-- type: replace
-  path: /director_uuid?
-  value: ((director_uuid))
