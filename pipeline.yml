@@ -511,6 +511,7 @@ jobs:
         # TODO uncomment when we have IBM provided accounts
         # - run-CATs-in-bitsgo-google-s3-bosh-lite
         # - run-CATs-in-bitsgo-google-service-account-bosh-lite
+        - run-CATs-in-bitsgo-alibaba-bosh-lite
         - run-CATs-in-bitsgo-local-bosh-lite
         - run-CATs-in-bitsgo-openstack-bosh-lite
         - run-CATs-in-bitsgo-webdav-bosh-lite
