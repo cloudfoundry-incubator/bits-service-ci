@@ -1,7 +1,7 @@
 extra_args: |
   -o cf-deployment/operations/experimental/bits-service.yml
   -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-  -o ci-tasks/operations/bits-service-azure.yml
+  -o cf-deployment/operations/experimental/bits-service-azure-storage.yml
   -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   -v blobstore_storage_account_name=$azure_storage_account_name
   -v blobstore_storage_access_key=$azure_storage_access_key
