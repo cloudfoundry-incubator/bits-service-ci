@@ -4,9 +4,11 @@ extra_args: |
   -o cf-deployment/operations/experimental/bits-service-swift.yml
   -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   -v openstack_username=$openstack_username
-  -v openstack_api_key=$openstack_api_key
+  -v openstack_password=$openstack_api_key
   -v openstack_temp_url_key=$openstack_temp_url_key
   -v openstack_domain_id=$openstack_domain_id
+  -v openstack_region=london
+  -v auth_url=https://lon-identity.open.softlayer.com/v3
   -v resource_directory_key=$resource_directory_key
   -v buildpack_directory_key=$buildpack_directory_key
   -v droplet_directory_key=$droplet_directory_key
