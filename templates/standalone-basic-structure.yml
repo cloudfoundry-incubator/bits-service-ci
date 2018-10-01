@@ -2,7 +2,7 @@ name: (( concat "bits-service-" $BLOBSTORE_TYPE ))
 
 stemcells:
 - alias: default
-  os: ubuntu-trusty
+  os: ubuntu-xenial
   version: latest
 
 update:
