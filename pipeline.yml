@@ -1409,14 +1409,6 @@ resources:
     <<: *s3-resource
     regexp: capi-release/capi-(.*).tgz
 
-- name: bits-service-ci
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: master
-    private_key: ((github-private-key))
-    paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*"]
-
 - name: cf-deployment-develop
   type: git
   source:
