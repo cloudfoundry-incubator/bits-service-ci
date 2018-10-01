@@ -1,14 +1,10 @@
 ---
 - type: remove
-  path: /instance_groups/name=consul/jobs/name=statsd_injector?
-- type: remove
   path: /instance_groups/name=nats/jobs/name=statsd_injector?
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=statsd_injector?
 - type: remove
   path: /instance_groups/name=uaa/jobs/name=statsd_injector?
-- type: remove
-  path: /instance_groups/name=consul/jobs/name=statsd_injector?
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector?
 - type: remove
