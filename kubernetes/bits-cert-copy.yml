@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bits-cert-copy
+spec:
+  template:
+    spec:
+      serviceAccountName: "opi"
+      restartPolicy: OnFailure
+      volumes:
+      - name: host-docker
+        hostPath:
+          path: /etc/docker
+          type: Directory
+      containers:
+      - name: copy-certs
+        env:
+        - name: BITS_REGISTRY
+          value: registry.IP:6666
+        image: pego/bits-cert-copy:latest
+        volumeMounts:
+        - name: host-docker
+          mountPath: /workspace/docker
