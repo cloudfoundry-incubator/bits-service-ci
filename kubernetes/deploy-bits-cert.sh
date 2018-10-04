@@ -26,10 +26,14 @@ openssl req -config /tmp/ssl.conf \
         -keyout /tmp/certs/key_file \
         -out /tmp/certs/cert_file
 
+set +e
 kubectl delete secret bits-cert -n scf
+set -e
 kubectl create secret generic bits-cert -n scf --from-file=/tmp/certs/cert_file --from-file=/tmp/certs/key_file
 
+set +e
 kubectl delete job bits-cert-copy -n scf
+set -e
 
 kubectl apply -f <(sed -e "s/IP/$IP/g" bits-cert-copy.yml) -n scf
 

@@ -16,7 +16,7 @@ spec:
       - name: copy-certs
         env:
         - name: BITS_REGISTRY
-          value: registry.IP:6666
+          value: registry.IP.nip.io:6666
         image: pego/bits-cert-copy:latest
         volumeMounts:
         - name: host-docker
