@@ -1,0 +1,20 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: eirini/ibmcloud
+
+inputs:
+- name: ci-resources
+- name: ci-tasks
+
+params:
+  IBMCLOUD_ACCOUNT:
+  IBMCLOUD_USER:
+  IBMCLOUD_PASSWORD:
+  CLUSTER_NAME:
+
+run:
+  path: ci-tasks/tasks/deploy-bits-cert.sh
