@@ -8,7 +8,7 @@ source ci-resources/scripts/ibmcloud-functions
 ibmcloud-login
 export-kubeconfig "$CLUSTER_NAME"
 
-export IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
+export IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}')
 export REGISTRY=registry.$IP.nip.io
 
 cat > /tmp/ssl.conf << EOF
