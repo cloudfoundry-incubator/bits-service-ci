@@ -18,11 +18,11 @@ resources:
       disable_ci_skip: true
 
 jobs:
-  - name: update haproxy
-    plan:
-      - { get: haproxy-config }
-      - { get: private-config }
-      - task: do update
-        params:
-          HAPROXY_IP: ((ha_proxy_maschine))
-        file: haproxy-config/ha-proxy/tasks/update_config.yml
+- name: update haproxy
+  plan:
+  - { get: haproxy-config }
+  - { get: private-config }
+  - task: do update
+    params:
+      HAPROXY_IP: ((ha_proxy_maschine))
+    file: haproxy-config/ha-proxy/tasks/update_config.yml

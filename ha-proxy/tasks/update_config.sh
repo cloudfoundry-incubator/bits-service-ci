@@ -1,10 +1,9 @@
 #!/bin/bash -e
 
-ssh-add private-config/environments/softlayer/concourse/ha-maintenance
-#ssh -i? <key_file_path>
-ssh ha-maintenance@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
+export KEY_FILE=private-config/environments/softlayer/concourse/ha-maintenance
 
-ssh ha-maintenance@${HAPROXY_IP} 'service haproxy restart'
+ssh -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
+ssh -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'service haproxy restart'
 
 STAUTS_OK=$(curl -s http://flintstone.ci.cf-app.com/ -L -I | grep 200 | wc -l)
 
