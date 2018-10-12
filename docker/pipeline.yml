@@ -1,3 +1,4 @@
+---
 resources:
 - name: bits-service-ci-base
   type: git
