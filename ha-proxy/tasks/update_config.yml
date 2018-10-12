@@ -7,8 +7,5 @@ inputs:
 - name: haproxy-config
 - name: private-config
 
-params:
-  HAPROXY_IP: nil
-
 run:
   path: haproxy-config/ha-proxy/tasks/update_config.sh

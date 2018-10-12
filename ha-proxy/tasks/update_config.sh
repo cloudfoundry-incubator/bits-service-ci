@@ -3,7 +3,14 @@
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 export KEY_FILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-access-key
+export HOSTFILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-host
+export USERFILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-maintenance-user
+export HAPROXY_IP="$(cat ${HOSTFILE})"
+export USER="$(cat ${USERFILE})"
+
+# prepare for ssh connection
 chmod 600 ${KEY_FILE}
+
 printf "Downloading HAProxy config... \n"
 ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
 printf "Restarting HA proxy with latest config \n"
