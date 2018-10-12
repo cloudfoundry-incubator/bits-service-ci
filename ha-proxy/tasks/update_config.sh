@@ -1,8 +1,9 @@
 #!/bin/bash -e
 
-export KEY_FILE=private-config/environments/softlayer/concourse/ha-maintenance
-
+export KEY_FILE=private-config/environments/softlayer/concourse/ha-maintenance.key
+printf("Downloading HAProxy config... \n")
 ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
+printf("Restarting HA proxy with latest config \n")
 ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'service haproxy restart'
 
 STAUTS_OK=$(curl -s http://flintstone.ci.cf-app.com/ -L -I | grep 200 | wc -l)
