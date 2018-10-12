@@ -2,12 +2,12 @@
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-export KEY_FILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-maintenance.key
+export KEY_FILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-access-key
 chmod 600 ${KEY_FILE}
 printf "Downloading HAProxy config... \n"
-ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
+ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
 printf "Restarting HA proxy with latest config \n"
-ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'service haproxy restart'
+ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'service haproxy restart'
 
 STAUTS_OK=$(curl -s http://flintstone.ci.cf-app.com/ -L -I | grep 200 | wc -l)
 
