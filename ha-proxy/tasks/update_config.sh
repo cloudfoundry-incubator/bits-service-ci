@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
-export KEY_FILE=../../../private-config/environments/softlayer/concourse/ha-maintenance.key
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+export KEY_FILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-maintenance.key
 chmod 600 ${KEY_FILE}
 printf "Downloading HAProxy config... \n"
 ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} ha-maintenance@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
