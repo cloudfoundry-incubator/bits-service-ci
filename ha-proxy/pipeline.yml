@@ -5,9 +5,9 @@ resources:
     source:
       uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
       branch: master
- #     paths:
-     # - docs/haproxy.cfg
-     # - ha-proxy
+      paths:
+      - docs/haproxy.cfg
+      - ha-proxy/
 
   - name: private-config
     type: git
@@ -20,7 +20,7 @@ resources:
 jobs:
 - name: update haproxy
   plan:
-  - { get: haproxy-config }
+  - { get: haproxy-config , trigger: true }
   - { get: private-config }
   - task: do update
     file: haproxy-config/ha-proxy/tasks/update_config.yml
