@@ -37,6 +37,10 @@ case "${IAAS}" in
   ;;
 esac
 
+if [[ "${BLOBSTORE_TYPE}" != 'webdav' ]]; then
+  CONFIGURE_BITS="-o cf-deployment/operations/bits-service/configure-bits-service-${BLOBSTORE_TYPE}.yml"
+fi
+
 bosh2 interpolate cf-deployment/cf-deployment.yml \
   --vars-store "${deployment_vars}" \
   ${iaas} \
@@ -46,7 +50,7 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   -o ci-tasks/operations/global-env-property.yml \
   -v global_env=${IAAS} \
   -o cf-deployment/operations/bits-service/use-bits-service.yml \
-  -o cf-deployment/operations/bits-service/configure-bits-service-"${BLOBSTORE_TYPE}".yml \
+  $CONFIGURE_BITS \
   -o ci-tasks/operations/remove-statsd-injector.yml \
   ${OPERATIONS} \
   ${VARIABLES} \

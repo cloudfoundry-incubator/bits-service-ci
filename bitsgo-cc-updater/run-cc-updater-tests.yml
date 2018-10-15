@@ -57,7 +57,6 @@ jobs:
       BOSH_LITE_NAME: ((bosh_lite_name))
       EXTRA_ARGS: |
         -o cf-deployment/operations/bits-service/use-bits-service.yml
-        -o cf-deployment/operations/bits-service/configure-bits-service-webdav.yml
   - put: state
     params: { repository: out-state, rebase: true }
   - task: Deploy cf
