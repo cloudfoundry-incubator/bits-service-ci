@@ -6,8 +6,8 @@ TODO: document when we do the 1.0 update
 # Updating the haproxy configuration
 In order to update the ha-proxy config follow these steps
 
-- edit the config file ```docs/haproxy.cfg``` and commit changes
-- the changes will be picked up by the pipeline job [ha-proxy-config-sync](https://flintstone.ci.cf-app.com/teams/main/pipelines/ha-proxy-config-sync/jobs/update%20haproxy)  and deployed automatically
+- edit the config file ```docs/haproxy.cfg```, commit and push changes
+- the changes will be picked up by the pipeline job [ha-proxy-config-sync](https://flintstone.ci.cf-app.com/teams/main/pipelines/ha-proxy-config-sync) and deployed automatically
 - Done.
 - If in doubt, verify the changes by logging in to the machine and review the config manually
 
