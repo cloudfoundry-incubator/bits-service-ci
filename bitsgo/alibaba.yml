@@ -1,7 +1,6 @@
 extra_args: |
-  -o cf-deployment/operations/experimental/bits-service.yml
-  -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-  -o cf-deployment/operations/experimental/bits-service-alicloud-oss.yml
+  -o cf-deployment/operations/bits-service/use-bits-service.yml
+  -o cf-deployment/operations/bits-service/configure-bits-service-alicloud-oss.yml
   -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   -v blobstore_access_key_id=$alibaba_access_key_id
   -v blobstore_secret_access_key=$alibaba_secret_access_key

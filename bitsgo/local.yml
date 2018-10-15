@@ -1,6 +1,5 @@
 extra_args: |
-    -o cf-deployment/operations/experimental/bits-service.yml
-    -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-    -o cf-deployment/operations/experimental/bits-service-local.yml
+    -o cf-deployment/operations/bits-service/use-bits-service.yml
+    -o cf-deployment/operations/bits-service/configure-bits-service-local.yml
     -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
     -o ci-tasks/operations/bits-service-scale-to-one-az.yml

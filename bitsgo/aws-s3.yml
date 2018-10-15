@@ -1,7 +1,6 @@
 extra_args: |
-  -o cf-deployment/operations/experimental/bits-service.yml
-  -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-  -o cf-deployment/operations/experimental/bits-service-s3.yml
+  -o cf-deployment/operations/bits-service/use-bits-service.yml
+  -o cf-deployment/operations/bits-service/configure-bits-service-s3.yml
   -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   -v blobstore_access_key_id=$blobstore_access_key_id
   -v blobstore_secret_access_key=$blobstore_secret_access_key

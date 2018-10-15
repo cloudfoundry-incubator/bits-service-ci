@@ -6,7 +6,7 @@ require_relative 'ops_file_updater.rb'
 
 FileUtils.cp_r('cf-deployment/.', 'cf-deployment-updated')
 
-ops_file_path = 'operations/experimental/bits-service.yml'
+ops_file_path = 'operations/bits-service/use-bits-service.yml'
 ops_file = Pathname('cf-deployment') / ops_file_path
 
 updater = OpsFileUpdater.new(ops_file)

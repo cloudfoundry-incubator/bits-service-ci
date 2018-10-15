@@ -1,5 +1,4 @@
 extra_args: |
-    -o cf-deployment/operations/experimental/bits-service.yml
-    -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-    -o cf-deployment/operations/experimental/bits-service-webdav.yml
+    -o cf-deployment/operations/bits-service/use-bits-service.yml
+    -o cf-deployment/operations/bits-service/configure-bits-service-webdav.yml
     -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml

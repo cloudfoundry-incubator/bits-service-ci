@@ -1,7 +1,6 @@
 extra_args: |
-  -o cf-deployment/operations/experimental/bits-service.yml
-  -o cf-deployment/operations/experimental/enable-bits-service-consul.yml
-  -o cf-deployment/operations/experimental/bits-service-swift.yml
+  -o cf-deployment/operations/bits-service/use-bits-service.yml
+  -o cf-deployment/operations/bits-service/configure-bits-service-swift.yml
   -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
   -v openstack_username=$openstack_username
   -v openstack_password=$openstack_api_key
