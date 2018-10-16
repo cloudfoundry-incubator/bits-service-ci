@@ -5,7 +5,7 @@ sl-bosh-params: &sl-bosh-params
   ENVIRONMENT_NAME: softlayer
   DIRECTOR_IP: ((sl-bosh-director-ip))
   DIRECTOR_NAME: ((sl-bosh-director-name))
-  VARS_YAML: deployment-vars/environments/softlayer/director/blue-vars.yml
+  VARS_YAML: deployment-vars/environments/softlayer/director/green-vars.yml
 
 bosh2-params: &bosh2-params
   BOSH_USERNAME: ((bosh2-username))
@@ -448,9 +448,9 @@ jobs:
         stemcells: stemcell
         vars-store: git-deployment-vars
       params: &sl-bosh-params-new
-        HOSTS_ENTRY_FILE: environments/softlayer/blue-hosts
+        HOSTS_ENTRY_FILE: environments/softlayer/green-hosts
         DEPLOYMENT_NAME: cf
-        VARS_STORE_FILE: environments/softlayer/director/blue-vars.yml
+        VARS_STORE_FILE: environments/softlayer/director/green-vars.yml
   - task: Update change-ip
     file: ci-tasks/tasks/update-changeip-dns.yml
     input_mapping:
@@ -459,7 +459,7 @@ jobs:
       <<: *sl-bosh-params
       CHANGE_IP_USER: ((changeip-username))
       CHANGE_IP_PASSWORD: ((changeip-password))
-      VARS_YAML: deployment-vars/environments/softlayer/director/blue-vars.yml
+      VARS_YAML: deployment-vars/environments/softlayer/director/green-vars.yml
   - task: Run tests
     attempts: 3
     file: ci-tasks/tasks/run-system-tests.yml
