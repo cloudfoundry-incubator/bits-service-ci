@@ -13,10 +13,10 @@ instance_groups:
     stemcell: default
     networks:
       - name: default
+        default: [dns, gateway]
       - name: static
         static_ips:
           - (( grab $BLOBSTORE_JOB_IP ))
-        default: [dns, gateway]
     update: {}
     env:
       bosh:
