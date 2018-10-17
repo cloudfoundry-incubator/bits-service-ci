@@ -16,6 +16,7 @@ fi
 
 if [[ "${BLOBSTORE_TYPE}" != 'webdav' ]] &&
    [[ "${BLOBSTORE_TYPE}" != 's3' ]] &&
+   [[ "${BLOBSTORE_TYPE}" != 'gcs-service-account' ]] &&
    [[ "${BLOBSTORE_TYPE}" != 'local' ]]; then
   echo "Unknown blobstore type: ${BLOBSTORE_TYPE}"
   exit 1
