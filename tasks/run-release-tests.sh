@@ -11,6 +11,7 @@ if [ "$VARS_YAML" != "" ]; then
     export BOSH_CA_CERT=$(bosh2 int ${VARS_YAML} --path /director_ssl/ca)
     bosh2 int ${VARS_YAML} --path /sl_sshkey/private_key > /tmp/private.key
     export BOSH_ALL_PROXY=ssh+socks5://root@${DIRECTOR_NAME}:22?private-key=/tmp/private.key
+    chmod 600 /tmp/private.key
 else
     export BOSH_CA_CERT=$(bosh2 int deployment-vars/environments/${ENVIRONMENT_NAME}/director/vars.yml --path /director_ssl/ca)
 fi
