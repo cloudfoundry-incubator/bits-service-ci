@@ -1,0 +1,73 @@
+---
+resources:
+- name: bits-service-ci
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
+    branch: build-bits-docker
+
+- name: bits-service
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service.git
+    branch: dev-oci-registry
+
+- name: bits-service-release
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
+    private_key: ((github-private-key))
+    branch: oci-image-registry
+
+- name: eirinifs
+  type: s3
+  source:
+    bucket: eirini-resources
+    # regexp because versioned file not supported by COS
+    regexp: eirinifs_v(.*).tar
+    initial_path: eirinifs_v0.0.0.tar
+    # versioned_file: eirinifs.tar
+    # initial_version: 0.0.1
+    access_key_id: ((object-store-access-key))
+    secret_access_key: ((object-store-secret))
+    region_name: ((object-store-region))
+    endpoint: ((object-store-endpoint))
+
+- name: bits-docker-release
+  type: docker-image
+  source:
+    email: ((dockerhub-email))
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: ((dockerhub-username))/bits-service
+
+jobs:
+- name: update-bits-submodule
+  plan:
+  - { get: bits-service, trigger: true }
+  - { get: bits-service-release }
+  - { get: ci-tasks, resource: bits-service-ci}
+  - task: update-submodule-hash
+    file: ci-tasks/tasks/bump-release.yml
+    input_mapping:
+      git-repo: bits-service-release
+      git-sub-repo: bits-service
+    params:
+      SUB_MODULE_PATH: src/github.com/cloudfoundry-incubator/bits-service
+  - put: bits-service-release
+    params:
+      repository: bumped/git-repo
+      rebase: true
+
+- name: create-bits-image
+  plan:
+  - aggregate:
+    - { get: bits-service-release, trigger: true , passed: [update-bits-submodule] }
+    - { get: ci-tasks, resource: bits-service-ci}
+    - { get: eirinifs }
+  - task: get-image-artifacts
+    file: ci-tasks/tasks/get-image-artifacts.yml
+    input_mapping:
+      eirini-resources: eirinifs
+  - put: bits-docker-release
+    params: { build: docker-parts/docker }
