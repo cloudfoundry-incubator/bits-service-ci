@@ -1,0 +1,65 @@
+---
+resources:
+- name: bits-service-ci
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
+    branch: master
+
+- name: bits-service
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service.git
+    branch: oci-image-registry
+
+- name: bits-service-release
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/bits-service-release.git
+    branch: oci-image-registry
+
+- name: eirini-release
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
+    branch: develop
+
+- name: bits-release-image
+  type: docker-image
+  source:
+    email: ((docker-hub-email))
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+    repository: ((docker-hub-username))/bits-service
+
+jobs:
+- name: update-bits-submodule
+  plan:
+  - { get: bits-service, trigger: true }
+  - { get: bits-service-release }
+  - { get: ci-tasks, resource: bits-service-ci}
+  - task: update-submodule-hash
+    file: ci-tasks/tasks/bump-release.yml
+      input_mapping:
+        git-repo: bits-service-release
+        git-sub-repo: bits-service
+      params:
+        SUB_MODULE_PATH: src/github.com/cloudfoundry-incubator/bits-service
+  - put: bits-service-release
+    params:
+      repository: bumped/git-repo
+      rebase: true
+
+- name: create-bits-image
+  plan:
+  - aggregate:
+    - { get: bits-service-release, trigger: true , passed: update-bits-submodule }
+    - { get: ci-tasks, resource: bits-service-ci}
+    - { get: eirini-release } #trigger=true?
+  - task: get-image-artifacts
+    privileged: true
+    file: ci-tasks/tasks/get-image-artifacts.yml
+    - aquire-eirini-tar
+    - go build bits
+  - put: bits-docker-release
+    params: { build: bits-service-release/docker-release }
