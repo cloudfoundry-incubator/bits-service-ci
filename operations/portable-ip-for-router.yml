@@ -1,0 +1,10 @@
+---
+- type: replace
+  path: /resource_groups/name=router/networks/name=default/default?
+  value: [dns, gateway]
+
+- type: replace
+  path: /resource_groups/name=router/networks/-
+  value:
+    name: static
+    static_ips: [ ((sl-router-ip)) ]
