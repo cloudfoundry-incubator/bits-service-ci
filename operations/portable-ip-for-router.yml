@@ -7,4 +7,4 @@
   path: /resource_groups/name=router/networks/-
   value:
     name: static
-    static_ips: [ ((sl-router-ip)) ]
+    static_ips: [ ((sl_router_ip)) ]
