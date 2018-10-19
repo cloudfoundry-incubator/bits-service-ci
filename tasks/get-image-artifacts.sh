@@ -31,12 +31,12 @@ function build_bits_binary {
 }
 
 function provide_bits_layer_to_docker_parts {
-    printf "[INFO] Copy bits layer to to the output folder."
+    printf "[INFO] Copy bits layer to the output folder.\n"
     cp -av bits-service-release/docker/ docker-parts/
 }
 
 function provide_eirinifs_layer_to_docker_parts {
-    printf "[INFO] Copy eirini layer to to the output folder.\n"
+    printf "[INFO] Copy eirini layer to the output folder.\n"
     cp -v eirini-resources/eirinifs_v$(cat ${ROOT_DIR}/eirini-resources/version).tar ${ROOT_DIR}/docker-parts/docker/assets/eirinifs.tar
 }
 
