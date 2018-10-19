@@ -66,7 +66,7 @@ function cmd {
     # printf "[DEBUG] args check\n"
     # echo "Args 1 = $1"
     #  echo "Args 2 = $2"
-    version_number=""=$2
+    version_number=$2
     while [ "$1" != "" ]; do
         case $1 in
             -v | --file-version )       shift
