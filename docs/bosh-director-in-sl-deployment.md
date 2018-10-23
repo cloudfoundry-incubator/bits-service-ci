@@ -33,6 +33,7 @@ direnv allow
 
 bosh update-cloud-config ~/workspace/bits-service-private-config/environments/softlayer/cloud-config.yml
 bosh update-runtime-config --name dns  ~/workspace/bosh-deployment/runtime-configs/dns.yml  --vars-store=runtime-bosh-dns-vars.yml
+bosh update-runtime-config --name default-gateway  ~/workspace/bits-service-ci/runtime-config/add-default-route.yml
 ```
 
 Note that this creates a director called `director-{green|blue}.bits.ams`. The idea is that we want to alternate between **blue** and **green**. There is no automatism yet, but it'll make it clear that we run with two directors simultaneously to avoid disruption.

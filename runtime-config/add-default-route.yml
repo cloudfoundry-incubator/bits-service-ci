@@ -1,0 +1,15 @@
+releases:
+- name: os-conf
+  version: 19
+  url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=19
+  sha1: f515406949ee0bba0329d1ce4a7eb1679521eabd
+
+addons:
+- name: add-default-route
+  jobs:
+  - name: pre-start-script
+    release: os-conf
+    properties:
+      script: |-
+        #!/bin/bash
+        route add default gw $(route  -n | grep 10.0.0.0 | tr -s " " | cut -f2 -d' ') eth0 || true
