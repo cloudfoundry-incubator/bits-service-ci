@@ -1,10 +1,8 @@
 #!/bin/bash -ex
 
-echo "${DIRECTOR_IP} ${DIRECTOR_NAME}" >> /etc/hosts
-
 export BOSH_CLIENT=$BOSH_USERNAME
 export BOSH_CLIENT_SECRET=$BOSH_PASSWORD
-export BOSH_ENVIRONMENT=$DIRECTOR_NAME
+export BOSH_ENVIRONMENT=$DIRECTOR_IP
 if [ "$VARS_YAML" != "" ]; then
     export BOSH_CA_CERT=$(bosh2 int ${VARS_YAML} --path /director_ssl/ca)
 else
