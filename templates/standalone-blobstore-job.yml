@@ -1,6 +1,7 @@
 releases:
   - (( merge ))
   - { name: capi, version: latest }
+  - { name: bpm, version: latest }
 
 instance_groups:
   - (( prepend ))
@@ -9,6 +10,7 @@ instance_groups:
     instances: 1
     jobs:
     - { name: blobstore, release: capi}
+    - { name: bpm, release: bpm }
     vm_type: bits_service_vm
     stemcell: default
     networks:
