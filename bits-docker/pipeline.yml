@@ -59,7 +59,7 @@ jobs:
       repository: bumped/git-repo
       rebase: true
 
-- name: create-bits-image
+- name: push-to-dockerhub
   plan:
   - aggregate:
     - { get: bits-service-release, trigger: true , passed: [update-bits-submodule] }
