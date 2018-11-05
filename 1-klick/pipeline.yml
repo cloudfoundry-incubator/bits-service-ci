@@ -171,6 +171,8 @@ jobs:
       # - create-docker-images
     - get: scf-uaa-resources
     - get: ci-resources
+    - get: ci-tasks
+      resource: bits-service-ci
     - get: state
     - get: eirini-release
       trigger: true
@@ -185,6 +187,13 @@ jobs:
       IBMCLOUD_PASSWORD: ((ibmcloud-password))
       COMPONENT: scf
       HELM_CHART: cf
+      CLUSTER_NAME: ((cluster-name))
+  - task: deploy-bits-cert
+    file: ci-tasks/tasks/deploy-bits-cert.yml
+    params:
+      IBMCLOUD_ACCOUNT: ((ibmcloud-account))
+      IBMCLOUD_USER: ((ibmcloud-user))
+      IBMCLOUD_PASSWORD: ((ibmcloud-password))
       CLUSTER_NAME: ((cluster-name))
   - task: smoke-eirini
     attempts: 100
