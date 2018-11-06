@@ -576,33 +576,6 @@ jobs:
     - put: (( grab switch.bits-service-release-version ))
       params: { file: (( concat switch.bits-service-release-version "/version" )) }
 
-  - task: Calculate Digest of Final Release
-    file: ci-tasks/tasks/calculate-digest.yml
-    input_mapping:
-      source: release-tarball
-    output_mapping:
-      digests: release-digest
-  # TODO: find a better way to update the ops-file. Commenting this for the time being, because
-  #       it messes up our ops file (removes existing YML anchors etc.).
-  #       We might not need this anymore when RelInt automatically bumps from their side.
-  #
-  # - task: Update Opsfile
-  #   file: ci-tasks/tasks/update-opsfile.yml
-  #   input_mapping:
-  #     release-version: (( grab switch.bits-service-release-version ))
-  #     cf-deployment: cf-deployment-master
-  #     digests: release-digest
-  #   output_mapping:
-  #     cf-deployment-updated: cf-deployment-updated
-  # - task: Commit Updates
-  #   file: ci-tasks/tasks/commit-updates.yml
-  #   input_mapping:
-  #     release-version: (( grab switch.bits-service-release-version ))
-  #     source-repo: cf-deployment-updated
-  #   output_mapping:
-  #     committed-repo: cf-deployment-committed
-  # - put: cf-deployment-master
-  #   params: { repository: cf-deployment-committed }
   on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
