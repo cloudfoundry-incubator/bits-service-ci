@@ -23,6 +23,7 @@ cd concourse-deployment/cluster
 bosh -e sl-blue -d concourse deploy concourse.yml \
 -l ../versions.yml \
 --vars-store ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-blue-vars.yml \
+-o ~/workspace/bits-service-ci/operations/add-concourse-containerization-workers.yml \
 -o ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-stemcell-bits-version.yml \
 -o operations/scale.yml \
 --var web_instances=2 \
