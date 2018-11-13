@@ -28,6 +28,7 @@ jobs:
 # BITS-SERVICE
 - name: run-bitsgo-unit-tests
   serial: true
+  build_logs_to_retain: 100
   plan:
   - aggregate:
     - { get: bits-service, trigger: true }
@@ -37,6 +38,7 @@ jobs:
     file: ci-tasks/tasks/run-bitsgo-unit-tests.yml
   on_failure: *notify
 - name: run-bitsgo-contract-integration-test-openstack
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -52,6 +54,7 @@ jobs:
 
 
 - name: run-bitsgo-contract-integration-test-cos
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -66,6 +69,7 @@ jobs:
   on_failure: *notify
 
 - name: run-bitsgo-contract-integration-test-s3
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -80,6 +84,7 @@ jobs:
   on_failure: *notify
 
 - name: run-bitsgo-contract-integration-test-azure
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -94,6 +99,7 @@ jobs:
   on_failure: *notify
 
 - name: run-bitsgo-contract-integration-test-google-gcp
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -108,6 +114,7 @@ jobs:
   on_failure: *notify
 
 - name: run-bitsgo-contract-integration-test-google-s3
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -122,6 +129,7 @@ jobs:
   on_failure: *notify
 
 - name: run-bitsgo-contract-integration-test-alibaba
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -136,6 +144,7 @@ jobs:
   on_failure: *notify
 
 - name: bump-bits-service-release-bitsgo
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -166,6 +175,7 @@ jobs:
   on_failure: *notify
 
 - name: run-bits-service-client-tests
+  build_logs_to_retain: 100
   serial: true
   plan:
   - { get: bits-service-client, trigger: true }
@@ -176,6 +186,7 @@ jobs:
   on_failure: *notify
 
 - name: Publish gem
+  build_logs_to_retain: 100
   serial: true
   plan:
   - { get: bits-service-client, passed: [run-bits-service-client-tests], trigger: true }
@@ -188,6 +199,7 @@ jobs:
   on_failure: *notify
 
 - name: create-and-upload-bitsgo-release
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -213,6 +225,7 @@ jobs:
   on_failure: *notify
 
 - name: deploy-with-S3
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-s3]
   plan:
@@ -257,6 +270,7 @@ jobs:
   on_failure: *notify
 
 - name: run-system-tests-S3
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-s3]
   plan:
@@ -281,6 +295,7 @@ jobs:
   on_failure: *notify
 
 - name: deploy-with-LOCAL
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-local]
   plan:
@@ -315,6 +330,7 @@ jobs:
   on_failure: *notify
 
 - name: run-system-tests-LOCAL
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-local]
   plan:
@@ -339,6 +355,7 @@ jobs:
   on_failure: *notify
 
 - name: deploy-with-WEBDAV
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-webdav]
   plan:
@@ -373,6 +390,7 @@ jobs:
   on_failure: *notify
 
 - name: run-system-tests-WEBDAV
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-webdav]
   plan:
@@ -397,6 +415,7 @@ jobs:
   on_failure: *notify
 
 - name: deploy-and-test-with-s3-cf-softlayer
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-softlayer-deployment-s3]
   plan:
@@ -475,6 +494,7 @@ jobs:
 
 # CAPI-RELEASE
 - name: create-capi-release
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -494,6 +514,7 @@ jobs:
   on_failure: *notify
 
 - name: Testing done
+  build_logs_to_retain: 100
   plan:
   - aggregate:
     - get: capi-release-tarball
@@ -522,6 +543,7 @@ jobs:
     - { get: bits-service-release-bitsgo, passed: *acceptance-tests-passed }
 
 - name: Publish Dev Release
+  build_logs_to_retain: 100
   plan:
   - aggregate:
     - get: capi-release-tarball
@@ -545,6 +567,7 @@ jobs:
   on_failure: *notify
 
 - name: Publish Final Release
+  build_logs_to_retain: 100
   plan:
   - aggregate:
     - get: (( grab switch.bits-service-release ))
@@ -579,6 +602,7 @@ jobs:
   on_failure: *notify
 
 - name: manually-delete-cf-diego-aws
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -609,6 +633,7 @@ jobs:
   on_failure: *notify
 
 - name: deploy-and-test-cf-diego-aws
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-aws-deployment]
   plan:
@@ -744,6 +769,7 @@ jobs:
   on_failure: *notify
 
 - name: enable-BITS-SERVICE-diego-and-run-CATs
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-aws-deployment]
   plan:
@@ -843,6 +869,7 @@ jobs:
 
 # delete standalone bits-service deployment
 - name: delete-deployment-bits-service-local
+  build_logs_to_retain: 100
   plan:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
@@ -858,6 +885,7 @@ jobs:
   on_failure: *notify
 
 - name: delete-deployment-bits-service-webdav
+  build_logs_to_retain: 100
   plan:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
@@ -873,6 +901,7 @@ jobs:
   on_failure: *notify
 
 - name: delete-deployment-bits-service-s3
+  build_logs_to_retain: 100
   plan:
     - aggregate:
       - { get: daily-morning-timer, trigger: true }
@@ -888,6 +917,7 @@ jobs:
   on_failure: *notify
 
 - name: migration-bosh1 (S3)
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-bosh1-deployment]
   plan:
@@ -992,6 +1022,7 @@ jobs:
   on_failure: *notify
 
 - name: migration-backwards-bosh1
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-bosh1-deployment]
   plan:
@@ -1045,6 +1076,7 @@ jobs:
   on_failure: *notify
 
 - name: migration-bosh2 (webdav)
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-bosh2-deployment]
   plan:
@@ -1131,6 +1163,7 @@ jobs:
   on_failure: *notify
 
 - name: migration-backwards-bosh2
+  build_logs_to_retain: 100
   serial: true
   serial_groups: [cf-bosh2-deployment]
   plan:
@@ -1185,6 +1218,7 @@ jobs:
 
 # Infrastructure
 - name: cleanup-bosh-sl
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
@@ -1199,6 +1233,7 @@ jobs:
     params: *sl-bosh-params-new
 
 - name: cleanup-bosh-aws
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
