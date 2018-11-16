@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
+
+inputs:
+- name: bits-service-release
+- name: ci-tasks
+
+params:
+  BLOBSTORE_TYPE: unconfigured
+  BITS_DIRECTORY_KEY: unconfigured
+  BITS_AWS_REGION: unconfigured
+  AWS_ACCESS_KEY_ID: unconfigured
+  AWS_SECRET_ACCESS_KEY: unconfigured
+
+run:
+  path: ci-tasks/scripts/run-release-tests-non-bosh.sh
