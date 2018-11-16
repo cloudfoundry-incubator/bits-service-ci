@@ -17,8 +17,7 @@ RUN add-apt-repository ppa:brightbox/ruby-ng && \
 
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc
 
-RUN gem install bundler && \
-    gem install bosh_cli -v 1.3232.0
+RUN gem install bundler
 
 RUN wget https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.7/spiff_linux_amd64.zip && \
     unzip spiff_linux_amd64.zip && mv spiff /usr/local/bin/ && rm spiff_linux_amd64.zip
@@ -59,5 +58,5 @@ RUN gem install \
 RUN git config --global user.email "flintstone+cibot@cloudfoundry.org" && \
     git config --global user.name "Flintstone CI"
 
-RUN wget https://github.com/cloudfoundry/bosh-cli/releases/download/v5.3.1/bosh-cli-5.3.1-linux-amd64 -O /usr/local/bin/bosh2 && \
-    chmod +x /usr/local/bin/bosh2
+RUN wget https://github.com/cloudfoundry/bosh-cli/releases/download/v5.3.1/bosh-cli-5.3.1-linux-amd64 -O /usr/local/bin/bosh && \
+    chmod +x /usr/local/bin/bosh && ln -s /usr/local/bin/bosh /usr/local/bin/bosh2
