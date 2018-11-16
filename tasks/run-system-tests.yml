@@ -6,15 +6,14 @@ image_resource: { type: docker-image, source: { repository: flintstonecf/ci } }
 inputs:
 - name: bits-service-system-test-source
 - name: ci-tasks
-- name: deployment-vars
+- name: vars-store
 
 params:
-  BOSH_USERNAME:
-  BOSH_PASSWORD:
-  BOSH_TARGET:
+  ENVIRONMENT_NAME: unconfigured
   DEPLOYMENT_NAME: unconfigured
-  ENVIRONMENT_NAME:
-  CF_DOMAIN:
+  CF_DOMAIN: unconfigured
+  HOSTS_ENTRY_FILE: unconfigured
+  VARS_STORE_FILE: unconfigured
 
 run:
   path: ci-tasks/scripts/run-system-tests.sh

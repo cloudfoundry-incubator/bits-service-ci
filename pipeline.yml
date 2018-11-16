@@ -443,11 +443,12 @@ jobs:
     file: ci-tasks/tasks/run-system-tests.yml
     input_mapping:
       bits-service-system-test-source: (( grab switch.bits-service-release ))
-      deployment-vars: git-deployment-vars
+      vars-store: git-deployment-vars
     params:
-      <<: *sl-bosh-params
       DEPLOYMENT_NAME: cf
       ENVIRONMENT_NAME: softlayer
+      HOSTS_ENTRY_FILE: environments/softlayer/green-hosts
+      VARS_STORE_FILE: environments/softlayer/director/green-vars.yml
       CF_DOMAIN: ((sl-cf1-domain))
   on_failure: *notify
 
