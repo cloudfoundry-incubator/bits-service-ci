@@ -13,7 +13,7 @@ export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
 
 export ROUTER_IP=$(
   bosh -d ${DEPLOYMENT_NAME} vms \
-  | grep 'router' \
+  | grep -e '^router' \
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
 
