@@ -7,13 +7,13 @@ bosh -d $DEPLOYMENT_NAME manifest > $BITS_SERVICE_MANIFEST
 
 export BITS_SERVICE_PRIVATE_ENDPOINT_IP=$(
   bosh -d ${DEPLOYMENT_NAME} vms \
-  | grep ' bits' \
+  | grep 'bits' \
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
 
 export ROUTER_IP=$(
   bosh -d ${DEPLOYMENT_NAME} vms \
-  | grep ' router' \
+  | grep 'router' \
   | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
 )
 
