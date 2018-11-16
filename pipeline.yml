@@ -477,7 +477,7 @@ jobs:
   plan:
   - aggregate:
     - get: capi-release-tarball
-      passed: &acceptance-tests-passed
+      passed:
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
@@ -490,13 +490,32 @@ jobs:
         # TODO uncomment when we have IBM provided accounts
         # - run-CATs-in-bitsgo-google-s3-bosh-lite
         # - run-CATs-in-bitsgo-google-service-account-bosh-lite
-        - run-CATs-in-bitsgo-alibaba-bosh-lite
+        # - run-CATs-in-bitsgo-alibaba-bosh-lite
         - run-CATs-in-bitsgo-local-bosh-lite
         - run-CATs-in-bitsgo-openstack-bosh-lite
         - run-CATs-in-bitsgo-webdav-bosh-lite
       trigger: true
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: (( grab switch.bits-service-release-tarball )), passed: *acceptance-tests-passed, trigger: true }
+    - get: (( grab switch.bits-service-release-tarball ))
+      passed: &acceptance-tests-passed
+        - enable-BITS-SERVICE-diego-and-run-CATs
+        - migration-backwards-bosh1
+        - migration-backwards-bosh2
+        - run-system-tests-LOCAL
+        - run-system-tests-WEBDAV
+        - run-system-tests-S3 # <-- this is in addition to the passed condition on capi-release-tarball
+        - deploy-and-test-with-s3-cf-softlayer
+        - run-CATs-in-bitsgo-aws-s3-bosh-lite
+        - run-CATs-in-bitsgo-cos-s3-bosh-lite
+        - run-CATs-in-bitsgo-azure-bosh-lite
+        # TODO uncomment when we have IBM provided accounts
+        # - run-CATs-in-bitsgo-google-s3-bosh-lite
+        # - run-CATs-in-bitsgo-google-service-account-bosh-lite
+        # - run-CATs-in-bitsgo-alibaba-bosh-lite
+        - run-CATs-in-bitsgo-local-bosh-lite
+        - run-CATs-in-bitsgo-openstack-bosh-lite
+        - run-CATs-in-bitsgo-webdav-bosh-lite
+      trigger: true
     - { get: (( grab switch.bits-service-release-version )), passed: *acceptance-tests-passed }
     - { get: bits-service-release-bitsgo, passed: *acceptance-tests-passed }
 
