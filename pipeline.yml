@@ -224,74 +224,27 @@ jobs:
       only_tag: true
   on_failure: *notify
 
-- name: deploy-with-S3
+- name: run-system-tests-S3
   build_logs_to_retain: 100
   serial: true
-  serial_groups: [bits-deployment-s3]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: (( grab switch.bits-service-release-tarball )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
     - { get: (( grab switch.bits-service-release-version )), passed: [(( grab switch.create-and-upload-release ))] }
     - { get: (( grab switch.bits-service-release )), passed: [(( grab switch.create-and-upload-release ))], trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
-    - { get: git-deployment-vars }
+    - { get: ci-tasks, resource: bits-service-ci }
     - { get: bits-service-s3-sl-deployment-events, trigger: true }
-  - task: Create deployment manifest
-    file: ci-tasks/tasks/create-bits-manifest.yml
+  - task: Run tests
+    attempts: 3
+    file: ci-tasks/tasks/run-release-tests-non-bosh.yml
     input_mapping:
-      bits-service-deployment-manifest-generation-tools: (( grab switch.bits-service-release ))
-      bits-service-private-config: git-deployment-vars
+      bits-service-release: (( grab switch.bits-service-release ))
     params:
-      <<: *sl-bosh-params
       BITS_DIRECTORY_KEY: ((s3-blobstore-bucket-name))
       BITS_AWS_REGION: ((s3-blobstore-region))
       AWS_ACCESS_KEY_ID: ((s3-blobstore-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((s3-blobstore-secret-access-key))
       BLOBSTORE_TYPE: s3
-      BITS_SERVICE_JOB_IP: &bits_service_job_ip_s3 10.175.96.246
-      BLOBSTORE_JOB_IP: 10.175.96.247
-      DEPLOYMENT_NAME: bits-service-s3
-  - aggregate:
-    - put: git-deployment-vars
-      params:
-        rebase: true
-        repository: updated/bits-service-private-config
-    - put: bosh-deployment-bits-service-s3
-      attempts: 3
-      params: &sl-bits-service-deployment-params
-        manifest: manifests/manifest.yml
-        stemcells: ["stemcell/stemcell.tgz"]
-        releases:
-          - "capi-release-tarball/*.tgz"
-          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
-        no_redact: true
-  on_failure: *notify
-
-- name: run-system-tests-S3
-  build_logs_to_retain: 100
-  serial: true
-  serial_groups: [bits-deployment-s3]
-  plan:
-  - aggregate:
-    - { get: capi-release-tarball, passed: [deploy-with-S3], trigger: true }
-    - { get: (( grab switch.bits-service-release-tarball )), passed: [deploy-with-S3], trigger: true }
-    - { get: (( grab switch.bits-service-release-version )), passed: [deploy-with-S3] }
-    - { get: (( grab switch.bits-service-release )), passed: [deploy-with-S3] }
-    - { get: ci-tasks, resource: bits-service-ci }
-    - { get: git-deployment-vars }
-    - { get: bits-service-s3-sl-deployment-events, passed: [deploy-with-S3], trigger: true }
-  - task: Run tests
-    attempts: 3
-    file: ci-tasks/tasks/run-release-tests.yml
-    input_mapping:
-      bits-service-system-test-source: (( grab switch.bits-service-release ))
-      deployment-vars: git-deployment-vars
-    params:
-      <<: *sl-bosh-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_s3
-      DEPLOYMENT_NAME: bits-service-s3
   on_failure: *notify
 
 - name: deploy-with-LOCAL
@@ -326,7 +279,13 @@ jobs:
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-local
       attempts: 3
-      params: *sl-bits-service-deployment-params
+      params: &sl-bits-service-deployment-params
+        manifest: manifests/manifest.yml
+        # stemcells: ["stemcell/stemcell.tgz"]
+        releases:
+          - "capi-release-tarball/*.tgz"
+          - (( concat switch.bits-service-release-tarball "/*.tgz" ))
+        no_redact: true
   on_failure: *notify
 
 - name: run-system-tests-LOCAL
@@ -522,7 +481,6 @@ jobs:
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
-        - run-system-tests-S3
         - run-system-tests-LOCAL
         - run-system-tests-WEBDAV
         - deploy-and-test-with-s3-cf-softlayer
@@ -1306,7 +1264,6 @@ groups:
   - run-bitsgo-unit-tests
   - Publish gem
   - create-and-upload-bitsgo-release
-  - deploy-with-S3
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
   - deploy-and-test-with-s3-cf-softlayer
@@ -1541,12 +1498,6 @@ resources:
   source:
     <<: *sl-bosh-deployment-source
     deployment: bits-service-webdav
-
-- name: bosh-deployment-bits-service-s3
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
-    deployment: bits-service-s3
 
 - name: capi-release-version
   type: semver
