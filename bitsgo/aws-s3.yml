@@ -2,6 +2,7 @@ extra_args: |
   -o cf-deployment/operations/bits-service/use-bits-service.yml
   -o cf-deployment/operations/bits-service/configure-bits-service-s3.yml
   -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+  -o ci-tasks/operations/use-signature-v2-signing.yml
   -v blobstore_access_key_id=$blobstore_access_key_id
   -v blobstore_secret_access_key=$blobstore_secret_access_key
   -v aws_region=$aws_region
