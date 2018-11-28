@@ -10,7 +10,7 @@ resources:
   type: git
   source:
     uri: https://github.com/cloudfoundry-incubator/bits-service.git
-    branch: dev-oci-registry
+    branch: oci-image-registry
 
 - name: bits-service-release
   type: git
@@ -62,7 +62,7 @@ jobs:
 - name: push-to-dockerhub
   plan:
   - aggregate:
-    - { get: bits-service-release, trigger: true , passed: [update-bits-submodule] }
+    - { get: bits-service-release, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci}
     - { get: eirinifs }
   - task: get-image-artifacts
