@@ -17,6 +17,9 @@ sed \
   -i capi-release/src/cloud_controller_ng/Gemfile \
   -e "s/'bits_service_client.*/'bits_service_client', '$prerelease_version'/"
 
+# TODO: remove, once this is automatically part of the lock file (i.e. when a non-prerelease version contains the new statsd dependency)
+awk '/bits_service_client \('$prerelease_version'\)/ { print; print "      statsd-ruby (~> 1.4.0)"; next }1' capi-release/src/cloud_controller_ng/Gemfile.lock
+
 cd capi-release
 
 bosh2 -n sync-blobs --parallel 10
