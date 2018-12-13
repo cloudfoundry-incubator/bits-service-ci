@@ -57,9 +57,9 @@ jobs:
 - name: push-to-dockerhub
   plan:
   - aggregate:
-    - { get: bits-service-release, passed: [update-bits-submodule], trigger: true }
+    - { get: bits-service-release, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci}
-    - { get: eirinifs-release }
+    - { get: eirinifs-release, trigger: true }
   - task: get-image-artifacts
     file: ci-tasks/tasks/get-image-artifacts.yml
     input_mapping:
