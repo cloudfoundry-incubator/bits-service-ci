@@ -6,18 +6,12 @@ resources:
     uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
     branch: master
 
-- name: bits-service
-  type: git
-  source:
-    uri: https://github.com/cloudfoundry-incubator/bits-service.git
-    branch: oci-image-registry
-
 - name: bits-service-release
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
     private_key: ((github-private-key))
-    branch: oci-image-registry
+    branch: master
 
 - name: eirinifs-release
   type: github-release
@@ -37,23 +31,6 @@ resources:
     repository: ((dockerhub-username))/bits-service
 
 jobs:
-- name: update-bits-submodule
-  plan:
-  - { get: bits-service, trigger: true }
-  - { get: bits-service-release }
-  - { get: ci-tasks, resource: bits-service-ci}
-  - task: update-submodule-hash
-    file: ci-tasks/tasks/bump-release.yml
-    input_mapping:
-      git-repo: bits-service-release
-      git-sub-repo: bits-service
-    params:
-      SUB_MODULE_PATH: src/github.com/cloudfoundry-incubator/bits-service
-  - put: bits-service-release
-    params:
-      repository: bumped/git-repo
-      rebase: true
-
 - name: push-to-dockerhub
   plan:
   - aggregate:
