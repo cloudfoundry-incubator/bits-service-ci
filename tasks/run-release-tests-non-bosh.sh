@@ -21,4 +21,9 @@ export REGION=${BITS_AWS_REGION}
 EOF
 fi
 
+if [ "$SHOULD_PROXY_GET_REQUESTS" == "true" ]; then
+    echo "    proxy_get_requests: true" >> scripts/system-test-config/localhost-manifest.yml
+    echo "proxy_get_requests: true" >> scripts/system-test-config/localhost-config.yml
+fi
+
 scripts/run-system-tests.sh $BLOBSTORE_TYPE

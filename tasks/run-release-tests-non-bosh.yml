@@ -13,6 +13,7 @@ params:
   BITS_AWS_REGION: unconfigured
   AWS_ACCESS_KEY_ID: unconfigured
   AWS_SECRET_ACCESS_KEY: unconfigured
+  SHOULD_PROXY_GET_REQUESTS: false
 
 run:
   path: ci-tasks/scripts/run-release-tests-non-bosh.sh
