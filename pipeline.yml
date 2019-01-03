@@ -230,9 +230,9 @@ jobs:
   plan:
   - aggregate:
     - { get: (( grab switch.bits-service-release )), trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: bits-service-s3-sl-deployment-events, trigger: true }
-  - task: Run tests
+  - task: Run tests (without proxied GET requests)
     attempts: 3
     file: ci-tasks/tasks/run-release-tests-non-bosh.yml
     input_mapping:
@@ -243,6 +243,19 @@ jobs:
       AWS_ACCESS_KEY_ID: ((s3-blobstore-access-key-id))
       AWS_SECRET_ACCESS_KEY: ((s3-blobstore-secret-access-key))
       BLOBSTORE_TYPE: s3
+  - task: Run tests (with proxied GET requests)
+    attempts: 3
+    file: ci-tasks/tasks/run-release-tests-non-bosh.yml
+    input_mapping:
+      bits-service-release: (( grab switch.bits-service-release ))
+    params:
+      BITS_DIRECTORY_KEY: ((s3-blobstore-bucket-name))
+      BITS_AWS_REGION: ((s3-blobstore-region))
+      AWS_ACCESS_KEY_ID: ((s3-blobstore-access-key-id))
+      AWS_SECRET_ACCESS_KEY: ((s3-blobstore-secret-access-key))
+      BLOBSTORE_TYPE: s3
+      SHOULD_PROXY_GET_REQUESTS: true
+
   on_failure: *notify
 
 - name: deploy-with-LOCAL
