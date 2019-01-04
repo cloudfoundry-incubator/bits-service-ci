@@ -10,7 +10,7 @@ resources:
     uri: https://github.com/petergtz/cf-deployment.git
     branch: master
 
-- name: bits-service-release-bitsgo-tarball
+- name: bits-service-release-tarball
   type: s3
   source:
     access_key_id: ((s3-blobstore-access-key-id))
@@ -18,7 +18,7 @@ resources:
     bucket: ci-bits-service-artifacts
     region_name: eu-west-1
     private: false
-    regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
+    regexp: bits-service-release/bits-service-(.*).tgz
 
 - name: cf-acceptance-tests
   type: git
@@ -50,16 +50,16 @@ jobs:
     - get: state
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment, resource: cf-deployment-bitsgo, trigger: true }
-    - { get: bits-service-release-bitsgo-tarball, passed: [ create-and-upload-bitsgo-release ], trigger: true }
-    - { get: bits-service-release-bitsgo-version, passed: [ create-and-upload-bitsgo-release ] }
-    - { get: bits-service-release-bitsgo, passed: [ create-and-upload-bitsgo-release ] }
+    - { get: bits-service-release-tarball, passed: [ create-and-upload-release ], trigger: true }
+    - { get: bits-service-release-version, passed: [ create-and-upload-release ] }
+    - { get: bits-service-release, passed: [ create-and-upload-release ] }
   - aggregate:
     - task: detect-stemcell
       file: 1-click/tasks/detect-stemcell.yml
     - task: bosh upload-release bits-service
       file: 1-click/tasks/bosh-upload-release.yml
       input_mapping:
-        releases: bits-service-release-bitsgo-tarball
+        releases: bits-service-release-tarball
       params:
         BOSH_LITE_NAME: ((bosh_lite_name))
         RELEASE_TARBALL: '*.tgz'
@@ -101,9 +101,9 @@ jobs:
       passed: [ deploy-cf-in-((bosh_lite_name)) ]
     - get: state
     - get: cf-smoke-tests
-    - { get: bits-service-release-bitsgo-tarball, passed: [ deploy-cf-in-((bosh_lite_name)) ], trigger: true }
-    - { get: bits-service-release-bitsgo-version, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
-    - { get: bits-service-release-bitsgo, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
+    - { get: bits-service-release-tarball, passed: [ deploy-cf-in-((bosh_lite_name)) ], trigger: true }
+    - { get: bits-service-release-version, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
+    - { get: bits-service-release, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
   - task: Run smoke-tests
     file: 1-click/tasks/run-smoke-tests.yml
     params:
@@ -121,9 +121,9 @@ jobs:
       - { get: state }
       - { get: ci-tasks, resource: bits-service-ci, trigger: true }
       - { get: cf-acceptance-tests, trigger: true }
-      - { get: bits-service-release-bitsgo-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
-      - { get: bits-service-release-bitsgo-version, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ] }
-      - { get: bits-service-release-bitsgo, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ] }
+      - { get: bits-service-release-tarball, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ], trigger: true }
+      - { get: bits-service-release-version, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ] }
+      - { get: bits-service-release, passed: [ run-cf-smoke-tests-in-((bosh_lite_name)) ] }
     - task: Run CATs
       file: ci-tasks/bitsgo/run-cats-softlayer-bosh-lite.yml
       attempts: 3

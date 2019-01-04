@@ -17,16 +17,11 @@ private_yml=$(lpass show "Shared-Flintstone/private.yml" --notes)
 changeip_username=$(lpass show "Shared-Flintstone"/"changeip.com" --username)
 changeip_password=$(lpass show "Shared-Flintstone"/"changeip.com" --password)
 
-switch=switch-bitsgo.yml
-if [ "$1" == "ruby" ]; then
-  switch=switch-ruby.yml
-fi
-
 fly \
   -t ${target} \
   set-pipeline \
   -p bits-service \
-  -c <(spruce merge --go-patch pipeline.yml $switch \
+  -c <(spruce merge --go-patch pipeline.yml \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh aws-s3) \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh cos-s3) \
     <(bitsgo/generate-bosh-lite-pipeline-integration.sh azure) \

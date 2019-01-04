@@ -1,5 +1,5 @@
 resources:
-- name: bits-service-release-bitsgo
+- name: bits-service-release
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
@@ -20,7 +20,7 @@ resources:
     uri: https://github.com/petergtz/cf-deployment.git
     branch: master
 
-- name: bits-service-release-bitsgo-tarball
+- name: bits-service-release-tarball
   type: s3
   source:
     access_key_id: ((s3-blobstore-access-key-id))
@@ -28,7 +28,7 @@ resources:
     bucket: ci-bits-service-artifacts
     region_name: eu-west-1
     private: false
-    regexp: bits-service-release-bitsgo/bits-service-(.*).tgz
+    regexp: bits-service-release/bits-service-(.*).tgz
 
 jobs:
 - name: deploy-cf-in-((bosh_lite_name))
@@ -41,13 +41,13 @@ jobs:
     - { get: ((bosh_lite_name))-ready-for-deployment-events, trigger: true, passed: [ update-cloud-and-runtime-config-((bosh_lite_name)) ] }
     - { get: state }
     - { get: cf-deployment, resource: cf-deployment-bitsgo}
-    - { get: bits-service-release-bitsgo-tarball, trigger: true }
+    - { get: bits-service-release-tarball, trigger: true }
   - task: detect-stemcell
     file: 1-click/tasks/detect-stemcell.yml
   - task: bosh upload-release bits-service
     file: 1-click/tasks/bosh-upload-release.yml
     input_mapping:
-      releases: bits-service-release-bitsgo-tarball
+      releases: bits-service-release-tarball
     params:
       BOSH_LITE_NAME: ((bosh_lite_name))
       RELEASE_TARBALL: '*.tgz'
@@ -72,13 +72,13 @@ jobs:
     - { get: ((bosh_lite_name))-cf-deployment-events, passed: [ deploy-cf-in-((bosh_lite_name)) ], trigger: true }
     - { get: ((bosh_lite_name))-ready-for-deployment-events, trigger: true, passed: [ deploy-cf-in-((bosh_lite_name)) ] }
     - { get: state }
-    - { get: bits-service-release-bitsgo-tarball, passed: [deploy-cf-in-((bosh_lite_name))], trigger: true }
-    - { get: bits-service-release-bitsgo, trigger: true }
+    - { get: bits-service-release-tarball, passed: [deploy-cf-in-((bosh_lite_name))], trigger: true }
+    - { get: bits-service-release, trigger: true }
     - { get: bits-service-ci, trigger: true }
   - task: Run CC Updater tests
     file: bits-service-ci/tasks/run-cc-updater-tests.yml
     input_mapping:
       ci: bits-service-ci
       vars-store: state
-      bits-service-release: bits-service-release-bitsgo
+      bits-service-release: bits-service-release
     params: { ENVIRONMENT_NAME: ((bosh_lite_name)) }
