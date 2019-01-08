@@ -1,31 +1,44 @@
-#!/bin/bash -e
+#!/bin/bash
 
-BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+set -euo pipefail
+IFS=$'\n\t'
+KEY_FILE=private-config/environments/softlayer/concourse/ha-proxy-access-key
+HAPROXY_IP="$(cat private-config/environments/softlayer/concourse/ha-proxy-host)"
 
-export KEY_FILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-access-key
-export HOSTFILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-host
-export USERFILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-maintenance-user
+main() {
+	chmod 600 "$KEY_FILE"
+	copy-to-host etc/haproxy.cfg /etc/haproxy/
+	copy-to-host opt/copy-haproxy-certs /opt/flintstone/
+	copy-to-host etc/cron.d/certbot /etc/cron.d/
+	restart-haproxy
+	check-url https://ci.flintstone.cf.cloud.ibm.com
+}
 
-HAPROXY_IP="$(cat ${HOSTFILE})"
-USER="$(cat ${USERFILE})"
-export HAPROXY_IP USER
+copy-to-host() {
+	local -r source=${1:?Source file missing}
+	local -r target=${2:?Target file missing}
 
-# prepare for ssh connection
-chmod 600 ${KEY_FILE}
+	scp -o StrictHostKeyChecking=no \
+		-i "$KEY_FILE" \
+		-p \
+		"haproxy-config/ha-proxy/files/$source" \
+		"root@${HAPROXY_IP}:$target"
+}
 
-printf "Downloading HAProxy config... \n"
-ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'wget https://raw.githubusercontent.com/cloudfoundry-incubator/bits-service-ci/master/docs/haproxy.cfg --output-document=/etc/haproxy/haproxy.cfg'
-printf "Restarting HA proxy with latest config \n"
-ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'service haproxy restart'
+restart-haproxy() {
+	ssh \
+	  -o StrictHostKeyChecking=no \
+		-i "$KEY_FILE" \
+		"root@$HAPROXY_IP" \
+		service haproxy restart
+}
 
-declare -r CI_URL="https://ci.flintstone.cf.cloud.ibm.com"
+check-url() {
+	local -r url=${1:?URL missing}
+	if [ 200 -ne "$(curl -s -o /dev/null -I -w "%{http_code}" "$url")" ]; then
+		echo "URL $url could not be reached."
+		exit 1
+	fi
+}
 
-if [ 200 = "$(curl -s -o /dev/null -I -w "%{http_code}" $CI_URL)" ];
-then
-    printf "Update woz successful\n"
-    exit 0
-else
-    printf "Update wozn't successful\n"
-    printf "Verify with: 'curl -L $CI_URL'\n"
-    exit 1
-fi
+main

@@ -1,0 +1,7 @@
+# This file is managed by the Concourse pipeline defined at
+# https://github.com/cloudfoundry-incubator/bits-service-ci/blob/master/ha-proxy/pipeline.yml
+# /etc/cron.d/certbot: crontab entries for the certbot package
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+0 */12 * * * root test -x /usr/bin/certbot && perl -e 'sleep int(rand(3600))' && certbot -q renew --deploy-hook /opt/flintstone/copy-haproxy-certs

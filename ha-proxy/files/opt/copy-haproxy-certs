@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# This file called from /etc/cron.d/certbot and managed by the Concourse pipeline defined at
+# https://github.com/cloudfoundry-incubator/bits-service-ci/blob/master/ha-proxy/pipeline.yml
+
+set -euo pipefail
+IFS=$'\n\t'
+
+cat /etc/letsencrypt/live/ci.flintstone.cf.cloud.ibm.com/{fullchain,privkey}.pem > /etc/ssl/private/flintstone.ci.cf-app.com.pem
+
+service haproxy restart

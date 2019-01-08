@@ -6,7 +6,6 @@ resources:
       uri: https://github.com/cloudfoundry-incubator/bits-service-ci.git
       branch: master
       paths:
-      - docs/haproxy.cfg
       - ha-proxy/
 
   - name: private-config
