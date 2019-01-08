@@ -18,14 +18,14 @@ ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'wget https://r
 printf "Restarting HA proxy with latest config \n"
 ssh -oStrictHostKeyChecking=no -i ${KEY_FILE} root@${HAPROXY_IP} 'service haproxy restart'
 
-STAUTS_OK=$(curl -s http://flintstone.ci.cf-app.com/ -L -I | grep 200 | wc -l)
+declare -r CI_URL="https://ci.flintstone.cf.cloud.ibm.com"
 
-if [ ${STAUTS_OK} -eq 1 ]
+if [ 200 = "$(curl -s -o /dev/null -I -w "%{http_code}" $CI_URL)" ];
 then
     printf "Update woz successful\n"
     exit 0
 else
     printf "Update wozn't successful\n"
-    printf "Verify with: 'curl -s http://flintstone.ci.cf-app.com/ -L -I | grep 200 | wc -l'\n"
+    printf "Verify with: 'curl -L $CI_URL'\n"
     exit 1
 fi
