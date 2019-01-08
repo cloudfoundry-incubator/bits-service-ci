@@ -6,6 +6,6 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-cat /etc/letsencrypt/live/ci.flintstone.cf.cloud.ibm.com/{fullchain,privkey}.pem > /etc/ssl/private/flintstone.ci.cf-app.com.pem
+cat /etc/letsencrypt/live/ci.flintstone.cf.cloud.ibm.com/{fullchain,privkey}.pem > /etc/ssl/private/ci.flintstone.cf.cloud.ibm.com.pem
 
 service haproxy restart

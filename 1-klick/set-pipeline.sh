@@ -5,7 +5,7 @@ cd $(dirname $0)
 CLUSTER_NAME=${1:?"USAGE: set-pipeline.sh <cluster-name>"}
 
 if [ "$(fly -t flintstone status)" != 'logged in successfully' ]; then
-    fly -t flintstone login -c https://flintstone.ci.cf-app.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password)
+    fly -t flintstone login -c https://ci.flintstone.cf.cloud.ibm.com -u admin -p $(lpass show "Shared-Flintstone/Flintstone Concourse" --password)
 fi
 
 fly -t flintstone set-pipeline -p $CLUSTER_NAME -c pipeline.yml \

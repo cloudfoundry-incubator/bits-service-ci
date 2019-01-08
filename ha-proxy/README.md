@@ -2,7 +2,7 @@
 
 # Updating the HAProxy configuration
 
-In order to deploy and updated HAProxy config, edit the config file `haproxy.cfg`, commit and push changes. The pipeline job [ha-proxy-config-sync](https://flintstone.ci.cf-app.com/teams/main/pipelines/ha-proxy-config-sync) will trigger and deploy the changed config.
+In order to deploy and updated HAProxy config, edit the config file `haproxy.cfg`, commit and push changes. The pipeline job [ha-proxy-config-sync](https://ci.flintstone.cf.cloud.ibm.com/teams/main/pipelines/ha-proxy-config-sync) will trigger and deploy the changed config.
 
 # Installation of a new instance
 
@@ -20,7 +20,7 @@ In order to deploy and updated HAProxy config, edit the config file `haproxy.cfg
 
 - Register the VM's IP address in [`bits-service-private-config`](https://github.com/cloudfoundry/bits-service-private-config/blob/master/environments/softlayer/concourse/ha-proxy-host)
 
-- Deploy the configuration files by manually triggering the pipeline job [ha-proxy-config-sync](https://flintstone.ci.cf-app.com/teams/main/pipelines/ha-proxy-config-sync)
+- Deploy the configuration files by manually triggering the pipeline job [ha-proxy-config-sync](https://ci.flintstone.cf.cloud.ibm.com/teams/main/pipelines/ha-proxy-config-sync)
 
 - Ensure that the firewall configuration of the Softlayer account allows connections to the machine's IP address and configured ports.
 
@@ -45,7 +45,7 @@ The section `backend concourse1` in `haproxy.cfg` must have the IP address of th
        server cc1-2 10.175.143.152:8080 check
     ```
 
-1. Trigger the pipeline job [ha-proxy-config-sync](https://flintstone.ci.cf-app.com/teams/main/pipelines/ha-proxy-config-sync) in order to deploy the changes.
+1. Trigger the pipeline job [ha-proxy-config-sync](https://ci.flintstone.cf.cloud.ibm.com/teams/main/pipelines/ha-proxy-config-sync) in order to deploy the changes.
 
 # Debugging
 

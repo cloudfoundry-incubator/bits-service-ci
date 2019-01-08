@@ -32,7 +32,7 @@ bosh -e sl-blue -d concourse deploy concourse.yml \
 --var atc_basic_auth.username=admin \
 --var atc_basic_auth.password=$(lpass show "Shared-Flintstone/Flintstone Concourse" --password) \
 -o ~/workspace/bits-service-private-config/garden-dns-servers.yml \
---var external_url=https://flintstone.ci.cf-app.com \
+--var external_url=https://ci.flintstone.cf.cloud.ibm.com \
 --var network_name=default \
 --var web_vm_type=concourse-server \
 --var worker_vm_type=concourse-worker \

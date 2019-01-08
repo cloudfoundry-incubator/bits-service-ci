@@ -688,7 +688,7 @@ jobs:
           MESSAGE: |
               Consider doing a fresh deployment by manually running job
               [manually-delete-cf-diego-aws]
-              (https://flintstone.ci.cf-app.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
+              (https://ci.flintstone.cf.cloud.ibm.com/pipelines/bits-service/jobs/manually-delete-cf-diego-aws)
 
     - do:
       - task: Run performance tests (v2-push)
