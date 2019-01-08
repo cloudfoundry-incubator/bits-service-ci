@@ -5,8 +5,10 @@ BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 export KEY_FILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-access-key
 export HOSTFILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-host
 export USERFILE=${BASEDIR}/../../../private-config/environments/softlayer/concourse/ha-proxy-maintenance-user
-export HAPROXY_IP="$(cat ${HOSTFILE})"
-export USER="$(cat ${USERFILE})"
+
+HAPROXY_IP="$(cat ${HOSTFILE})"
+USER="$(cat ${USERFILE})"
+export HAPROXY_IP USER
 
 # prepare for ssh connection
 chmod 600 ${KEY_FILE}
