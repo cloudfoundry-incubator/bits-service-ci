@@ -36,7 +36,7 @@ restart-haproxy() {
 check-url() {
 	local -r url=${1:?URL missing}
 	if [ 200 -ne "$(curl -s -o /dev/null -I -w "%{http_code}" "$url")" ]; then
-		echo "URL $url could not be reached."
+		echo "$url responded with status that is not 200."
 		exit 1
 	fi
 }

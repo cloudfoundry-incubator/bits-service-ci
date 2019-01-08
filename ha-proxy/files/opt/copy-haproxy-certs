@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This file called from /etc/cron.d/certbot and managed by the Concourse pipeline defined at
+# This file is managed by the Concourse pipeline defined at
 # https://github.com/cloudfoundry-incubator/bits-service-ci/blob/master/ha-proxy/pipeline.yml
 
 set -euo pipefail
