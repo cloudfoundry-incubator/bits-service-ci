@@ -14,7 +14,7 @@ bosh upload-stemcell --sha1 b3a21364351058771236b825ef65102962bf1def \
 ```
 
 ## Deploy
-*Notice:* We have two directors (blue and green). Please ensure that you target the propper one and change the variable names accordingly i.e. `blue.vars` to `green.vars`
+*Notice:* We have two directors (blue and green). Please ensure that you target the proper one and change the variable names accordingly i.e. `blue.vars` to `green.vars`
 
 ```bash
 cd ~/workspace
