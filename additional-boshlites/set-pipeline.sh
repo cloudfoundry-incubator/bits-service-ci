@@ -2,7 +2,7 @@
 
 cd $(dirname $0)
 
-for name in {migration-s3-bosh-lite,migration-webdav-bosh-lite}; do
+for name in {migration-s3-bosh-lite,migration-webdav-bosh-lite,cc-updater-bosh-lite}; do
   ../1-click/generate-bosh-lite-in-sl-manifest.sh $name > /tmp/bosh-lite-in-sl.yml
 
   ../fly-login.sh flintstone
