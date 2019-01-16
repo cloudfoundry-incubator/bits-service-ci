@@ -886,7 +886,6 @@ jobs:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: cf-bosh1-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-master, trigger: true }
@@ -1044,7 +1043,6 @@ jobs:
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
     - { get: bits-service-release-tarball, passed: [create-and-upload-release],trigger: true }
     - { get: bits-service-release-version, passed: [create-and-upload-release], }
-    - { get: cf-bosh2-deployment-events, trigger: true }
     - { get: stemcell, resource: boshlite-stemcell }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-master, trigger: true }
@@ -1521,26 +1519,14 @@ resources:
     private_key: ((github-private-key))
     initial_version: 2.0.0-dev.1
 
-- name: cf-bosh1-deployment-events
+- name: cf-diego-aws-deployment-events
   type: semver
   source: &deployment-events-source
     driver: git
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: events
-    file: events/cf-bosh1/deployment-deleted
-    private_key: ((github-private-key))
-
-- name: cf-bosh2-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/cf-bosh2/deployment-deleted
-
-- name: cf-diego-aws-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
     file: events/cf-diego-aws/deployment-deleted
+    private_key: ((github-private-key))
 
 - name: s3-cf-softlayer-deployment-events
   type: semver
