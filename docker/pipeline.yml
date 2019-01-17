@@ -21,6 +21,7 @@ resources:
   source:
     owner: cloudfoundry
     repository: cli
+  check_every: 60m
 
 jobs:
 - name: create-base-image

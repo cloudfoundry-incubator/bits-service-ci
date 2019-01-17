@@ -1420,6 +1420,7 @@ resources:
     access_token: ((github-access-token))
     release: true
     drafts: true
+  check_every: 10m
 
 - name: capi-release-upstream
   type: git
@@ -1557,6 +1558,7 @@ resources:
     access_token: ((github-access-token))
     release: false
     pre_release: true
+  check_every: 10m
 
 - name: run-after-midnight
   type: time

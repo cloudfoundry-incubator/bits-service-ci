@@ -20,6 +20,7 @@ resources:
     repository: eirinifs
     globs:
     - eirinifs.tar
+  check_every: 60m
 
 
 - name: bits-docker-release
