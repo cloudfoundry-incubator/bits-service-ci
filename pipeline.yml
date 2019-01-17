@@ -799,6 +799,7 @@ jobs:
   on_failure: *notify
 
 - name:  Deploy CF and run CC Updater tests
+  build_logs_to_retain: 100
   serial: true
   plan:
   - aggregate:
