@@ -57,15 +57,7 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   ${VARIABLES} \
   > manifests/manifest.yml
 
-echo "Content of manifests/manifest.yml:"
-cat manifests/manifest.yml
-
-# work around for bosh-lite environemnts to fix git add
-if [[ "${ENVIRONMENT_NAME}" != 'aws' ]] &&
-   [[ "${ENVIRONMENT_NAME}" != 'blobstore-local' ]] &&
-   [[ "${ENVIRONMENT_NAME}" != 'softlayer' ]]; then
-  deployment_vars=$(readlink -f "deployment-vars/environments/softlayer/director/${ENVIRONMENT_NAME}-bosh-lite/cf-deployment/vars.yml")
-fi
+cp manifests/manifest.yml $(dirname $deployment_vars)
 
 export PATH=$PATH:$(readlink -f ci-tasks/tasks)
 pushd deployment-vars
