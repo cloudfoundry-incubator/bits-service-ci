@@ -58,6 +58,7 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   > manifests/manifest.yml
 
 cp manifests/manifest.yml $(dirname $deployment_vars)
+echo ${CF_DOMAIN} > $(dirname $deployment_vars)/system_domain
 
 export PATH=$PATH:$(readlink -f ci-tasks/tasks)
 pushd deployment-vars
