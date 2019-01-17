@@ -25,6 +25,7 @@ resources:
 
 jobs:
 - name: create-base-image
+  serial: true
   plan:
   - aggregate:
     - { get: bits-service-ci-base, trigger: true }
