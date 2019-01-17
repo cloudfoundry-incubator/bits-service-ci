@@ -17,7 +17,9 @@ RUN add-apt-repository ppa:brightbox/ruby-ng && \
 
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc
 
-RUN gem install bundler
+# sticking this to 1.17.1 because our bits-service-client gem doesn't work with bundler 2.x yet
+# we don't want to upgrade the gem yet, because cloud controller also still on 1.x
+RUN gem install -v 1.17.1
 
 RUN wget https://github.com/cloudfoundry-incubator/spiff/releases/download/v1.0.7/spiff_linux_amd64.zip && \
     unzip spiff_linux_amd64.zip && mv spiff /usr/local/bin/ && rm spiff_linux_amd64.zip
