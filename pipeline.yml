@@ -377,85 +377,6 @@ jobs:
       DEPLOYMENT_NAME: bits-service-webdav
   on_failure: *notify
 
-- name: deploy-and-test-with-s3-cf-softlayer
-  build_logs_to_retain: 100
-  serial: true
-  serial_groups: [cf-softlayer-deployment-s3]
-  plan:
-  - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
-    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: cf-deployment-master, trigger: true }
-    - { get: git-deployment-vars }
-    - { get: s3-cf-softlayer-deployment-events, trigger: true }
-  - aggregate:
-    - task: Generate CF deployment manifest with bits-service enabled
-      file: ci-tasks/tasks/bosh-interpolate.yml
-      input_mapping:
-        cf-deployment: cf-deployment-master
-        deployment-vars: git-deployment-vars
-      params:
-        BOSH_TARGET: ((sl-bosh-target))
-        ENVIRONMENT_NAME: softlayer
-        BLOBSTORE_TYPE: s3
-        IAAS: softlayer
-        CF_DOMAIN: ((sl-cf1-domain))
-        OPERATIONS: >
-          -o cf-deployment/operations/use-compiled-releases.yml
-          -o cf-deployment/operations/scale-to-one-az.yml
-          -o ci-tasks/operations/bits-service-scale-to-one-az.yml
-          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
-        VARIABLES: >
-          -v aws_region="((s3-blobstore-region))"
-          -v blobstore_access_key_id="((s3-blobstore-access-key-id))"
-          -v blobstore_secret_access_key="((s3-blobstore-secret-access-key))"
-          -v resource_directory_key="((cf2-s3-blobstore-bucket-name))"
-          -v buildpack_directory_key="((cf2-s3-blobstore-bucket-name))"
-          -v droplet_directory_key="((cf2-s3-blobstore-bucket-name))"
-          -v app_package_directory_key="((cf2-s3-blobstore-bucket-name))"
-    - *merge-release-tarballs
-  - aggregate:
-    - put: git-deployment-vars
-      params:
-        rebase: true
-        repository: updated/deployment-vars
-    - task: softlayer-cf-deployment
-      file: ci-tasks/tasks/bosh-deploy.yml
-      attempts: 2
-      input_mapping:
-        stemcells: stemcell
-        vars-store: git-deployment-vars
-      params: &sl-bosh-params-new
-        HOSTS_ENTRY_FILE: environments/softlayer/green-hosts
-        DEPLOYMENT_NAME: cf
-        VARS_STORE_FILE: environments/softlayer/director/green-vars.yml
-  - task: Update change-ip
-    file: ci-tasks/tasks/update-changeip-dns.yml
-    input_mapping:
-      deployment-vars: git-deployment-vars
-    params:
-      <<: *sl-bosh-params
-      CHANGE_IP_USER: ((changeip-username))
-      CHANGE_IP_PASSWORD: ((changeip-password))
-      VARS_YAML: deployment-vars/environments/softlayer/director/green-vars.yml
-  - task: Run tests
-    attempts: 3
-    file: ci-tasks/tasks/run-system-tests.yml
-    input_mapping:
-      bits-service-system-test-source: bits-service-release
-      vars-store: git-deployment-vars
-    params:
-      DEPLOYMENT_NAME: cf
-      ENVIRONMENT_NAME: softlayer
-      HOSTS_ENTRY_FILE: environments/softlayer/green-hosts
-      VARS_STORE_FILE: environments/softlayer/director/green-vars.yml
-      CF_DOMAIN: ((sl-cf1-domain))
-  on_failure: *notify
-
 # CAPI-RELEASE
 - name: create-capi-release
   build_logs_to_retain: 100
@@ -488,7 +409,7 @@ jobs:
         - migration-backwards-bosh2
         - run-system-tests-LOCAL
         - run-system-tests-WEBDAV
-        - deploy-and-test-with-s3-cf-softlayer
+        - Deploy CF and run CC Updater tests
         - run-CATs-in-bitsgo-aws-s3-bosh-lite
         - run-CATs-in-bitsgo-cos-s3-bosh-lite
         - run-CATs-in-bitsgo-azure-bosh-lite
@@ -877,6 +798,58 @@ jobs:
       params: { file: bits-service-s3-sl-deployment-events/number }
   on_failure: *notify
 
+- name:  Deploy CF and run CC Updater tests
+  serial: true
+  plan:
+  - aggregate:
+    - { get: stemcell, resource: boshlite-stemcell-xxx, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
+    - { get: cf-deployment-master, trigger: true }
+    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
+    - { get: 1-click, trigger: true }
+    - { get: cc-updater-bosh-lite-ready-for-deployment-events, trigger: true }
+    - { get: git-deployment-vars }
+    - { get: bits-service-release-version, passed: [create-and-upload-release] }
+    - { get: bits-service-release-tarball, passed: [create-and-upload-release] }
+    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
+  - aggregate:
+    - task: Generate CF deployment manifest with bits-service enabled
+      file: ci-tasks/tasks/bosh-interpolate.yml
+      input_mapping:
+        cf-deployment: cf-deployment-master
+        deployment-vars: git-deployment-vars
+      params:
+        ENVIRONMENT_NAME: cc-updater
+        BLOBSTORE_TYPE: webdav
+        IAAS: bosh-lite
+        OPERATIONS: >
+          -o cf-deployment/operations/use-compiled-releases.yml
+          -o cf-deployment/operations/scale-to-one-az.yml
+          -o ci-tasks/operations/bits-service-scale-to-one-az.yml
+          -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
+    - *merge-release-tarballs
+  - aggregate:
+    - put: git-deployment-vars
+      params:
+        rebase: true
+        repository: updated/deployment-vars
+    - task:  Make deployment
+      file: ci-tasks/tasks/bosh-deploy.yml
+      attempts: 2
+      input_mapping:
+        stemcells: stemcell
+        vars-store: git-deployment-vars
+      params:
+        HOSTS_ENTRY_FILE: environments/softlayer/director/cc-updater-bosh-lite/hosts
+        DEPLOYMENT_NAME: cf
+        VARS_STORE_FILE: environments/softlayer/director/cc-updater-bosh-lite/vars.yml
+  - task: Run CC Updater tests
+    file: ci-tasks/tasks/run-cc-updater-tests.yml
+    input_mapping:
+      ci: ci-tasks
+      vars-store: git-deployment-vars
+    params: { ENVIRONMENT_NAME: cc-updater-bosh-lite }
+
 - name: migration-bosh1 (S3)
   build_logs_to_retain: 100
   serial: true
@@ -1188,8 +1161,10 @@ jobs:
   - task: cleanup-bosh
     file: ci-tasks/tasks/bosh-cleanup.yml
     input_mapping: { vars-store: git-deployment-vars }
-    params: *sl-bosh-params-new
-
+    params:
+      HOSTS_ENTRY_FILE: environments/softlayer/green-hosts
+      DEPLOYMENT_NAME: cf
+      VARS_STORE_FILE: environments/softlayer/director/green-vars.yml
 - name: cleanup-bosh-aws
   build_logs_to_retain: 100
   serial: true
@@ -1266,13 +1241,13 @@ groups:
   - create-and-upload-release
   - deploy-with-LOCAL
   - deploy-with-WEBDAV
-  - deploy-and-test-with-s3-cf-softlayer
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
   - create-capi-release
   - deploy-and-test-cf-diego-aws
   - enable-BITS-SERVICE-diego-and-run-CATs
+  - Deploy CF and run CC Updater tests
   - migration-bosh1 (S3)
   - migration-bosh2 (webdav)
   - migration-backwards-bosh1
@@ -1551,6 +1526,13 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/bits-service-webdav-sl-deployment-deleted
+
+- name: cc-updater-bosh-lite-ready-for-deployment-events
+  type: semver
+  source:
+    <<: *deployment-events-source
+    file: events-bosh-lites-cc-updater-bosh-lite-ready
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
 
 - name: migration-s3-bosh-lite-ready-for-deployment-events
   type: semver
