@@ -803,7 +803,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - { get: stemcell, resource: boshlite-stemcell-xxx, trigger: true }
+    - { get: stemcell, resource: boshlite-stemcell, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: cf-deployment-master, trigger: true }
     - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
@@ -1324,15 +1324,15 @@ resources:
 
 - name: aws-stemcell
   type: bosh-io-stemcell
-  source: { name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent }
+  source: { name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent }
 
 - name: boshlite-stemcell
   type: bosh-io-stemcell
-  source: { name: bosh-warden-boshlite-ubuntu-trusty-go_agent}
+  source: { name: bosh-warden-boshlite-ubuntu-xenial-go_agent }
 
 - name: softlayer-stemcell
   type: bosh-io-stemcell
-  source: { name: bosh-softlayer-xen-ubuntu-trusty-go_agent }
+  source: { name: bosh-softlayer-xen-ubuntu-xenial-go_agent }
 
 - name: bits-service-release-tarball
   type: s3
