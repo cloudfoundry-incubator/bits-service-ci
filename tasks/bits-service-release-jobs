@@ -1,0 +1,17 @@
+create-and-upload-release
+deploy-with-LOCAL
+deploy-with-WEBDAV
+run-system-tests-S3
+run-system-tests-LOCAL
+run-system-tests-WEBDAV
+deploy-and-test-cf-diego-aws
+enable-BITS-SERVICE-diego-and-run-CATs
+Deploy CF and run CC Updater tests
+migration-bosh1 (S3)
+migration-bosh2 (webdav)
+migration-backwards-bosh1
+migration-backwards-bosh2
+bump-bits-service-release-bitsgo
+Testing done
+Publish Dev Release
+Publish Final Release
