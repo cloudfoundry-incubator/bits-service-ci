@@ -228,7 +228,6 @@ jobs:
   - aggregate:
     - { get: bits-service-release, trigger: true }
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
-    - { get: bits-service-s3-sl-deployment-events, trigger: true }
   - task: Run tests (without proxied GET requests)
     attempts: 3
     file: ci-tasks/tasks/run-release-tests-non-bosh.yml
@@ -782,22 +781,6 @@ jobs:
       params: { file: bits-service-webdav-sl-deployment-events/number }
   on_failure: *notify
 
-- name: delete-deployment-bits-service-s3
-  build_logs_to_retain: 100
-  plan:
-    - aggregate:
-      - { get: daily-morning-timer, trigger: true }
-      - { get: ci-tasks, resource: bits-service-ci }
-      - { get: bits-service-s3-sl-deployment-events, params: { bump: major } }
-    - task: delete-deployment
-      file: ci-tasks/tasks/delete-deployment.yml
-      params:
-        <<: *sl-bosh-params
-        DEPLOYMENT_NAME: bits-service-s3
-    - put: bits-service-s3-sl-deployment-events
-      params: { file: bits-service-s3-sl-deployment-events/number }
-  on_failure: *notify
-
 - name:  Deploy CF and run CC Updater tests
   build_logs_to_retain: 100
   serial: true
@@ -1301,7 +1284,6 @@ groups:
   - manually-delete-cf-diego-aws
   - manually-delete-s3-cf-softlayer
   - delete-deployment-bits-service-local
-  - delete-deployment-bits-service-s3
   - delete-deployment-bits-service-webdav
 
 resource_types:
@@ -1510,12 +1492,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-sl-deployment-deleted
-
-- name: bits-service-s3-sl-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/bits-service-s3-sl-deployment-deleted
 
 - name: bits-service-local-sl-deployment-events
   type: semver
