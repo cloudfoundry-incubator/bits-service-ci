@@ -204,7 +204,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-version, params: { pre: dev } }
-    - { get: bits-service-release, trigger: true, params: { clean_tags: true }, passed: [ run-system-tests-S3 ] }
+    - { get: bits-service-release, trigger: true, params: { clean_tags: true }, passed: [ run-system-tests-S3, run-system-tests-LOCAL ] }
     - { get: ci-tasks, resource: bits-service-ci }
   - put: bits-service-release-version
     params: { file: bits-service-release-version/version }
@@ -250,70 +250,19 @@ jobs:
 
   on_failure: *notify
 
-- name: deploy-with-LOCAL
-  build_logs_to_retain: 100
-  serial: true
-  serial_groups: [bits-deployment-local]
-  plan:
-  - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true}
-    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
-    - { get: git-deployment-vars }
-    - { get: bits-service-local-sl-deployment-events, trigger: true }
-  - task: Create deployment manifest
-    file: ci-tasks/tasks/create-bits-manifest.yml
-    input_mapping:
-      bits-service-deployment-manifest-generation-tools: bits-service-release
-      bits-service-private-config: git-deployment-vars
-    params:
-      <<: *sl-bosh-params
-      BLOBSTORE_TYPE: local
-      BITS_SERVICE_JOB_IP: &bits_service_job_ip_local 10.175.96.242
-      BLOBSTORE_JOB_IP: 10.175.96.243
-      DEPLOYMENT_NAME: bits-service-local
-  - aggregate:
-    - put: git-deployment-vars
-      params:
-        rebase: true
-        repository: updated/bits-service-private-config
-    - put: bosh-deployment-bits-service-local
-      attempts: 3
-      params: &sl-bits-service-deployment-params
-        manifest: manifests/manifest.yml
-        # stemcells: ["stemcell/stemcell.tgz"]
-        releases:
-          - "capi-release-tarball/*.tgz"
-          - "bits-service-release-tarball/*.tgz"
-        no_redact: true
-  on_failure: *notify
-
 - name: run-system-tests-LOCAL
   build_logs_to_retain: 100
   serial: true
   serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [deploy-with-LOCAL], trigger: true }
-    - { get: bits-service-release-tarball, passed: [deploy-with-LOCAL], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-LOCAL] }
-    - { get: bits-service-release, passed: [deploy-with-LOCAL]}
-    - { get: ci-tasks, resource: bits-service-ci }
-    - { get: git-deployment-vars }
-    - { get: bits-service-local-sl-deployment-events, passed: [deploy-with-LOCAL], trigger: true }
+    - { get: bits-service-release, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
-    file: ci-tasks/tasks/run-release-tests.yml
-    input_mapping:
-      bits-service-system-test-source: bits-service-release
-      deployment-vars: git-deployment-vars
+    file: ci-tasks/tasks/run-release-tests-non-bosh.yml
     params:
-      <<: *sl-bosh-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_local
-      DEPLOYMENT_NAME: bits-service-local
+      BLOBSTORE_TYPE: local
   on_failure: *notify
 
 - name: deploy-with-WEBDAV
@@ -348,7 +297,13 @@ jobs:
         repository: updated/bits-service-private-config
     - put: bosh-deployment-bits-service-webdav
       attempts: 3
-      params: *sl-bits-service-deployment-params
+      params: &sl-bits-service-deployment-params
+        manifest: manifests/manifest.yml
+        # stemcells: ["stemcell/stemcell.tgz"]
+        releases:
+          - "capi-release-tarball/*.tgz"
+          - "bits-service-release-tarball/*.tgz"
+        no_redact: true
   on_failure: *notify
 
 - name: run-system-tests-WEBDAV
@@ -406,7 +361,6 @@ jobs:
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
-        - run-system-tests-LOCAL
         - run-system-tests-WEBDAV
         - Deploy CF and run CC Updater tests
         - run-CATs-in-bitsgo-aws-s3-bosh-lite
@@ -746,23 +700,6 @@ jobs:
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
-  on_failure: *notify
-
-# delete standalone bits-service deployment
-- name: delete-deployment-bits-service-local
-  build_logs_to_retain: 100
-  plan:
-    - aggregate:
-      - { get: daily-morning-timer, trigger: true }
-      - { get: ci-tasks, resource: bits-service-ci }
-      - { get: bits-service-local-sl-deployment-events, params: { bump: major } }
-    - task: delete-deployment
-      file: ci-tasks/tasks/delete-deployment.yml
-      params:
-        <<: *sl-bosh-params
-        DEPLOYMENT_NAME: bits-service-local
-    - put: bits-service-local-sl-deployment-events
-      params: { file: bits-service-local-sl-deployment-events/number }
   on_failure: *notify
 
 - name: delete-deployment-bits-service-webdav
@@ -1223,7 +1160,6 @@ groups:
   - run-bitsgo-unit-tests
   - Publish gem
   - create-and-upload-release
-  - deploy-with-LOCAL
   - deploy-with-WEBDAV
   - run-system-tests-S3
   - run-system-tests-LOCAL
@@ -1283,7 +1219,6 @@ groups:
   - cleanup-bosh-sl
   - manually-delete-cf-diego-aws
   - manually-delete-s3-cf-softlayer
-  - delete-deployment-bits-service-local
   - delete-deployment-bits-service-webdav
 
 resource_types:
@@ -1441,22 +1376,16 @@ resources:
     stop: 5:00 AM
     location: Europe/Berlin
 
-- name: bosh-deployment-bits-service-local
+- name: bosh-deployment-bits-service-webdav
   type: bosh2-deployment
-  source: &sl-bosh-deployment-source
+  source:
     target: ((sl-bosh-target))
     username: ((sl-bosh-username))
     password: ((sl-bosh-password))
     client: ((sl-bosh-username))
     client_secret: ((sl-bosh-password))
-    deployment: bits-service-local
-    ca_cert: ((sl-bosh-ca-cert))
-
-- name: bosh-deployment-bits-service-webdav
-  type: bosh2-deployment
-  source:
-    <<: *sl-bosh-deployment-source
     deployment: bits-service-webdav
+    ca_cert: ((sl-bosh-ca-cert))
 
 - name: capi-release-version
   type: semver
@@ -1492,12 +1421,6 @@ resources:
   source:
     <<: *deployment-events-source
     file: events/cf-sl-deployment-deleted
-
-- name: bits-service-local-sl-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/bits-service-local-sl-deployment-deleted
 
 - name: bits-service-webdav-sl-deployment-events
   type: semver
