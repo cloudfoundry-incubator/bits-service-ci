@@ -155,9 +155,10 @@ jobs:
         - run-bitsgo-contract-integration-test-cos
         - run-bitsgo-contract-integration-test-s3
         - run-bitsgo-contract-integration-test-azure
-        - run-bitsgo-contract-integration-test-google-gcp
-        - run-bitsgo-contract-integration-test-google-s3
-        - run-bitsgo-contract-integration-test-alibaba
+        # TODO uncommment as soon as we have IBM sponsored Google and Alibaba accounts
+        # - run-bitsgo-contract-integration-test-google-gcp
+        # - run-bitsgo-contract-integration-test-google-s3
+        # - run-bitsgo-contract-integration-test-alibaba
       trigger: true
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
     - { get: bits-service-release, params: { clean_tags: true } }
