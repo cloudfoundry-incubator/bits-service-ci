@@ -58,7 +58,7 @@ jobs:
     - get: ((cluster-name))-event-created
       trigger: true
       passed: [create-cluster]
-    - get: state
+    - get: cluster-state
   - task: create-cluster-config
     params:
         IBMCLOUD_ACCOUNT: ((ibmcloud-account))
@@ -70,7 +70,7 @@ jobs:
         NATS_PASSWORD: ((nats_password))
     file: ci-resources/tasks/cluster-config/task.yml
   - aggregate:
-    - put: state
+    - put: cluster-state
       params: {repository: state-modified}
     - task: provision-hostpath-provider
       params:
@@ -135,7 +135,7 @@ jobs:
       passed: [ check-cluster-readiness ]
     - get: ci-resources
     - get: eirini-release
-    - get: state
+    - { get: state, resource: cluster-state }
     - get: ((cluster-name))-event-uaa-ready
       params:
         bump: major
@@ -173,7 +173,7 @@ jobs:
     - get: ci-resources
     - get: ci-tasks
       resource: bits-service-ci
-    - get: state
+    - get: cluster-state
     - get: eirini-release
       trigger: true
     - get: ((cluster-name))-event-uaa-ready
@@ -208,7 +208,7 @@ jobs:
       # passed:
       # - create-docker-images
     - get: ci-resources
-    - get: state
+    - get: cluster-state
     - get: oratos
       trigger: true
   - task: deploy-oratos
@@ -237,7 +237,7 @@ jobs:
       passed: [ deploy-scf-eirini ]
       trigger: true
     - get: cf-smoke-tests
-    - get: state
+    - get: cluster-state
     - get: ci-resources
     - get: ((cluster-name))-event-uaa-ready
       trigger: true
@@ -304,7 +304,7 @@ resources:
     uri: https://github.com/cloudfoundry/cf-smoke-tests.git
     branch: master
 
-- name: state
+- name: cluster-state
   type: git
   source:
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
