@@ -1356,7 +1356,7 @@ resources:
 - name: cf-acceptance-tests
   type: git
   source:
-    uri: https://github.com/petergtz/cf-acceptance-tests.git
+    uri: https://github.com/cloudfoundry/cf-acceptance-tests.git
     branch: master
 
 - name: cf-smoke-tests
