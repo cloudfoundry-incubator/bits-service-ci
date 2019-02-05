@@ -139,6 +139,7 @@ jobs:
     - get: ((cluster-name))-event-uaa-ready
       params:
         bump: major
+    - get: deployment-versions
   - task: deploy-uaa
     file: ci-resources/tasks/helm-install/task.yml
     params:
@@ -342,3 +343,11 @@ resources:
     branch: master
     private_key: ((github-private-key))
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*", "templates/*"]
+
+- name: deployment-versions
+  type: git
+  source:
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    branch: master
+    private_key: ((github-private-key))
+    paths: ["environments/kube-clusters/((cluster-name))/*"]
