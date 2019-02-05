@@ -22,6 +22,7 @@ git clone https://github.com/concourse/concourse-deployment.git
 cd concourse-deployment/cluster
 bosh -e sl-blue -d concourse deploy concourse.yml \
 -l ../versions.yml \
+-o ~/workspace/concourse-deployment/cluster/operations/container-placement-strategy-random.yml \
 --vars-store ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-blue-vars.yml \
 -o ~/workspace/bits-service-ci/operations/add-concourse-containerization-workers.yml \
 -o ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-stemcell-bits-version.yml \
