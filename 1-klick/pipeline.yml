@@ -373,10 +373,3 @@ resources:
     private_key: ((github-private-key))
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*", "templates/*"]
 
-- name: deployment-versions
-  type: git
-  source:
-    uri: git@github.com:cloudfoundry/bits-service-private-config.git
-    branch: master
-    private_key: ((github-private-key))
-    paths: ["environments/kube-clusters/((cluster-name))/*"]
