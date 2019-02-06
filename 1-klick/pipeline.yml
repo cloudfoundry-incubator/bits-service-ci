@@ -137,9 +137,23 @@ jobs:
     - get: eirini-release
     - { get: state, resource: cluster-state }
     - get: ((cluster-name))-event-uaa-ready
+      trigger: true
       params:
         bump: major
-    - get: deployment-versions
+  - task: create-temp-opi-version
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: ubuntu}
+      outputs:
+      - name: deployment-version
+      run:
+        path: bash
+        args:
+        - -ec
+        - |
+          echo "1.0.0" > deployment-version/version
   - task: deploy-uaa
     file: ci-resources/tasks/helm-install/task.yml
     params:
@@ -149,6 +163,7 @@ jobs:
       COMPONENT: uaa
       HELM_CHART: uaa
       CLUSTER_NAME: ((cluster-name))
+      VERSIONING_CLUSTER: "acceptance"
   - task: waiting-for-uaa
     attempts: 100
     params:
@@ -174,12 +189,26 @@ jobs:
     - get: ci-resources
     - get: ci-tasks
       resource: bits-service-ci
-    - get: cluster-state
+    - { get: state, resource: cluster-state }
     - get: eirini-release
       trigger: true
     - get: ((cluster-name))-event-uaa-ready
       trigger: true
       passed: [deploy-scf-uaa]
+  - task: create-temp-opi-version
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: ubuntu}
+      outputs:
+      - name: deployment-version
+      run:
+        path: bash
+        args:
+        - -ec
+        - |
+          echo "1.0.0" > deployment-version/version
   - task: deploy-scf
     file: ci-resources/tasks/helm-install/task.yml
     params:
