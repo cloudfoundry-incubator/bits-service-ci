@@ -133,9 +133,9 @@ jobs:
     - get: ((cluster-name))-event-ready
       trigger: true
       passed: [ check-cluster-readiness ]
-    - { get: eirini-ci-resources, resource: ci-resources }
     - { get: bits-ci-resources, resource: bits-service-ci }
     - get: eirini-release
+    - get: ci-resources
     - { get: state, resource: cluster-state }
     - get: ((cluster-name))-event-uaa-ready
       trigger: true
@@ -172,7 +172,7 @@ jobs:
       # passed:
       # - create-docker-images
     - get: scf-uaa-resources
-    - { get: eirini-ci-resources, resource: ci-resources }
+    - get: ci-resources
     - { get: bits-ci-resources, resource: bits-service-ci }
     - { get: state, resource: cluster-state }
     - get: eirini-release

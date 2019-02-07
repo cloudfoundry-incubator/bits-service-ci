@@ -7,7 +7,7 @@ image_resource:
     repository: eirini/ibmcloud
 
 inputs:
-- name: eirini-ci-resources
+- name: ci-resources
 - name: bits-ci-resources
 - name: eirini-release
 - name: state

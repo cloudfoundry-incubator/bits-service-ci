@@ -4,10 +4,9 @@ set -eo pipefail
 IFS=$'\n\t'
 
 # shellcheck disable=SC1091
-source eirini-ci-resources/scripts/ibmcloud-functions
+source ci-resources/scripts/ibmcloud-functions
 
 readonly ENVIRONMENT="state/environments/kube-clusters/$CLUSTER_NAME"
-readonly VERSION="$(cat deployment-version/version)"
 export SECRET=""
 export CA_CERT=""
 
