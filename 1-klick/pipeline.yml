@@ -306,5 +306,5 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
     branch: master
     private_key: ((github-private-key))
-    paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*", "templates/*"]
+    paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*", "templates/*", "1-klick"]
 
