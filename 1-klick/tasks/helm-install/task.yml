@@ -1,0 +1,26 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: eirini/ibmcloud
+
+inputs:
+- name: eirini-ci-resources
+- name: bits-ci-resources
+- name: eirini-release
+- name: state
+
+
+params:
+  IBMCLOUD_ACCOUNT:
+  IBMCLOUD_USER:
+  IBMCLOUD_PASSWORD:
+  COMPONENT:
+  CLUSTER_NAME:
+  HELM_CHART:
+  OPI_IMAGE_TAG: unconfigured
+
+run:
+  path: ci-resources/tasks/helm-install/task.sh
