@@ -20,7 +20,6 @@ params:
   COMPONENT:
   CLUSTER_NAME:
   HELM_CHART:
-  OPI_IMAGE_TAG: unconfigured
 
 run:
   path: ci-resources/tasks/helm-install/task.sh

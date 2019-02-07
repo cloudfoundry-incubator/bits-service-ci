@@ -25,7 +25,6 @@ export-ca-cert() {
   fi
 }
 
-# $ helm install cf --namespace scf --name scf --values scf-config-values.yaml --set "secrets.UAA_CA_CERT=${CA_CERT}"
 helm-install() {
   pushd eirini-release/scf
   helm upgrade --install "$COMPONENT" \
