@@ -22,4 +22,4 @@ params:
   HELM_CHART:
 
 run:
-  path: ci-resources/tasks/helm-install/task.sh
+  path: bits-ci-resources/tasks/helm-install/task.sh
