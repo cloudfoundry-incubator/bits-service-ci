@@ -13,22 +13,22 @@ jobs:
 #       TAG: ((cluster-name))
 #     file: ci-resources/tasks/create-docker-images/task.yml
 
-- name: Sync eirini-release fork (develop)
-  plan:
-    - aggregate:
-      - get: eirini-release
-      - get: eirini-release-upstream
-        trigger: true
-      - get: ci-tasks
-        resource: bits-service-ci
-    - task: sync
-      file: ci-tasks/tasks/sync-repo.yml
-      input_mapping:
-        fork-repo: eirini-release
-        upstream-repo: eirini-release-upstream
-      params: { BRANCH: develop }
-    - put: eirini-release
-      params: { repository: synced-repo, force: true }
+# - name: Sync eirini-release fork (develop)
+#   plan:
+#     - aggregate:
+#       - get: eirini-release-fork
+#       - get: eirini-release
+#         trigger: true
+#       - get: ci-tasks
+#         resource: bits-service-ci
+#     - task: sync
+#       file: ci-tasks/tasks/sync-repo.yml
+#       input_mapping:
+#         fork-repo: eirini-release
+#         upstream-repo: eirini-release
+#       params: { BRANCH: develop }
+#     - put: eirini-release-fork
+#       params: { repository: synced-repo, force: true }
 
 - name: create-cluster
   serial_groups: [ ((cluster-name)) ]
@@ -133,29 +133,16 @@ jobs:
     - get: ((cluster-name))-event-ready
       trigger: true
       passed: [ check-cluster-readiness ]
-    - get: ci-resources
+    - { get: eirini-ci-resources, resource: ci-resources }
+    - { get: bits-ci-resources, resource: bits-service-ci }
     - get: eirini-release
     - { get: state, resource: cluster-state }
     - get: ((cluster-name))-event-uaa-ready
       trigger: true
       params:
         bump: major
-  - task: create-temp-opi-version
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: ubuntu}
-      outputs:
-      - name: deployment-version
-      run:
-        path: bash
-        args:
-        - -ec
-        - |
-          echo "1.0.0" > deployment-version/version
   - task: deploy-uaa
-    file: ci-resources/tasks/helm-install/task.yml
+    file: bits-ci-resources/1-klick/tasks/helm-install/task.yml
     params:
       IBMCLOUD_ACCOUNT: ((ibmcloud-account))
       IBMCLOUD_USER: ((ibmcloud-user))
@@ -163,7 +150,6 @@ jobs:
       COMPONENT: uaa
       HELM_CHART: uaa
       CLUSTER_NAME: ((cluster-name))
-      VERSIONING_CLUSTER: "acceptance"
   - task: waiting-for-uaa
     attempts: 100
     params:
@@ -186,31 +172,16 @@ jobs:
       # passed:
       # - create-docker-images
     - get: scf-uaa-resources
-    - get: ci-resources
-    - get: ci-tasks
-      resource: bits-service-ci
+    - { get: eirini-ci-resources, resource: ci-resources }
+    - { get: bits-ci-resources, resource: bits-service-ci }
     - { get: state, resource: cluster-state }
     - get: eirini-release
       trigger: true
     - get: ((cluster-name))-event-uaa-ready
       trigger: true
       passed: [deploy-scf-uaa]
-  - task: create-temp-opi-version
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: ubuntu}
-      outputs:
-      - name: deployment-version
-      run:
-        path: bash
-        args:
-        - -ec
-        - |
-          echo "1.0.0" > deployment-version/version
   - task: deploy-scf
-    file: ci-resources/tasks/helm-install/task.yml
+    file: bits-ci-resources/1-klick/tasks/helm-install/task.yml
     params:
       IBMCLOUD_ACCOUNT: ((ibmcloud-account))
       IBMCLOUD_USER: ((ibmcloud-user))
@@ -222,42 +193,10 @@ jobs:
     attempts: 100
     params:
       CLUSTER_NAME: ((cluster-name))
+      IBMCLOUD_ACCOUNT: ((ibmcloud-account))
+      IBMCLOUD_USER: ((ibmcloud-user))
+      IBMCLOUD_PASSWORD: ((ibmcloud-password))
     file: ci-resources/tasks/eirini-smoke-tests/task.yml
-
-- name: deploy-oratos
-  serial_groups: [ ((cluster-name)) ]
-  serial: true
-  plan:
-  - aggregate:
-    # - get: eirini-release
-    - get: ((cluster-name))-event-uaa-ready
-      trigger: true
-      passed: [deploy-scf-uaa]
-    - get: scf-uaa-resources
-      trigger: true
-      # passed:
-      # - create-docker-images
-    - get: ci-resources
-    - get: cluster-state
-    - get: oratos
-      trigger: true
-  - task: deploy-oratos
-    privileged: true
-    file: ci-resources/tasks/deploy-oratos/task.yml
-    params:
-      IBMCLOUD_ACCOUNT: ((ibmcloud-account))
-      IBMCLOUD_USER: ((ibmcloud-user))
-      IBMCLOUD_PASSWORD: ((ibmcloud-password))
-      CLUSTER_NAME: ((cluster-name))
-  - task: waiting-for-oratos
-    attempts: 100
-    params:
-      IBMCLOUD_ACCOUNT: ((ibmcloud-account))
-      IBMCLOUD_USER: ((ibmcloud-user))
-      IBMCLOUD_PASSWORD: ((ibmcloud-password))
-      CLUSTER_NAME: ((cluster-name))
-    file: ci-resources/tasks/waiting-for-oratos/task.yml
-
 
 - name: run-smoke-tests
   serial_groups: [ ((cluster-name)) ]
@@ -267,14 +206,10 @@ jobs:
       passed: [ deploy-scf-eirini ]
       trigger: true
     - get: cf-smoke-tests
-    - get: cluster-state
+    - { get: state, resource: cluster-state }
     - get: ci-resources
     - get: ((cluster-name))-event-uaa-ready
       trigger: true
-      passed: [ deploy-oratos, deploy-scf-eirini ]
-    - get: oratos
-      trigger: true
-      passed: [ deploy-oratos ]
   - task: run smoke tests
     params:
       CLUSTER_NAME: ((cluster-name))
@@ -290,14 +225,14 @@ resources:
     uri: https://github.com/cloudfoundry-incubator/eirini-ci.git
     branch: master
 
-- name: eirini-release
-  type: git
-  source:
-    uri: git@github.com:petergtz/eirini-release.git
-    branch: ((eirini-release-branch))
-    private_key: ((github-private-key))
+# - name: eirini-release-fork
+#   type: git
+#   source:
+#     uri: git@github.com:petergtz/eirini-release.git
+#     branch: ((eirini-release-branch))
+#     private_key: ((github-private-key))
 
-- name: eirini-release-upstream
+- name: eirini-release
   type: git
   source:
     uri: https://github.com/cloudfoundry-incubator/eirini-release.git
@@ -359,11 +294,11 @@ resources:
     file: ((cluster-name))-event-ready
     private_key: ((github-private-key))
 
-- name: oratos
-  type: git
-  source:
-    uri: https://github.com/gdankov/oratos-deployment
-    branch: eirini
+# - name: oratos
+#   type: git
+#   source:
+#     uri: https://github.com/gdankov/oratos-deployment
+#     branch: eirini
 
 - name: bits-service-ci
   type: git
