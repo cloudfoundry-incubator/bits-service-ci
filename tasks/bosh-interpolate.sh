@@ -52,7 +52,6 @@ bosh2 interpolate cf-deployment/cf-deployment.yml \
   -v global_env=${IAAS} \
   -o cf-deployment/operations/bits-service/use-bits-service.yml \
   $CONFIGURE_BITS \
-  -o ci-tasks/operations/remove-statsd-injector.yml \
   ${OPERATIONS} \
   ${VARIABLES} \
   > manifests/manifest.yml
