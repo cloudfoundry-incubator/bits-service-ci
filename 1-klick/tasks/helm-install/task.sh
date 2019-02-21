@@ -25,7 +25,7 @@ export-ca-cert() {
 }
 
 helm-install() {
-  pushd eirini-release/scf
+  pushd eirini-release
   helm upgrade --install "$COMPONENT" \
     helm/"$HELM_CHART" \
     --namespace "$COMPONENT" \
