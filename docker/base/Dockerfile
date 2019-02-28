@@ -3,7 +3,7 @@ FROM ubuntu:trusty
 RUN apt-get update && \
     apt-get -y install git zip unzip wget curl dnsutils gettext software-properties-common \
         libxml2-dev libxslt-dev libcurl4-openssl-dev \
-        build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev nginx-full && \
+        build-essential zlib1g-dev libssl-dev libreadline6-dev libyaml-dev nginx-extras && \
         apt-get clean -y && \
         apt-get autoremove -y && \
         rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
