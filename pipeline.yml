@@ -254,7 +254,6 @@ jobs:
 - name: run-system-tests-LOCAL
   build_logs_to_retain: 100
   serial: true
-  serial_groups: [bits-deployment-local]
   plan:
   - aggregate:
     - { get: bits-service-release, trigger: true }
