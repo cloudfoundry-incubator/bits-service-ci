@@ -41,7 +41,6 @@ fly \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
   -v ibm_metrics_api_key="${ibm_metrics_api_key}" \
-  -v sl-bosh-ca-cert="$(bosh int ~/workspace/bits-service-private-config/environments/softlayer/director/green-vars.yml --path /director_ssl/ca)" \
   -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)" \
   -v slack-webhook="${slack_webhook}" \
   -v private-yml="${private_yml}" \

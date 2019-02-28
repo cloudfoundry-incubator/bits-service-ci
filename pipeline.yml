@@ -1,12 +1,3 @@
-sl-bosh-params: &sl-bosh-params
-  BOSH_TARGET: ((sl-bosh-target))
-  BOSH_USERNAME: ((sl-bosh-username))
-  BOSH_PASSWORD: ((sl-bosh-password))
-  ENVIRONMENT_NAME: softlayer
-  DIRECTOR_IP: ((sl-bosh-director-ip))
-  DIRECTOR_NAME: ((sl-bosh-director-name))
-  VARS_YAML: deployment-vars/environments/softlayer/director/green-vars.yml
-
 bosh2-params: &bosh2-params
   BOSH_USERNAME: ((bosh2-username))
   BOSH_PASSWORD: ((bosh2-password))
@@ -265,70 +256,18 @@ jobs:
       BLOBSTORE_TYPE: local
   on_failure: *notify
 
-- name: deploy-with-WEBDAV
-  build_logs_to_retain: 100
-  serial: true
-  serial_groups: [bits-deployment-webdav]
-  plan:
-  - aggregate:
-    - { get: capi-release-tarball, passed: [create-capi-release], trigger: true }
-    - { get: bits-service-release-tarball, passed: [create-and-upload-release], trigger: true }
-    - { get: bits-service-release-version, passed: [create-and-upload-release] }
-    - { get: bits-service-release, passed: [create-and-upload-release], trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci, trigger: true}
-    - { get: stemcell, resource: softlayer-stemcell, trigger: true }
-    - { get: git-deployment-vars }
-    - { get: bits-service-webdav-sl-deployment-events, trigger: true }
-  - task: Create deployment manifest
-    file: ci-tasks/tasks/create-bits-manifest.yml
-    input_mapping:
-      bits-service-deployment-manifest-generation-tools: bits-service-release
-      bits-service-private-config: git-deployment-vars
-    params:
-      <<: *sl-bosh-params
-      BLOBSTORE_TYPE: webdav
-      BITS_SERVICE_JOB_IP: &bits_service_job_ip_webdav 10.175.96.244
-      BLOBSTORE_JOB_IP: 10.175.96.245
-      DEPLOYMENT_NAME: bits-service-webdav
-  - aggregate:
-    - put: git-deployment-vars
-      params:
-        rebase: true
-        repository: updated/bits-service-private-config
-    - put: bosh-deployment-bits-service-webdav
-      attempts: 3
-      params: &sl-bits-service-deployment-params
-        manifest: manifests/manifest.yml
-        # stemcells: ["stemcell/stemcell.tgz"]
-        releases:
-          - "capi-release-tarball/*.tgz"
-          - "bits-service-release-tarball/*.tgz"
-        no_redact: true
-  on_failure: *notify
-
 - name: run-system-tests-WEBDAV
   build_logs_to_retain: 100
   serial: true
-  serial_groups: [bits-deployment-webdav]
   plan:
   - aggregate:
-    - { get: capi-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
-    - { get: bits-service-release-tarball, passed: [deploy-with-WEBDAV], trigger: true }
-    - { get: bits-service-release-version, passed: [deploy-with-WEBDAV] }
-    - { get: bits-service-release, passed: [deploy-with-WEBDAV] }
-    - { get: ci-tasks, resource: bits-service-ci }
-    - { get: git-deployment-vars }
-    - { get: bits-service-webdav-sl-deployment-events, passed: [deploy-with-WEBDAV], trigger: true }
+    - { get: bits-service-release, trigger: true }
+    - { get: ci-tasks, resource: bits-service-ci, trigger: true }
   - task: Run tests
     attempts: 3
-    file: ci-tasks/tasks/run-release-tests.yml
-    input_mapping:
-      bits-service-system-test-source: bits-service-release
-      deployment-vars: git-deployment-vars
+    file: ci-tasks/tasks/run-release-tests-non-bosh.yml
     params:
-      <<: *sl-bosh-params
-      BITS_SERVICE_PRIVATE_ENDPOINT_IP: *bits_service_job_ip_webdav
-      DEPLOYMENT_NAME: bits-service-webdav
+      BLOBSTORE_TYPE: webdav
   on_failure: *notify
 
 # CAPI-RELEASE
@@ -361,7 +300,6 @@ jobs:
         - enable-BITS-SERVICE-diego-and-run-CATs
         - migration-backwards-bosh1
         - migration-backwards-bosh2
-        - run-system-tests-WEBDAV
         - Deploy CF and run CC Updater tests
         - run-CATs-in-bitsgo-aws-s3-bosh-lite
         - run-CATs-in-bitsgo-cos-s3-bosh-lite
@@ -454,21 +392,6 @@ jobs:
       DEPLOYMENT_NAME: cf
   - put: cf-diego-aws-deployment-events
     params: { file: cf-diego-aws-deployment-events/number }
-  on_failure: *notify
-- name: manually-delete-s3-cf-softlayer
-  serial: true
-  plan:
-  - aggregate:
-    - { get: daily-morning-timer, trigger: true }
-    - { get: ci-tasks, resource: bits-service-ci }
-    - { get: s3-cf-softlayer-deployment-events, params: { bump: major } }
-  - task: delete-deployment
-    file: ci-tasks/tasks/delete-deployment.yml
-    params:
-      <<: *sl-bosh-params
-      DEPLOYMENT_NAME: cf
-  - put: s3-cf-softlayer-deployment-events
-    params: { file: s3-cf-softlayer-deployment-events/number }
   on_failure: *notify
 
 - name: deploy-and-test-cf-diego-aws
@@ -700,22 +623,6 @@ jobs:
         output_mapping: { state-out: metrics-committed }
       - put: git-deployment-vars
         params: { repository: metrics-committed, rebase: true }
-  on_failure: *notify
-
-- name: delete-deployment-bits-service-webdav
-  build_logs_to_retain: 100
-  plan:
-    - aggregate:
-      - { get: daily-morning-timer, trigger: true }
-      - { get: ci-tasks, resource: bits-service-ci }
-      - { get: bits-service-webdav-sl-deployment-events, params: { bump: major } }
-    - task: delete-deployment
-      file: ci-tasks/tasks/delete-deployment.yml
-      params:
-        <<: *sl-bosh-params
-        DEPLOYMENT_NAME: bits-service-webdav
-    - put: bits-service-webdav-sl-deployment-events
-      params: { file: bits-service-webdav-sl-deployment-events/number }
   on_failure: *notify
 
 - name:  Deploy CF and run CC Updater tests
@@ -1160,7 +1067,6 @@ groups:
   - run-bitsgo-unit-tests
   - Publish gem
   - create-and-upload-release
-  - deploy-with-WEBDAV
   - run-system-tests-S3
   - run-system-tests-LOCAL
   - run-system-tests-WEBDAV
@@ -1218,8 +1124,6 @@ groups:
   - cleanup-bosh-aws
   - cleanup-bosh-sl
   - manually-delete-cf-diego-aws
-  - manually-delete-s3-cf-softlayer
-  - delete-deployment-bits-service-webdav
 
 resource_types:
 - name: bosh2-deployment
@@ -1246,10 +1150,6 @@ resources:
 - name: boshlite-stemcell
   type: bosh-io-stemcell
   source: { name: bosh-warden-boshlite-ubuntu-xenial-go_agent }
-
-- name: softlayer-stemcell
-  type: bosh-io-stemcell
-  source: { name: bosh-softlayer-xen-ubuntu-xenial-go_agent }
 
 - name: bits-service-release-tarball
   type: s3
@@ -1376,17 +1276,6 @@ resources:
     stop: 5:00 AM
     location: Europe/Berlin
 
-- name: bosh-deployment-bits-service-webdav
-  type: bosh2-deployment
-  source:
-    target: ((sl-bosh-target))
-    username: ((sl-bosh-username))
-    password: ((sl-bosh-password))
-    client: ((sl-bosh-username))
-    client_secret: ((sl-bosh-password))
-    deployment: bits-service-webdav
-    ca_cert: ((sl-bosh-ca-cert))
-
 - name: capi-release-version
   type: semver
   source:
@@ -1415,18 +1304,6 @@ resources:
     branch: events
     file: events/cf-diego-aws/deployment-deleted
     private_key: ((github-private-key))
-
-- name: s3-cf-softlayer-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/cf-sl-deployment-deleted
-
-- name: bits-service-webdav-sl-deployment-events
-  type: semver
-  source:
-    <<: *deployment-events-source
-    file: events/bits-service-webdav-sl-deployment-deleted
 
 - name: cc-updater-bosh-lite-ready-for-deployment-events
   type: semver
