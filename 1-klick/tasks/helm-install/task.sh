@@ -12,8 +12,11 @@ export CA_CERT=""
 
 main() {
   ibmcloud-login
+  echo "before export kubeconfig"
   export-kubeconfig "$CLUSTER_NAME"
+  echo "before ca cert"
   export-ca-cert
+  echo "helm install"
   helm-install
 }
 
