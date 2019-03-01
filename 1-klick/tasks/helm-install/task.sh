@@ -37,6 +37,7 @@ helm-install() {
   helm dependency build
   popd
   echo "after build dependency run"
+  echo $(pwd)
   helm upgrade --install "$COMPONENT" \
     helm/"$HELM_CHART" \
     --namespace "$COMPONENT" \
