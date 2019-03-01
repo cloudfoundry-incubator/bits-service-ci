@@ -42,7 +42,7 @@ helm-install() {
   helm upgrade --install "$COMPONENT" \
     helm/"$HELM_CHART" \
     --namespace "$COMPONENT" \
-    --values "../../$ENVIRONMENT"/scf-config-values.yaml \
+    --values "../$ENVIRONMENT"/scf-config-values.yaml \
     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
     --force
   popd
