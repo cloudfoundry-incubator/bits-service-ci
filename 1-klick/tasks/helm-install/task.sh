@@ -32,6 +32,8 @@ helm-install() {
   pushd helm/cf
   echo "before helm dependency"
   echo $(pwd)
+  helm version
+  helm init --client-only
   helm dependency build
   popd
   echo "after build dependency run"
