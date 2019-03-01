@@ -30,9 +30,11 @@ export-ca-cert() {
 helm-install() {
   pushd eirini-release
   pushd helm/cf
+  echo "before helm dependency"
+  echo $(pwd)
   helm dependency build
   popd
-  echo $(pwd)
+  echo "after build dependency run"
   helm upgrade --install "$COMPONENT" \
     helm/"$HELM_CHART" \
     --namespace "$COMPONENT" \
