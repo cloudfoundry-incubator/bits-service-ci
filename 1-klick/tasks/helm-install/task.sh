@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -eo pipefail
 IFS=$'\n\t'
@@ -7,16 +7,15 @@ IFS=$'\n\t'
 source ci-resources/scripts/ibmcloud-functions
 
 readonly ENVIRONMENT="state/environments/kube-clusters/$CLUSTER_NAME"
+readonly VERSION="$(cat deployment-version/version)"
 export SECRET=""
 export CA_CERT=""
 
 main() {
   ibmcloud-login
-  echo "before export kubeconfig"
   export-kubeconfig "$CLUSTER_NAME"
-  echo "before ca cert"
   export-ca-cert
-  echo "helm install"
+  helm-dep-update
   helm-install
 }
 
@@ -27,23 +26,24 @@ export-ca-cert() {
   fi
 }
 
+helm-dep-update() {
+  if [ "$COMPONENT" == "scf" ]; then
+    pushd "eirini-release/helm/cf"
+    helm init --client-only
+    helm dependency update
+    popd || exit
+  fi
+}
+
 helm-install() {
-  pushd eirini-release
-  pushd helm/cf
-  echo "before helm dependency"
-  echo $(pwd)
-  helm version
-  helm init --client-only
-  helm dependency build
-  popd
-  echo "after build dependency run"
-  echo $(pwd)
-  echo "$(ls ../..)"
+  pushd eirini-release/helm
   helm upgrade --install "$COMPONENT" \
-    helm/"$HELM_CHART" \
+    "$HELM_CHART" \
     --namespace "$COMPONENT" \
     --values "../../$ENVIRONMENT"/scf-config-values.yaml \
     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
+    --set "opi.version=$VERSION" \
+    --set "eirini.opi.image_tag=latest" \
     --force
   popd
 }
