@@ -235,24 +235,24 @@ resources:
 - name: eirini-release
   type: git
   source:
-    uri: https://github.com/idev4u/eirini-release.git
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
     branch: ((eirini-release-branch))
 
 - name: scf-uaa-resources
   type: git
   source:
-    uri: https://github.com/idev4u/eirini-release.git
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
     branch: ((eirini-release-branch))
     paths:
-    - helm/uaa
+    - scf/helm/uaa
 
 - name: scf-resources
   type: git
   source:
-    uri: https://github.com/idev4u/eirini-release.git
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
     branch: ((eirini-release-branch))
     paths:
-    - helm/cf
+    - scf/helm/cf
 
 - name: ((cluster-name))-event-uaa-ready
   type: semver
