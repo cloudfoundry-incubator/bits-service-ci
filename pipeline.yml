@@ -198,19 +198,33 @@ jobs:
     - { get: bits-service-release-version, params: { pre: dev } }
     - { get: bits-service-release, trigger: true, params: { clean_tags: true }, passed: [ run-system-tests-S3, run-system-tests-LOCAL ] }
     - { get: ci-tasks, resource: bits-service-ci }
+    - { get: eirinifs-release, trigger: true }
   - put: bits-service-release-version
     params: { file: bits-service-release-version/version }
-  - task: Create release
-    file: ci-tasks/tasks/create-bits-release.yml
-    params:
-      VERSION_FILE: bits-service-release-version/version
-  - put: bits-service-release-tarball
-    params: { file: releases/*.tgz }
-  - put: bits-service-release
-    params:
-      repository: bits-service-release
-      tag: bits-service-release-version/version
-      only_tag: true
+  - aggregate:
+    - do:
+      - task: Create release
+        file: ci-tasks/tasks/create-bits-release.yml
+        params:
+          VERSION_FILE: bits-service-release-version/version
+      - aggregate:
+        - put: bits-service-release-tarball
+          params: { file: releases/*.tgz }
+        - put: bits-service-release
+          params:
+            repository: bits-service-release
+            tag: bits-service-release-version/version
+            only_tag: true
+    - do:
+      - task: get-image-artifacts
+        file: ci-tasks/tasks/get-image-artifacts.yml
+        input_mapping:
+          eirini-resources: eirinifs-release
+      - put: bits-docker-release
+        params:
+            build: docker-parts/docker
+            additional_tags: bits-service-release-version/version
+
   on_failure: *notify
 
 - name: run-system-tests-S3
@@ -1342,3 +1356,20 @@ resources:
     start: 12:00 AM
     stop: 1:00 AM
     location: Europe/Berlin
+
+- name: eirinifs-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: eirinifs
+    globs:
+    - eirinifs.tar
+  check_every: 60m
+
+- name: bits-docker-release
+  type: docker-image
+  source:
+    email: ((dockerhub-email))
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: ((dockerhub-username))/bits-service
