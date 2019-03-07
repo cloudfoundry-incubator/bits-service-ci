@@ -196,7 +196,7 @@ jobs:
   plan:
   - aggregate:
     - { get: bits-service-release-version, params: { pre: dev } }
-    - { get: bits-service-release, trigger: true, params: { clean_tags: true }, passed: [ run-system-tests-S3, run-system-tests-LOCAL ] }
+    - { get: bits-service-release, trigger: true, params: { clean_tags: true }, passed: [ run-system-tests-S3, run-system-tests-LOCAL, run-system-tests-WEBDAV ] }
     - { get: ci-tasks, resource: bits-service-ci }
     - { get: eirinifs-release, trigger: true }
   - put: bits-service-release-version
