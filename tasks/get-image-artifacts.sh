@@ -5,7 +5,6 @@ function main {
     install_bits_dependencies
     build_bits_binary
     provide_bits_layer_to_docker_parts
-    provide_eirinifs_layer_to_docker_parts
 }
 
 function init {
@@ -33,12 +32,6 @@ function build_bits_binary {
 function provide_bits_layer_to_docker_parts {
     printf "[INFO] Copy bits layer to the output folder.\n"
     cp -av bits-service-release/docker/ docker-parts/
-}
-
-function provide_eirinifs_layer_to_docker_parts {
-    mkdir -p ${ROOT_DIR}/docker-parts/docker/assets
-    printf "[INFO] Copy eirini layer to the output folder.\n"
-    cp -v eirini-resources/eirinifs.tar ${ROOT_DIR}/docker-parts/docker/assets/eirinifs.tar
 }
 
 main

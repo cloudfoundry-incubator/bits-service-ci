@@ -9,7 +9,6 @@ image_resource:
 inputs:
 - name: bits-service-release
 - name: ci-tasks
-- name: eirini-resources
 
 outputs:
 - name: docker-parts
