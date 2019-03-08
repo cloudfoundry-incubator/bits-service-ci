@@ -198,7 +198,6 @@ jobs:
     - { get: bits-service-release-version, params: { pre: dev } }
     - { get: bits-service-release, trigger: true, params: { clean_tags: true }, passed: [ run-system-tests-S3, run-system-tests-LOCAL, run-system-tests-WEBDAV ] }
     - { get: ci-tasks, resource: bits-service-ci }
-    - { get: eirinifs-release, trigger: true }
   - put: bits-service-release-version
     params: { file: bits-service-release-version/version }
   - aggregate:
@@ -218,12 +217,19 @@ jobs:
     - do:
       - task: get-image-artifacts
         file: ci-tasks/tasks/get-image-artifacts.yml
-        input_mapping:
-          eirini-resources: eirinifs-release
       - put: bits-docker-release
         params:
             build: docker-parts/docker
             additional_tags: bits-service-release-version/version
+    - do:
+      - task: get-eirinifs-download-image-artifacts
+        file: ci-tasks/tasks/get-image-artifacts.yml
+      - put: eirinifs-downloader-docker-release
+        params:
+            build: docker-parts/docker/eirini-rootfs-download
+            additional_tags: bits-service-release-version/version
+
+
 
   on_failure: *notify
 
@@ -1357,15 +1363,6 @@ resources:
     stop: 1:00 AM
     location: Europe/Berlin
 
-- name: eirinifs-release
-  type: github-release
-  source:
-    owner: cloudfoundry-incubator
-    repository: eirinifs
-    globs:
-    - eirinifs.tar
-  check_every: 60m
-
 - name: bits-docker-release
   type: docker-image
   source:
@@ -1373,3 +1370,11 @@ resources:
     username: ((dockerhub-username))
     password: ((dockerhub-password))
     repository: ((dockerhub-username))/bits-service
+
+- name: eirinifs-downloader-docker-release
+  type: docker-image
+  source:
+    email: ((dockerhub-email))
+    username: ((dockerhub-username))
+    password: ((dockerhub-password))
+    repository: ((dockerhub-username))/eirinifs-downloader

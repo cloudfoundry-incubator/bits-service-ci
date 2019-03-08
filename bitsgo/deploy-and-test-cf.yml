@@ -30,7 +30,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: master
+    branch: wip-remove-tar
     private_key: ((github-private-key))
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*", "templates/*"]
 
