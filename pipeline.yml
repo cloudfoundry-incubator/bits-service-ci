@@ -226,7 +226,7 @@ jobs:
         file: ci-tasks/tasks/get-image-artifacts.yml
       - put: eirinifs-downloader-docker-release
         params:
-            build: docker-parts/docker/eirini-rootfs-download
+            build: docker-parts/docker/eirini-rootfs-downloader
             additional_tags: bits-service-release-version/version
 
 
