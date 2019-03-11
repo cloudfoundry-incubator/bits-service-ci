@@ -1240,7 +1240,6 @@ resources:
     uri: git@github.com:cloudfoundry-incubator/bits-service-release.git
     branch: master
     private_key: ((github-private-key))
-    ignore_paths: ["docker/*"]
 
 - name: bits-service-migration-tests
   type: git
