@@ -134,6 +134,7 @@ jobs:
       trigger: true
       passed: [ check-cluster-readiness ]
     - { get: bits-ci-resources, resource: bits-service-ci }
+    - { get: ((cluster-name))-deployment-version, trigger: true }
     - get: eirini-release
     - get: ci-resources
     - { get: state, resource: cluster-state }
@@ -143,6 +144,7 @@ jobs:
         bump: major
   - task: deploy-uaa
     file: bits-ci-resources/1-klick/tasks/helm-install/task.yml
+    input_mapping: {deployment-version: ((cluster-name))-deployment-version}
     params:
       IBMCLOUD_ACCOUNT: ((ibmcloud-account))
       IBMCLOUD_USER: ((ibmcloud-user))
@@ -174,6 +176,7 @@ jobs:
     - get: scf-uaa-resources
     - get: ci-resources
     - { get: bits-ci-resources, resource: bits-service-ci }
+    - { get: ((cluster-name))-deployment-version, trigger: true }
     - { get: state, resource: cluster-state }
     - get: eirini-release
       trigger: true
@@ -182,6 +185,7 @@ jobs:
       passed: [deploy-scf-uaa]
   - task: deploy-scf
     file: bits-ci-resources/1-klick/tasks/helm-install/task.yml
+    input_mapping: {deployment-version: ((cluster-name))-deployment-version}
     params:
       IBMCLOUD_ACCOUNT: ((ibmcloud-account))
       IBMCLOUD_USER: ((ibmcloud-user))
@@ -293,6 +297,16 @@ resources:
     branch: events
     file: ((cluster-name))-event-ready
     private_key: ((github-private-key))
+
+- name: ((cluster-name))-deployment-version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:cloudfoundry/bits-service-private-config.git
+    branch: master
+    file: environments/kube-clusters/((cluster-name))/deployment-version
+    private_key: ((github-private-key))
+    initial_version: 1.0.0
 
 # - name: oratos
 #   type: git
