@@ -292,7 +292,7 @@ resources:
     type: git
     source:
       uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-      branch: wip-eirini-rootfs
+      branch: master
       private_key: ((github-private-key))
       paths:
         [
