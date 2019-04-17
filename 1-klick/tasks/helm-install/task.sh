@@ -32,7 +32,8 @@ helm-dep-update() {
   if [ "$COMPONENT" == "scf" ]; then
     pushd "eirini-release/helm/cf"
     helm init --client-only
-    helm repo add https://kiranjain2.github.io/bits/
+    helm repo add  bits https://kiranjain2.github.io/bits
+    helm dep build
     helm dependency update
     popd || exit
   fi
