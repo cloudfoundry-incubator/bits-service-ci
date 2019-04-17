@@ -14,6 +14,6 @@ fly -t flintstone set-pipeline -p $CLUSTER_NAME -c pipeline.yml \
     -v ibmcloud-password=$(lpass show "Shared-Flintstone/Bluemix Cloud Foundry User" --password) \
     -v cluster-name=$CLUSTER_NAME \
     -v github-private-key="$(lpass show "Shared-Flintstone"/Github --notes)" \
-    -v eirini-release-branch=master \
+    -v eirini-release-branch=wip-kiran \
     -l ~/workspace/bits-service-private-config/kube-clusters/$CLUSTER_NAME/vars.yml
 
