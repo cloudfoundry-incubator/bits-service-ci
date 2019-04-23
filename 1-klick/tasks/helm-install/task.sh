@@ -32,6 +32,8 @@ helm-dep-update() {
   if [ "$COMPONENT" == "scf" ]; then
     pushd "eirini-release/helm/cf"
     helm init --client-only
+    helm repo add bits https://kiranjain2.github.io/bits/
+    helm dependency build
     helm dependency update
     popd || exit
   fi
@@ -44,8 +46,9 @@ helm-install() {
     --namespace "$COMPONENT" \
     --values "../../$ENVIRONMENT"/scf-config-values.yaml \
     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
-    --set "eirini.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
-    --set "eirini.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
+    --set "bits.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
+    --set "bits.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
+    --set "bits.EIRINI_ROOTFS_VERSION=v33.0.0" \
     --force --debug
   popd
 }
