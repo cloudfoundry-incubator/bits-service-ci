@@ -46,8 +46,8 @@ helm-install() {
     --namespace "$COMPONENT" \
     --values "../../$ENVIRONMENT"/scf-config-values.yaml \
     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
-    --set "bits.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
-    --set "bits.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
+    --set "eirini.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
+    --set "eirini.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
     --force --debug
   popd
 }

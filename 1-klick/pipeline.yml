@@ -277,7 +277,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
-    branch: master
+    branch: wip-bits-helm-164273622
     private_key: ((github-private-key))
 
 - name: ((cluster-name))-event-created
