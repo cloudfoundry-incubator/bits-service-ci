@@ -239,13 +239,13 @@ resources:
 - name: eirini-release
   type: git
   source:
-    uri: https://github.com/idev4u/eirini-release.git
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
     branch: ((eirini-release-branch))
 
 - name: scf-uaa-resources
   type: git
   source:
-    uri: https://github.com/idev4u/eirini-release.git
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
     branch: ((eirini-release-branch))
     paths:
     - scf/helm/uaa
@@ -253,7 +253,7 @@ resources:
 - name: scf-resources
   type: git
   source:
-    uri: https://github.com/idev4u/eirini-release.git
+    uri: https://github.com/cloudfoundry-incubator/eirini-release.git
     branch: ((eirini-release-branch))
     paths:
     - scf/helm/cf
@@ -318,7 +318,7 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/bits-service-ci.git
-    branch: wip-164168224
+    branch: master
     private_key: ((github-private-key))
     paths: ["manifests/*", "scripts/*", "tasks/*", "operations/*", "bitsgo/*", "templates/*", "1-klick"]
 
