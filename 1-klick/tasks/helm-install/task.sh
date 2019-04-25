@@ -46,7 +46,7 @@ helm-install() {
     --set "secrets.UAA_CA_CERT=${CA_CERT}" \
     --set "eirini.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
     --set "eirini.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
-    --set "EIRINI_ROOTFS_VERSION=v36.0.0" \
+    --set "eirini.EIRINI_ROOTFS_VERSION=v36.0.0" \
     --force --debug
   popd
 }
