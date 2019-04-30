@@ -49,6 +49,8 @@ helm-install() {
     --set "eirini.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
     --set "eirini.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
     --set "bits.EIRINI_ROOTFS_VERSION=v36.0.0" \
+    --set "bits.secrets.BITS_TLS_CRT=${BITS_TLS_CRT}" \
+    --set "bits.secrets.BITS_TLS_KEY=${BITS_TLS_KEY}" \
     --force --debug
   popd
 }
