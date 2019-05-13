@@ -303,7 +303,7 @@ resources:
   source:
     driver: git
     uri: git@github.com:cloudfoundry/bits-service-private-config.git
-    branch: wip-bits-helm-164273622
+    branch: master
     file: environments/kube-clusters/((cluster-name))/deployment-version
     private_key: ((github-private-key))
     initial_version: 1.0.0
