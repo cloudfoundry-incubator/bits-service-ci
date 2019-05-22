@@ -28,8 +28,8 @@ RUN curl -L "https://cli.run.pivotal.io/stable?release=linux64-binary&source=git
 
 RUN wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/local/bin/jq
 
-RUN wget https://storage.googleapis.com/golang/go1.10.1.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf go1.10.1.linux-amd64.tar.gz
+RUN wget https://storage.googleapis.com/golang/go1.12.5.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go1.12.5.linux-amd64.tar.gz
 ENV PATH "$PATH:/usr/local/go/bin"
 
 RUN add-apt-repository --yes ppa:masterminds/glide && apt-get update
