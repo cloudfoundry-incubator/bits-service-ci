@@ -448,6 +448,7 @@ jobs:
           -o cf-deployment/operations/scale-to-one-az.yml
           -o cf-deployment/operations/use-external-blobstore.yml
           -o cf-deployment/operations/use-s3-blobstore.yml
+          -o cf-deployment/operations/use-internal-lookup-for-route-services.yml
           -o ci-tasks/operations/disable-bits-service.yml
           -o ci-tasks/operations/scale-diego-cell-instances.yml
           -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
@@ -577,6 +578,7 @@ jobs:
           -o cf-deployment/operations/scale-to-one-az.yml
           -o cf-deployment/operations/use-external-blobstore.yml
           -o cf-deployment/operations/use-s3-blobstore.yml
+          -o cf-deployment/operations/use-internal-lookup-for-route-services.yml
           -o ci-tasks/operations/scale-diego-cell-instances.yml
           -o ci-tasks/operations/use-latest-capi-and-bits-service-release.yml
           -o ci-tasks/operations/use-iam-profiles.yml
