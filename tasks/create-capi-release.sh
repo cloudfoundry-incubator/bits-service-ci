@@ -10,12 +10,14 @@ prerelease_version=$(\
   gem search bits_service_client --all --pre --no-verbose \
   | sed 's/bits_service_client (\([^,]*\).*/\1/' \
 )
-sed \
-  -i capi-release/src/cloud_controller_ng/Gemfile.lock \
-  -e "s/bits_service_client .*/bits_service_client ($prerelease_version)/"
-sed \
-  -i capi-release/src/cloud_controller_ng/Gemfile \
-  -e "s/'bits_service_client.*/'bits_service_client', '$prerelease_version'/"
+
+# TODO uncomment the following in case https://github.com/cloudfoundry/capi-release/pull/129 is ever merged.
+# sed \
+#   -i capi-release/src/cloud_controller_ng/Gemfile.lock \
+#   -e "s/bits_service_client .*/bits_service_client ($prerelease_version)/"
+# sed \
+#   -i capi-release/src/cloud_controller_ng/Gemfile \
+#   -e "s/'bits_service_client.*/'bits_service_client', '$prerelease_version'/"
 
 cd capi-release
 
