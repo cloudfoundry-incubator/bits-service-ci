@@ -1269,9 +1269,13 @@ resources:
 - name: capi-release
   type: git
   source:
-    uri: git@github.com:petergtz/capi-release.git
+    uri: https://github.com/cloudfoundry/capi-release.git
+    # It doesn't look like the petergtz fork will ever be merged by CAPI team. To avoid a red pipeline while Bits-Service is
+    # in maintenance mode, we're bending the capi-release resource back to upstream.
+    # Should development continue, uncomment the two lines below.
+    # uri: git@github.com:petergtz/capi-release.git
+    # private_key: ((github-private-key))
     branch: master
-    private_key: ((github-private-key))
 
 - name: cf-acceptance-tests
   type: git
