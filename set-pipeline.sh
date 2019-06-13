@@ -41,7 +41,6 @@ fly \
   -v bluemix_cloudfoundry_username="${bluemix_cloudfoundry_username}" \
   -v bluemix_cloudfoundry_password="${bluemix_cloudfoundry_password}" \
   -v ibm_metrics_api_key="${ibm_metrics_api_key}" \
-  -v bosh-ca-cert="$(<~/workspace/bosh-lite/ca/certs/ca.crt)" \
   -v slack-webhook="${slack_webhook}" \
   -v private-yml="${private_yml}" \
   -v changeip-username="${changeip_username}" \
