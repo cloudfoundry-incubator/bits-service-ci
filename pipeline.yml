@@ -1192,9 +1192,11 @@ resources:
 - name: cf-deployment-develop
   type: git
   source:
-    uri: git@github.com:petergtz/cf-deployment.git
+    # TODO: Currently there is no plan to do further PRs against cf-deployment. Change back, in case that should change
+    # uri: git@github.com:petergtz/cf-deployment.git
+    uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: develop
-    private_key: ((github-private-key))
+    # private_key: ((github-private-key))
 
 - name: cf-deployment-develop-upstream
   type: git
@@ -1205,9 +1207,11 @@ resources:
 - name: cf-deployment-master
   type: git
   source:
-    uri: git@github.com:petergtz/cf-deployment.git
+    # TODO: Currently there is no plan to do further PRs against cf-deployment. Change back, in case that should change
+    # uri: git@github.com:petergtz/cf-deployment.git
+    uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
-    private_key: ((github-private-key))
+    # private_key: ((github-private-key))
 
 - name: cf-deployment-master-upstream
   type: git
