@@ -9,22 +9,23 @@ Make sure to use https://github.com/mattcui/bosh-deployment as `~/workspace/bosh
 cd ~/workspace/bits-service-private-config/environments/softlayer/director
 ```
 
-Choose a portable IP from our portable IPs in Softlayer. Store it in `green-ip`. Then run:
-
 ```shell
 echo 'green' > active-director
-export IP=$(cat $(cat active-director)-ip)
 
 bosh interpolate ~/workspace/bosh-deployment/bosh.yml \
     --vars-store=$(cat active-director)-vars.yml \
     -o ~/workspace/bosh-deployment/softlayer/cpi.yml \
     -v director_name=bosh \
     -l <(lpass show --sync=no "Shared-Flintstone/Softlayer Properties" --notes) \
-    -v internal_ip=${IP} \
+    -v internal_ip=director-$(cat active-director).bits.ams \
     -v sl_vm_domain=bits.ams \
     -v sl_vm_name_prefix=director-$(cat active-director) \
     -v sl_username=flintstone@cloudfoundry.org \
     -v sl_api_key=$(lpass show "Shared-Flintstone/Softlayer API Key" --password --sync=no) \
+    -o ~/workspace/bits-service-ci/operations/use-softlayer-cpi-v35.yml \
+    -o ~/workspace/bits-service-ci/operations/add-dummy-network-for-bosh.yml \
+    -o ~/workspace/bits-service-ci/operations/add-etc-hosts-entry.yml \
+    -o ~/workspace/bits-service-ci/operations/increase-max-speed.yml \
     > bosh-$(cat active-director).yml
 
 sudo bosh create-env bosh-$(cat active-director).yml
