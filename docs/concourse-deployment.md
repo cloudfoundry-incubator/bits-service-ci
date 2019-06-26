@@ -2,15 +2,12 @@
 
 ## Update the cloud-config
 
-Use [cloud_config.yml](cloud_config.yml) and update the cloud-config:
-
 ```
-bosh update cloud-config cloud_config.yml
+bosh update cloud-config ~/workspace/bits-service-private-config/environments/softlayer/cloud_config.yml
 ```
-Upload the a specific mandatory SL stemmcell for concourse
+## Upload a stemcell
 ```
-bosh upload-stemcell --sha1 b3a21364351058771236b825ef65102962bf1def \
-  https://bosh.io/d/stemcells/bosh-softlayer-xen-ubuntu-trusty-go_agent?v=3468.22
+bosh upload-stemcell https://s3.amazonaws.com/bosh-softlayer-cpi-stemcells/light-bosh-stemcell-315.41-softlayer-xen-ubuntu-xenial-go_agent.tgz
 ```
 
 ## Deploy
@@ -18,11 +15,11 @@ bosh upload-stemcell --sha1 b3a21364351058771236b825ef65102962bf1def \
 
 ```bash
 cd ~/workspace
-git clone https://github.com/concourse/concourse-deployment.git
-cd concourse-deployment/cluster
+git clone https://github.com/concourse/concourse-bosh-deployment.git
+cd concourse-bosh-deployment/cluster
 bosh -e sl-blue -d concourse deploy concourse.yml \
 -l ../versions.yml \
--o ~/workspace/concourse-deployment/cluster/operations/container-placement-strategy-random.yml \
+-o ~/workspace/concourse-bosh-deployment/cluster/operations/container-placement-strategy-random.yml \
 --vars-store ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-blue-vars.yml \
 -o ~/workspace/bits-service-ci/operations/add-concourse-containerization-workers.yml \
 -o ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-stemcell-bits-version.yml \
@@ -30,8 +27,8 @@ bosh -e sl-blue -d concourse deploy concourse.yml \
 --var web_instances=2 \
 --var worker_instances=5 \
 -o operations/basic-auth.yml \
---var atc_basic_auth.username=admin \
---var atc_basic_auth.password=$(lpass show "Shared-Flintstone/Flintstone Concourse" --password) \
+--var local_user.username=admin \
+--var local_user.password=$(lpass show "Shared-Flintstone/Flintstone Concourse" --password) \
 -o ~/workspace/bits-service-private-config/garden-dns-servers.yml \
 --var external_url=https://ci.flintstone.cf.cloud.ibm.com \
 --var network_name=default \
