@@ -5,3 +5,6 @@
     sha1: 167951d729b98fe8d9ee9a088f1615ef2ed98ec1
     url: https://bosh.io/d/github.com/cloudfoundry/bosh-softlayer-cpi-release?v=35
     version: "35"
+
+- path: /instance_groups/name=bosh/jobs/name=health_monitor
+  type: remove

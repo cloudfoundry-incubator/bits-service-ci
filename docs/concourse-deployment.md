@@ -13,36 +13,41 @@ bosh upload-stemcell https://s3.amazonaws.com/bosh-softlayer-cpi-stemcells/light
 ## Deploy
 *Notice:* We have two directors (blue and green). Please ensure that you target the proper one and change the variable names accordingly i.e. `blue.vars` to `green.vars`
 
+
+# THIS IS FOR DEPLOYING THE CONCOURSE DEPLOYMENT
+# IS MISSING LASTPASS THING
 ```bash
-cd ~/workspace
+pushd ~/workspace
 git clone https://github.com/concourse/concourse-bosh-deployment.git
-cd concourse-bosh-deployment/cluster
-bosh -e sl-blue -d concourse deploy concourse.yml \
+cd ~/workspace/concourse-bosh-deployment/cluster
+bosh -d concourse deploy concourse.yml \
+--vars-store ~/workspace/in_house/bits-service-private-config/environments/softlayer/concourse/concourse-green-vars.yml \
 -l ../versions.yml \
--o ~/workspace/concourse-bosh-deployment/cluster/operations/container-placement-strategy-random.yml \
---vars-store ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-blue-vars.yml \
--o ~/workspace/bits-service-ci/operations/add-concourse-containerization-workers.yml \
--o ~/workspace/bits-service-private-config/environments/softlayer/concourse/concourse-stemcell-bits-version.yml \
 -o operations/scale.yml \
+-o ~/workspace/in_house/bits-service-ci/operations/concourse-worker-quarks.yml \
+-o ~/workspace/in_house/bits-service-ci/operations/concourse-github-auth.yml \
 --var web_instances=2 \
 --var worker_instances=5 \
 -o operations/basic-auth.yml \
 --var local_user.username=admin \
---var local_user.password=$(lpass show "Shared-Flintstone/Flintstone Concourse" --password) \
--o ~/workspace/bits-service-private-config/garden-dns-servers.yml \
---var external_url=https://ci.flintstone.cf.cloud.ibm.com \
+--var local_user.password=****** \
+--var external_url=https://ci.flintstone.cf.cloud.ibm.com  \
 --var network_name=default \
 --var web_vm_type=concourse-server \
 --var worker_vm_type=concourse-worker \
 --var deployment_name=concourse \
+--var db_vm_type=concourse-server \
+--var db_persistent_disk_type=200GB \
 -o operations/external-postgres.yml \
 -o operations/external-postgres-tls.yml \
--l ~/workspace/bits-service-private-config/environments/softlayer/concourse/postgres_ca_cert.yml \
---var postgres_host=$(lpass show "Shared-Flintstone/Concourse compose database" --notes) \
---var postgres_port=17376 \
---var postgres_role=$(lpass show "Shared-Flintstone/Concourse compose database" --username)  \
---var postgres_password=$(lpass show "Shared-Flintstone/Concourse compose database" --password) \
---no-redact
+-l ~/workspace/in_house/bits-service-private-config/environments/softlayer/concourse/postgres_ca_cert.yml \
+--var postgres_host=******** \
+--var postgres_port=****** \
+--var postgres_role=********** \
+--var postgres_password=******** \
+--no-redact > manifest.yml
+popd
+popd
 ```
 
 ### Concourse UI in browser using local `/etc/hosts`
