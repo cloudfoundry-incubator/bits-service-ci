@@ -17,6 +17,11 @@ private_yml=$(lpass show "Shared-Flintstone/private.yml" --notes)
 changeip_username=$(lpass show "Shared-Flintstone"/"changeip.com" --username)
 changeip_password=$(lpass show "Shared-Flintstone"/"changeip.com" --password)
 
+if [ "$(git -C ~/workspace/bosh-deployment rev-parse HEAD)" != '80c6c8173978c907d4508bb23aa0f81a3d6068b8' ]; then
+  echo "ERROR: Please make sure your ~/workspace/bosh-deployment is at commit sha 80c6c8173978c907d4508bb23aa0f81a3d6068b8. E.g.: git -C ~/workspace/bosh-deployment checkout 80c6c8173978c907d4508bb23aa0f81a3d6068b8"
+  exit 1
+fi
+
 fly \
   -t ${target} \
   set-pipeline \
