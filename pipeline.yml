@@ -142,7 +142,8 @@ jobs:
     - get: bits-service
       passed:
         - run-bitsgo-unit-tests
-        - run-bitsgo-contract-integration-test-openstack
+        # TODO: uncomment once we have an Openstack Swift account again
+        # - run-bitsgo-contract-integration-test-openstack
         - run-bitsgo-contract-integration-test-cos
         - run-bitsgo-contract-integration-test-s3
         - run-bitsgo-contract-integration-test-azure
@@ -329,7 +330,8 @@ jobs:
         # - run-CATs-in-bitsgo-google-service-account-bosh-lite
         # - run-CATs-in-bitsgo-alibaba-bosh-lite
         - run-CATs-in-bitsgo-local-bosh-lite
-        - run-CATs-in-bitsgo-openstack-bosh-lite
+        # TODO: uncomment once we have an Openstack Swift account again
+        # - run-CATs-in-bitsgo-openstack-bosh-lite
         - run-CATs-in-bitsgo-webdav-bosh-lite
       trigger: true
     - { get: ci-tasks, resource: bits-service-ci, trigger: true }
