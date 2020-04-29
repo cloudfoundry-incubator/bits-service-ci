@@ -7,7 +7,9 @@ resources:
 - name: cf-deployment-bitsgo
   type: git
   source:
-    uri: https://github.com/petergtz/cf-deployment.git
+    # TODO: Currently there is no plan to do further PRs against cf-deployment. Change back, in case that should change
+    # uri: https://github.com/petergtz/cf-deployment.git
+    uri: https://github.com/cloudfoundry/cf-deployment.git
     branch: master
 
 - name: bits-service-release-tarball
